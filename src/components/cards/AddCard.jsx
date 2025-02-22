@@ -1,233 +1,232 @@
-import React, { useState, useEffect } from "react";
-import CryptoJS from "crypto-js";
-import { db } from "./firebase";
-import { addDoc, collection, serverTimestamp, query, getDocs, orderBy, limit, where } from "firebase/firestore";
-import binData from "./binData.json";
-import CardCustomization from "./CardCustomization";
-import { securityManager } from './utils/security';
+import React, { useState } from 'react';
+import { collection, addDoc } from "firebase/firestore";
+import { db } from "../../firebase";
+import CryptoJS from 'crypto-js';
+import CardCustomization from './CardCustomization';
+import { BiCreditCard, BiChevronRight } from 'react-icons/bi';
 
-function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
-  const [cardHolder, setCardHolder] = useState(user?.displayName || ""); // Editable
-  const [cardNumber, setCardNumber] = useState("");
-  const [bankName, setBankName] = useState("");
-  const [networkName, setNetworkName] = useState("");
-  const [cardType, setCardType] = useState("");
-  const [expiry, setExpiry] = useState("");
-  const [cvv, setCvv] = useState("");
-  const [theme, setTheme] = useState("#6a3de8"); // Default theme
-  const [status, setStatus] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+export default function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
+  const [step, setStep] = useState(1);
+  const [cardDetails, setCardDetails] = useState({
+    cardNumber: '',
+    cardHolder: '',
+    expiry: '',
+    cvv: '',
+    bankName: '',
+    networkName: '',
+    cardType: '',
+    theme: 'default'
+  });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (user?.displayName) {
-      setCardHolder(user.displayName); // Auto-fetch Google name but allow editing
+  // Card number formatting and validation
+  const formatCardNumber = (value) => {
+    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+    const matches = v.match(/\d{4,16}/g);
+    const match = matches && matches[0] || '';
+    const parts = [];
+
+    for (let i = 0, len = match.length; i < len; i += 4) {
+      parts.push(match.substring(i, i + 4));
     }
-  }, [user]);
 
-  const detectCardDetails = (inputNumber) => {
-    if (inputNumber.length >= 6) {
-      const bin = inputNumber.slice(0, 6);
-      const matchedData = binData.find((item) => item?.BIN && String(item.BIN) === bin);
-      if (matchedData) {
-        setBankName(matchedData.Bank || "Unknown Bank");
-        setNetworkName(matchedData.Network || "Unknown Network");
-      } else {
-        setBankName("");
-        setNetworkName("");
-      }
+    if (parts.length) {
+      return parts.join(' ');
+    } else {
+      return value;
     }
   };
 
-  const handleAddCard = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setStatus("");
+  // Expiry date formatting
+  const formatExpiry = (value) => {
+    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+    if (v.length >= 2) {
+      return `${v.substring(0, 2)}/${v.substring(2, 4)}`;
+    }
+    return v;
+  };
 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    let formattedValue = value;
+
+    if (name === 'cardNumber') {
+      formattedValue = formatCardNumber(value);
+    } else if (name === 'expiry') {
+      formattedValue = formatExpiry(value);
+    }
+
+    setCardDetails(prev => ({
+      ...prev,
+      [name]: formattedValue
+    }));
+    setError('');
+  };
+
+  const validateCard = () => {
+    if (!cardDetails.cardNumber.replace(/\s/g, '').match(/^\d{16}$/)) {
+      setError('Please enter a valid 16-digit card number');
+      return false;
+    }
+    if (!cardDetails.cardHolder) {
+      setError('Please enter the card holder name');
+      return false;
+    }
+    if (!cardDetails.expiry.match(/^(0[1-9]|1[0-2])\/([0-9]{2})$/)) {
+      setError('Please enter a valid expiry date (MM/YY)');
+      return false;
+    }
+    if (!cardDetails.cvv.match(/^\d{3,4}$/)) {
+      setError('Please enter a valid CVV');
+      return false;
+    }
+    return true;
+  };
+
+  const handleNext = () => {
+    if (validateCard()) {
+      setStep(2);
+    }
+  };
+
+  const handleSubmit = async (customization) => {
     try {
-      // Get current highest priority
-      const q = query(
-        collection(db, "cards"),
-        where("uid", "==", user.uid),
-        orderBy("priority", "desc"),
-        limit(1)
-      );
-      
-      const snapshot = await getDocs(q);
-      const nextPriority = snapshot.empty ? 0 : (snapshot.docs[0].data().priority || 0) + 1;
+      setLoading(true);
+      setError('');
 
-      // Clean the data BEFORE encrypting
-      const cleanedData = {
-        bankName: bankName.trim(),
-        networkName: networkName.trim(),
-        cardType: cardType.trim(),
-        cardHolder: cardHolder.trim(),
-        cardNumber: cardNumber.trim(),
-        expiry: expiry.trim(),
-        cvv: cvv.trim()
-      };
-
-      const cardData = {
+      // Encrypt sensitive data
+      const encryptedCard = {
+        cardNumber: CryptoJS.AES.encrypt(cardDetails.cardNumber, masterPassword).toString(),
+        cardHolder: CryptoJS.AES.encrypt(cardDetails.cardHolder, masterPassword).toString(),
+        expiry: CryptoJS.AES.encrypt(cardDetails.expiry, masterPassword).toString(),
+        cvv: CryptoJS.AES.encrypt(cardDetails.cvv, masterPassword).toString(),
+        bankName: CryptoJS.AES.encrypt(customization.bankName, masterPassword).toString(),
+        networkName: customization.networkName,
+        cardType: CryptoJS.AES.encrypt(customization.cardType, masterPassword).toString(),
+        theme: customization.theme,
         uid: user.uid,
-        cardHolder: securityManager.encryptData(cleanedData.cardHolder, masterPassword),
-        cardNumber: securityManager.encryptData(cleanedData.cardNumber, masterPassword),
-        bankName: securityManager.encryptData(cleanedData.bankName, masterPassword),
-        networkName: securityManager.encryptData(cleanedData.networkName, masterPassword),
-        cardType: securityManager.encryptData(cleanedData.cardType, masterPassword),
-        expiry: securityManager.encryptData(cleanedData.expiry, masterPassword),
-        cvv: securityManager.encryptData(cleanedData.cvv, masterPassword),
-        theme: securityManager.encryptData(theme, masterPassword),
-        priority: nextPriority,
-        createdAt: serverTimestamp(),
+        createdAt: new Date()
       };
 
-      await addDoc(collection(db, "cards"), cardData);
-
-      // Clear sensitive data from memory
-      setCardNumber("");
-      setCvv("");
-      setExpiry("");
-      securityManager.clearSensitiveData();
-
+      await addDoc(collection(db, "cards"), encryptedCard);
       setShowSuccess(true);
       setTimeout(() => {
         setShowSuccess(false);
         setActivePage("viewCards");
       }, 2000);
     } catch (error) {
-      console.error("Error adding card:", error);
-      setStatus(`❌ ${error.message}`);
+      console.error('Error adding card:', error);
+      setError('Failed to add card. Please try again.');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
+  if (step === 2) {
+    return (
+      <CardCustomization 
+        onBack={() => setStep(1)}
+        onSubmit={handleSubmit}
+        cardNumber={cardDetails.cardNumber}
+        loading={loading}
+      />
+    );
+  }
+
   return (
-    <div className="relative mb-16 md:mb-0">
-      {/* Loading Overlay */}
-      {isLoading && (
-        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="animate-spin rounded-full h-12 w-12 border-4 border-white/20 border-t-white"></div>
-        </div>
-      )}
+    <div className="max-w-xl mx-auto">
+      <div className="flex items-center gap-2 text-white mb-6">
+        <BiCreditCard className="text-2xl" />
+        <h1 className="text-2xl font-bold">Add New Card</h1>
+      </div>
 
-      <div className="min-h-screen py-12 px-4">
-        <div className="flex flex-col sm:flex-row gap-8 max-w-5xl mx-auto">
-          {/* Left: Form Section */}
-          <div className="w-full sm:w-1/2">
-            <div className="bg-[#1E1E2F] p-8 rounded-lg shadow-lg text-white">
-              <h2 className="section-title">Add New Card</h2>
+      <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6">
+        <div className="space-y-4">
+          {/* Card Number */}
+          <div>
+            <label className="block text-sm font-medium text-white mb-1">
+              Card Number
+            </label>
+            <input
+              type="text"
+              name="cardNumber"
+              value={cardDetails.cardNumber}
+              onChange={handleInputChange}
+              maxLength="19"
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5
+                text-white placeholder-white/50 focus:outline-none focus:border-white/20"
+              placeholder="1234 5678 9012 3456"
+            />
+          </div>
 
-              {status && (
-                <p className={`text-center mb-6 body-text ${status.includes("✅") ? "text-green-400" : "text-red-400"}`}>
-                  {status}
-                </p>
-              )}
+          {/* Card Holder */}
+          <div>
+            <label className="block text-sm font-medium text-white mb-1">
+              Card Holder Name
+            </label>
+            <input
+              type="text"
+              name="cardHolder"
+              value={cardDetails.cardHolder}
+              onChange={handleInputChange}
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5
+                text-white placeholder-white/50 focus:outline-none focus:border-white/20"
+              placeholder="JOHN DOE"
+            />
+          </div>
 
-              <form onSubmit={handleAddCard} className="w-full space-y-6">
-                <div>
-                  <label className="label-text">Cardholder Name</label>
-                  <input
-                    type="text"
-                    className="input-style"
-                    value={cardHolder}
-                    onChange={(e) => setCardHolder(e.target.value)}
-                    required
-                  />
-                </div>
+          <div className="grid grid-cols-2 gap-4">
+            {/* Expiry */}
+            <div>
+              <label className="block text-sm font-medium text-white mb-1">
+                Expiry Date
+              </label>
+              <input
+                type="text"
+                name="expiry"
+                value={cardDetails.expiry}
+                onChange={handleInputChange}
+                maxLength="5"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5
+                  text-white placeholder-white/50 focus:outline-none focus:border-white/20"
+                placeholder="MM/YY"
+              />
+            </div>
 
-                {/* Credit Card Number */}
-                <div>
-                  <label className="label-text">Credit Card Number</label>
-                  <input
-                    type="text"
-                    className="input-style"
-                    value={cardNumber}
-                    onChange={(e) => {
-                      const value = e.target.value.replace(/\D/g, '').slice(0, 16);
-                      setCardNumber(value);
-                      detectCardDetails(value);
-                    }}
-                    placeholder="•••• •••• •••• ••••"
-                    required
-                  />
-                </div>
-
-                {/* Bank Name & Network (Auto-filled) */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="label-text">Bank Name</label>
-                    <input type="text" className="input-style bg-white/10" value={bankName} disabled />
-                  </div>
-                  <div>
-                    <label className="label-text">Network</label>
-                    <input type="text" className="input-style bg-white/10" value={networkName} disabled />
-                  </div>
-                </div>
-
-                {/* Card Type */}
-                <div>
-                  <label className="label-text">Card Type</label>
-                  <input
-                    type="text"
-                    className="input-style"
-                    value={cardType}
-                    onChange={(e) => setCardType(e.target.value)}
-                    placeholder="Credit, Debit, Prepaid"
-                    required
-                  />
-                </div>
-
-                {/* Expiry Date & CVV */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="label-text">Expiry Date</label>
-                    <input
-                      type="text"
-                      className="input-style"
-                      value={expiry}
-                      onChange={(e) => setExpiry(e.target.value)}
-                      placeholder="MM/YY"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="label-text">CVV</label>
-                    <input
-                      type="password"
-                      className="input-style"
-                      value={cvv}
-                      onChange={(e) => setCvv(e.target.value)}
-                      placeholder="•••"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <button type="submit" className="btn-primary">
-                  Add Card
-                </button>
-              </form>
+            {/* CVV */}
+            <div>
+              <label className="block text-sm font-medium text-white mb-1">
+                CVV
+              </label>
+              <input
+                type="password"
+                name="cvv"
+                value={cardDetails.cvv}
+                onChange={handleInputChange}
+                maxLength="4"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5
+                  text-white placeholder-white/50 focus:outline-none focus:border-white/20"
+                placeholder="123"
+              />
             </div>
           </div>
 
-          {/* Right: Live Card Preview & Customization */}
-          <div className="w-full sm:w-1/2">
-            <CardCustomization
-              cardHolder={cardHolder}
-              setCardHolder={setCardHolder}
-              cardNumber={cardNumber}
-              bankName={bankName}
-              networkName={networkName}
-              expiry={expiry}
-              cvv={cvv}
-              theme={theme}
-              setTheme={setTheme}
-            />
-          </div>
+          {error && (
+            <p className="text-red-400 text-sm mt-2">{error}</p>
+          )}
+
+          <button
+            onClick={handleNext}
+            className="w-full mt-6 px-6 py-3 bg-white/10 hover:bg-white/20 
+              rounded-xl text-white font-medium transition-all flex items-center 
+              justify-center gap-2"
+          >
+            Continue to Customization
+            <BiChevronRight className="text-xl" />
+          </button>
         </div>
       </div>
     </div>
   );
 }
-
-export default AddCard;
