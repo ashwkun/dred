@@ -1,0 +1,56 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner() {
+      return request.auth.uid == resource.data.uid;
+    }
+    
+    function isValidCard() {
+      let card = request.resource.data;
+      return card.keys().hasAll(['uid', 'cardHolder', 'cardNumber', 'bankName', 'networkName', 
+        'cardType', 'expiry', 'cvv', 'theme', 'createdAt']) &&
+        card.uid is string &&
+        card.cardHolder is string &&
+        card.cardNumber is string &&
+        card.bankName is string &&
+        card.networkName is string &&
+        card.cardType is string &&
+        card.expiry is string &&
+        card.cvv is string &&
+        card.theme is string &&
+        card.createdAt is timestamp;
+    }
+    
+    function isWithinRateLimit() {
+      let recentWrites = getCountFromTime('cards', duration.value(1, 'MINUTES'));
+      return recentWrites < 5;
+    }
+    
+    // Allow users to read/write their own validation strings
+    match /validationStrings/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    match /cards/{cardId} {
+      allow read: if isAuthenticated() && isOwner();
+      allow write: if isAuthenticated() && request.resource.data.uid == request.auth.uid;
+    }
+
+    match /userSecurity/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // New rules for mobile_numbers collection
+    match /mobile_numbers/{docId} {
+      allow read: if isAuthenticated() && isOwner();
+      allow create: if isAuthenticated() && request.resource.data.uid == request.auth.uid;
+      allow update: if isAuthenticated() && isOwner();
+      allow delete: if isAuthenticated() && isOwner();
+    }
+  }
+} 

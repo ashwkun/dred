@@ -1,0 +1,8066 @@
+[
+    {
+        "BIN": 222703,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 234103,
+        "Network": "Mastercard",
+        "Category": "CORPORATE PURCHASING",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 340020,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 340079,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 340256,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340257,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340258,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340259,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340260,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340261,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340262,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340263,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340264,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340265,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340266,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340267,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340268,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340269,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340270,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340271,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340272,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340273,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340274,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340275,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340276,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340277,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340278,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340279,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340280,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340281,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340282,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340283,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340284,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340285,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340286,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340287,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340288,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340289,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340290,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340291,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340292,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340293,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340294,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340295,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340296,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340297,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340298,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340299,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340300,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340301,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340302,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340303,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340304,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340305,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340306,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340307,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340308,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340309,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340310,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340311,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340312,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340313,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340314,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340315,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340316,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340317,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340318,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340319,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340320,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 340462,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 340463,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 340475,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 340489,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 340490,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 340491,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 340492,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 340493,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 340494,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 340495,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 340496,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 340497,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 340498,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 340499,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 340500,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 340501,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 340502,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 340503,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 340504,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 340505,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 340506,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 340507,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 340508,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 341362,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 353901,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 353914,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 353915,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Bank of Baroda"
+    },
+    {
+        "BIN": 353916,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Bank of Baroda"
+    },
+    {
+        "BIN": 353917,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Union Bank of India"
+    },
+    {
+        "BIN": 353918,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 353922,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Yes Bank"
+    },
+    {
+        "BIN": 353923,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Yes Bank"
+    },
+    {
+        "BIN": 353929,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 353930,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 353965,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Bank of Baroda"
+    },
+    {
+        "BIN": 353966,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 353968,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "Bank of Baroda"
+    },
+    {
+        "BIN": 353969,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 356115,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 356117,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Punjab National Bank"
+    },
+    {
+        "BIN": 356119,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 356120,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 356131,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 356132,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Bank of Baroda"
+    },
+    {
+        "BIN": 356133,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Bank of Baroda"
+    },
+    {
+        "BIN": 356134,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Union Bank of India"
+    },
+    {
+        "BIN": 356135,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 356138,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Federal Bank"
+    },
+    {
+        "BIN": 356139,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Yes Bank"
+    },
+    {
+        "BIN": 356140,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Yes Bank"
+    },
+    {
+        "BIN": 356141,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 356142,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 356143,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 356146,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 356147,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 356148,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 356150,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Bank of Baroda"
+    },
+    {
+        "BIN": 356151,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Bank of Baroda"
+    },
+    {
+        "BIN": 356153,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 356154,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 356155,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 356159,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Federal Bank"
+    },
+    {
+        "BIN": 356161,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 356173,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "Bank of Baroda"
+    },
+    {
+        "BIN": 356179,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 360825,
+        "Network": "Diners Club",
+        "Category": "PERSONAL",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 360826,
+        "Network": "Diners Club",
+        "Category": "PERSONAL",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 360827,
+        "Network": "Diners Club",
+        "Category": "PERSONAL",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 360828,
+        "Network": "Diners Club",
+        "Category": "PERSONAL",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 360829,
+        "Network": "Diners Club",
+        "Category": "PERSONAL",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 360886,
+        "Network": "Diners Club",
+        "Category": "PERSONAL",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 360887,
+        "Network": "Diners Club",
+        "Category": "PERSONAL",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 360966,
+        "Network": "Diners Club",
+        "Category": "PERSONAL",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 360990,
+        "Network": "Diners Club",
+        "Category": "BUSINESS",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 361010,
+        "Network": "Diners Club",
+        "Category": "PERSONAL",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 361011,
+        "Network": "Diners Club",
+        "Category": "PERSONAL",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 361012,
+        "Network": "Diners Club",
+        "Category": "PERSONAL",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 361116,
+        "Network": "Diners Club",
+        "Category": "BUSINESS",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 367062,
+        "Network": "Diners Club",
+        "Category": "STANDARD",
+        "Bank": "CitiBank"
+    },
+    {
+        "BIN": 367123,
+        "Network": "Diners Club",
+        "Category": "PERSONAL",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 368357,
+        "Network": "Diners Club",
+        "Category": "PERSONAL",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 369620,
+        "Network": "Diners Club",
+        "Category": "PERSONAL",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 370308,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 370987,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 372292,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 372293,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 372294,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 372295,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 373001,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 373002,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 373003,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 373004,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 373005,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 373006,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 373007,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 373008,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 373009,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 374431,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 374432,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 374433,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 374740,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 374741,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 374742,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 374834,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 374849,
+        "Network": "AMEX",
+        "Category": "CORPORATE",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 374850,
+        "Network": "AMEX",
+        "Category": "CORPORATE",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 374851,
+        "Network": "AMEX",
+        "Category": "CORPORATE",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 374852,
+        "Network": "AMEX",
+        "Category": "CORPORATE",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 374853,
+        "Network": "AMEX",
+        "Category": "CORPORATE",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 374854,
+        "Network": "AMEX",
+        "Category": "CORPORATE",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 374855,
+        "Network": "AMEX",
+        "Category": "CORPORATE",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 374856,
+        "Network": "AMEX",
+        "Category": "CORPORATE",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 374857,
+        "Network": "AMEX",
+        "Category": "CORPORATE",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 374858,
+        "Network": "AMEX",
+        "Category": "CORPORATE",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 374859,
+        "Network": "AMEX",
+        "Category": "CORPORATE",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 374860,
+        "Network": "AMEX",
+        "Category": "CORPORATE",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 376532,
+        "Network": "AMEX",
+        "Category": "CORPORATE",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 376533,
+        "Network": "AMEX",
+        "Category": "CORPORATE",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 376534,
+        "Network": "AMEX",
+        "Category": "CORPORATE",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 376535,
+        "Network": "AMEX",
+        "Category": "CORPORATE",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 376536,
+        "Network": "AMEX",
+        "Category": "CORPORATE",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 376537,
+        "Network": "AMEX",
+        "Category": "CORPORATE",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 376538,
+        "Network": "AMEX",
+        "Category": "CORPORATE",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 376539,
+        "Network": "AMEX",
+        "Category": "CORPORATE",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 376540,
+        "Network": "AMEX",
+        "Category": "CORPORATE",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 376541,
+        "Network": "AMEX",
+        "Category": "CORPORATE",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 376874,
+        "Network": "AMEX",
+        "Category": "CORPORATE",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 376910,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 376911,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 376912,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 376913,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 376914,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 376915,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 376916,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 376917,
+        "Network": "AMEX",
+        "Category": "CORPORATE",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 376918,
+        "Network": "AMEX",
+        "Category": "CORPORATE",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 376919,
+        "Network": "AMEX",
+        "Category": "CORPORATE",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 376930,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 376931,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 376932,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 376933,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 376934,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 376935,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 376936,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 376937,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 376938,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 376939,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 376940,
+        "Network": "AMEX",
+        "Category": "CORPORATE",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 376941,
+        "Network": "AMEX",
+        "Category": "CORPORATE",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 376942,
+        "Network": "AMEX",
+        "Category": "CORPORATE",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 376943,
+        "Network": "AMEX",
+        "Category": "CORPORATE",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 376944,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 376945,
+        "Network": "AMEX",
+        "Category": "CORPORATE",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 376946,
+        "Network": "AMEX",
+        "Category": "CORPORATE",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 377040,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 377041,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 377150,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 377151,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 377154,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 378006,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 378007,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 379339,
+        "Network": "AMEX",
+        "Category": "CORPORATE",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 379343,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 379397,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 379852,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 379853,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 379854,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 379861,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 379862,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 379863,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 379867,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 379868,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 379869,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 379870,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 379871,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 379872,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 379876,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 379877,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 379878,
+        "Network": "AMEX",
+        "Category": "PERSONAL",
+        "Bank": "AMEX"
+    },
+    {
+        "BIN": 380126,
+        "Network": "Diners Club",
+        "Category": "STANDARD",
+        "Bank": "Kalupur Commercial Bank"
+    },
+    {
+        "BIN": 400306,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Karur Vysya Bank"
+    },
+    {
+        "BIN": 400524,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Karur Vysya Bank"
+    },
+    {
+        "BIN": 400566,
+        "Network": "VISA",
+        "Category": "TRADITIONAL",
+        "Bank": "ASIA-PACIFIC REGION"
+    },
+    {
+        "BIN": 400666,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 400667,
+        "Network": "VISA",
+        "Category": "GOLD",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 400739,
+        "Network": "VISA",
+        "Category": "CORPORATE T&E",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 400828,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 401063,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "IDFC First Bank"
+    },
+    {
+        "BIN": 401403,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 401561,
+        "Network": "VISA",
+        "Category": "REWARDS",
+        "Bank": "IDFC First Bank"
+    },
+    {
+        "BIN": 401578,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "RBL Bank"
+    },
+    {
+        "BIN": 401593,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 402013,
+        "Network": "VISA",
+        "Category": "BUSINESS ENHANCED",
+        "Bank": "SBM Bank"
+    },
+    {
+        "BIN": 402219,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 402275,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "SBM Bank"
+    },
+    {
+        "BIN": 402359,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 402368,
+        "Network": "VISA",
+        "Category": "REWARDS",
+        "Bank": "IDFC First Bank"
+    },
+    {
+        "BIN": 402635,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 402770,
+        "Network": "VISA",
+        "Category": "BUSINESS ENHANCED",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 402853,
+        "Network": "VISA",
+        "Category": "GOLD",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 402874,
+        "Network": "VISA",
+        "Category": "INFINITE",
+        "Bank": "Standard Chartered Bank"
+    },
+    {
+        "BIN": 402970,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Federal Bank"
+    },
+    {
+        "BIN": 402986,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Federal Bank"
+    },
+    {
+        "BIN": 403009,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 403250,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 403362,
+        "Network": "VISA",
+        "Category": "INFINITE",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 403399,
+        "Network": "VISA",
+        "Category": "REWARDS",
+        "Bank": "Federal Bank"
+    },
+    {
+        "BIN": 403562,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 404249,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 404276,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 404638,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Yes Bank"
+    },
+    {
+        "BIN": 404652,
+        "Network": "VISA",
+        "Category": "INFINITE",
+        "Bank": "Yes Bank"
+    },
+    {
+        "BIN": 404745,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 404835,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 405023,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Yes Bank"
+    },
+    {
+        "BIN": 405028,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 405204,
+        "Network": "VISA",
+        "Category": "SIGNATURE BUSINESS",
+        "Bank": "Yes Bank"
+    },
+    {
+        "BIN": 405210,
+        "Network": "VISA",
+        "Category": "CORPORATE T&E",
+        "Bank": "Yes Bank"
+    },
+    {
+        "BIN": 405450,
+        "Network": "VISA",
+        "Category": "CORPORATE T&E",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 405451,
+        "Network": "VISA",
+        "Category": "GOLD",
+        "Bank": "CitiBank"
+    },
+    {
+        "BIN": 405533,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 405920,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 405995,
+        "Network": "VISA",
+        "Category": "BUSINESS ENHANCED",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 406229,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Indian Bank"
+    },
+    {
+        "BIN": 406578,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 406977,
+        "Network": "VISA",
+        "Category": "REWARDS",
+        "Bank": "AU Small Finance Bank"
+    },
+    {
+        "BIN": 407070,
+        "Network": "VISA",
+        "Category": "PURCHASING",
+        "Bank": "Yes Bank"
+    },
+    {
+        "BIN": 407146,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Tamilnad Mercantile Bank"
+    },
+    {
+        "BIN": 407186,
+        "Network": "VISA",
+        "Category": "REWARDS",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 407200,
+        "Network": "VISA",
+        "Category": "REWARDS",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 407352,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 407436,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Federal Bank"
+    },
+    {
+        "BIN": 407438,
+        "Network": "VISA",
+        "Category": "CORPORATE T&E",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 407439,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 407480,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Federal Bank"
+    },
+    {
+        "BIN": 407484,
+        "Network": "VISA",
+        "Category": "INFINITE",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 407487,
+        "Network": "VISA",
+        "Category": "INFINITE",
+        "Bank": "Federal Bank"
+    },
+    {
+        "BIN": 407495,
+        "Network": "VISA",
+        "Category": "PURCHASING",
+        "Bank": "Standard Chartered Bank"
+    },
+    {
+        "BIN": 407497,
+        "Network": "VISA",
+        "Category": "BUSINESS ENHANCED",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 407498,
+        "Network": "VISA",
+        "Category": "SIGNATURE BUSINESS",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 407499,
+        "Network": "VISA",
+        "Category": "INFINITE",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 407651,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 407659,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 407682,
+        "Network": "VISA",
+        "Category": "REWARDS",
+        "Bank": "IDFC First Bank"
+    },
+    {
+        "BIN": 407686,
+        "Network": "VISA",
+        "Category": "REWARDS",
+        "Bank": "Federal Bank"
+    },
+    {
+        "BIN": 407712,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 407718,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Federal Bank"
+    },
+    {
+        "BIN": 407918,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 407926,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 408511,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 408514,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Yes Bank"
+    },
+    {
+        "BIN": 409030,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "Canara Bank"
+    },
+    {
+        "BIN": 409031,
+        "Network": "VISA",
+        "Category": "GOLD",
+        "Bank": "Canara Bank"
+    },
+    {
+        "BIN": 409064,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "Bank of Baroda"
+    },
+    {
+        "BIN": 409268,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "ASIA-PACIFIC REGION"
+    },
+    {
+        "BIN": 409574,
+        "Network": "VISA",
+        "Category": "CORPORATE T&E",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 409638,
+        "Network": "VISA",
+        "Category": "REWARDS",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 409695,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 410038,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 410059,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 410093,
+        "Network": "VISA",
+        "Category": "CORPORATE T&E",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 410202,
+        "Network": "VISA",
+        "Category": "BUSINESS",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 410531,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Federal Bank"
+    },
+    {
+        "BIN": 410532,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "Federal Bank"
+    },
+    {
+        "BIN": 411146,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 412597,
+        "Network": "VISA",
+        "Category": "CORPORATE T&E",
+        "Bank": "Equitas Small Finance Bank"
+    },
+    {
+        "BIN": 412903,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "Standard Chartered Bank"
+    },
+    {
+        "BIN": 412905,
+        "Network": "VISA",
+        "Category": "GOLD",
+        "Bank": "Standard Chartered Bank"
+    },
+    {
+        "BIN": 412929,
+        "Network": "VISA",
+        "Category": "PURCHASING",
+        "Bank": "SBM Bank"
+    },
+    {
+        "BIN": 412947,
+        "Network": "VISA",
+        "Category": "REWARDS",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 413245,
+        "Network": "VISA",
+        "Category": "PURCHASING",
+        "Bank": "SBM Bank"
+    },
+    {
+        "BIN": 413289,
+        "Network": "VISA",
+        "Category": "BUSINESS",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 413688,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 414168,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 414752,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 414767,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 414772,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 414876,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 415575,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 416101,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 416317,
+        "Network": "VISA",
+        "Category": "REWARDS",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 416432,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 416452,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "SBM Bank"
+    },
+    {
+        "BIN": 416453,
+        "Network": "VISA",
+        "Category": "CORPORATE T&E",
+        "Bank": "SBM Bank"
+    },
+    {
+        "BIN": 416643,
+        "Network": "VISA",
+        "Category": "GOLD",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 416644,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 416645,
+        "Network": "VISA",
+        "Category": "REWARDS",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 416646,
+        "Network": "VISA",
+        "Category": "REWARDS",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 417336,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Union Bank of India"
+    },
+    {
+        "BIN": 417410,
+        "Network": "VISA",
+        "Category": "INFINITE",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 417851,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Bank of Maharashtra"
+    },
+    {
+        "BIN": 417882,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 417942,
+        "Network": "VISA",
+        "Category": "REWARDS",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 417943,
+        "Network": "VISA",
+        "Category": "REWARDS",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 418136,
+        "Network": "VISA",
+        "Category": "SIGNATURE BUSINESS",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 418212,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "South Indian Bank"
+    },
+    {
+        "BIN": 418269,
+        "Network": "VISA",
+        "Category": "REWARDS",
+        "Bank": "DBS Bank"
+    },
+    {
+        "BIN": 418508,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Indian Bank"
+    },
+    {
+        "BIN": 418685,
+        "Network": "VISA",
+        "Category": "GOLD",
+        "Bank": "Dhanlaxmi Bank"
+    },
+    {
+        "BIN": 418686,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Dhanlaxmi Bank"
+    },
+    {
+        "BIN": 418688,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 419607,
+        "Network": "VISA",
+        "Category": "BUSINESS",
+        "Bank": "Standard Chartered Bank"
+    },
+    {
+        "BIN": 419788,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "Punjab National Bank"
+    },
+    {
+        "BIN": 419789,
+        "Network": "VISA",
+        "Category": "GOLD",
+        "Bank": "Punjab National Bank"
+    },
+    {
+        "BIN": 419952,
+        "Network": "VISA",
+        "Category": "SIGNATURE BUSINESS",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 420049,
+        "Network": "VISA",
+        "Category": "BUSINESS ENHANCED",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 420278,
+        "Network": "VISA",
+        "Category": "CORPORATE T&E",
+        "Bank": "SBM Bank"
+    },
+    {
+        "BIN": 420580,
+        "Network": "VISA",
+        "Category": "PURCHASING",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 420739,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 420904,
+        "Network": "VISA",
+        "Category": "BUSINESS",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 420905,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 421012,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 421137,
+        "Network": "VISA",
+        "Category": "INFINITE",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 421389,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Federal Bank"
+    },
+    {
+        "BIN": 422198,
+        "Network": "VISA",
+        "Category": "GOLD",
+        "Bank": "Indian Overseas Bank"
+    },
+    {
+        "BIN": 423226,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 423227,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 423796,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 424246,
+        "Network": "VISA",
+        "Category": "REWARDS",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 424307,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Jammu and Kashmir Bank"
+    },
+    {
+        "BIN": 424885,
+        "Network": "VISA",
+        "Category": "BUSINESS",
+        "Bank": "IDBI Bank"
+    },
+    {
+        "BIN": 424886,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "IDBI Bank"
+    },
+    {
+        "BIN": 425698,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 425805,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "Union Bank of India"
+    },
+    {
+        "BIN": 425806,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 426063,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 426241,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "Indian Overseas Bank"
+    },
+    {
+        "BIN": 427124,
+        "Network": "VISA",
+        "Category": "INFINITE",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 427421,
+        "Network": "VISA",
+        "Category": "BUSINESS",
+        "Bank": "Bank of Baroda"
+    },
+    {
+        "BIN": 427621,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Yes Bank"
+    },
+    {
+        "BIN": 427665,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Yes Bank"
+    },
+    {
+        "BIN": 428102,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "IDFC First Bank"
+    },
+    {
+        "BIN": 428264,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "SBM Bank"
+    },
+    {
+        "BIN": 428479,
+        "Network": "VISA",
+        "Category": "BUSINESS",
+        "Bank": "Indian Bank"
+    },
+    {
+        "BIN": 429303,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 429304,
+        "Network": "VISA",
+        "Category": "GOLD",
+        "Bank": "Bank of Baroda"
+    },
+    {
+        "BIN": 429344,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 429345,
+        "Network": "VISA",
+        "Category": "CORPORATE T&E",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 429390,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "Bank of Baroda"
+    },
+    {
+        "BIN": 429391,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 430049,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Union Bank of India"
+    },
+    {
+        "BIN": 430463,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 430570,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 430832,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 430833,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 430834,
+        "Network": "VISA",
+        "Category": "INFINITE",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 431104,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "THE HONGKONG AND SHANGHAI BANKING CORPORATION"
+    },
+    {
+        "BIN": 431119,
+        "Network": "VISA",
+        "Category": "GOLD",
+        "Bank": "BANK OF INDIA"
+    },
+    {
+        "BIN": 431459,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 431581,
+        "Network": "VISA",
+        "Category": "REWARDS",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 431754,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 431757,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 432622,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Yes Bank"
+    },
+    {
+        "BIN": 432808,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "Indian Bank"
+    },
+    {
+        "BIN": 432809,
+        "Network": "VISA",
+        "Category": "GOLD",
+        "Bank": "Indian Bank"
+    },
+    {
+        "BIN": 433153,
+        "Network": "VISA",
+        "Category": "CORPORATE T&E",
+        "Bank": "Punjab National Bank"
+    },
+    {
+        "BIN": 433587,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 433588,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 433763,
+        "Network": "VISA",
+        "Category": "CORPORATE T&E",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 433787,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Yes Bank"
+    },
+    {
+        "BIN": 433948,
+        "Network": "VISA",
+        "Category": "GOLD",
+        "Bank": "Barclays Bank"
+    },
+    {
+        "BIN": 433950,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Barclays Bank"
+    },
+    {
+        "BIN": 433951,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "Barclays Bank"
+    },
+    {
+        "BIN": 434071,
+        "Network": "VISA",
+        "Category": "GOLD",
+        "Bank": "BANK OF INDIA"
+    },
+    {
+        "BIN": 434155,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 434168,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 434328,
+        "Network": "VISA",
+        "Category": "REWARDS",
+        "Bank": "Federal Bank"
+    },
+    {
+        "BIN": 434668,
+        "Network": "VISA",
+        "Category": "INFINITE",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 434677,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 434678,
+        "Network": "VISA",
+        "Category": "GOLD",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 434990,
+        "Network": "VISA",
+        "Category": "BUSINESS",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 435376,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 435386,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 435393,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 435616,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 435779,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "SBM Bank"
+    },
+    {
+        "BIN": 436152,
+        "Network": "VISA",
+        "Category": "INFINITE",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 436388,
+        "Network": "VISA",
+        "Category": "GOLD",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 436389,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 436390,
+        "Network": "VISA",
+        "Category": "REWARDS",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 436428,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Punjab National Bank"
+    },
+    {
+        "BIN": 436520,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 436560,
+        "Network": "VISA",
+        "Category": "INFINITE",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 436601,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 436696,
+        "Network": "VISA",
+        "Category": "PURCHASING",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 436825,
+        "Network": "VISA",
+        "Category": "REWARDS",
+        "Bank": "Federal Bank"
+    },
+    {
+        "BIN": 437378,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Union Bank of India"
+    },
+    {
+        "BIN": 437546,
+        "Network": "VISA",
+        "Category": "INFINITE",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 437551,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 437748,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 437751,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 438105,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "SBI CARDS AND PAYMENT SERVICES PTE"
+    },
+    {
+        "BIN": 438106,
+        "Network": "VISA",
+        "Category": "REWARDS",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 438110,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Federal Bank"
+    },
+    {
+        "BIN": 438414,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Bandhan Bank"
+    },
+    {
+        "BIN": 438459,
+        "Network": "VISA",
+        "Category": "INFINITE",
+        "Bank": "THE HONGKONG AND SHANGHAI BANKING CORPORATION"
+    },
+    {
+        "BIN": 438587,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 438628,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 438773,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 438774,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 439123,
+        "Network": "VISA",
+        "Category": "REWARDS",
+        "Bank": "RBL Bank"
+    },
+    {
+        "BIN": 439154,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "Union Bank of India"
+    },
+    {
+        "BIN": 439155,
+        "Network": "VISA",
+        "Category": "GOLD",
+        "Bank": "Union Bank of India"
+    },
+    {
+        "BIN": 439174,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Jammu and Kashmir Bank"
+    },
+    {
+        "BIN": 439992,
+        "Network": "VISA",
+        "Category": "REWARDS",
+        "Bank": "IDFC First Bank"
+    },
+    {
+        "BIN": 440006,
+        "Network": "VISA",
+        "Category": "REWARDS",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 440357,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 440523,
+        "Network": "VISA",
+        "Category": "INFINITE",
+        "Bank": "IDFC First Bank"
+    },
+    {
+        "BIN": 441283,
+        "Network": "VISA",
+        "Category": "INFINITE",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 441284,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 441285,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 441708,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Standard Chartered Bank"
+    },
+    {
+        "BIN": 441995,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 442008,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 442070,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 442122,
+        "Network": "VISA",
+        "Category": "BUSINESS",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 442123,
+        "Network": "VISA",
+        "Category": "PURCHASING",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 442124,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 442126,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 442127,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 442128,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 442129,
+        "Network": "VISA",
+        "Category": "REWARDS",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 442142,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 442144,
+        "Network": "VISA",
+        "Category": "REWARDS",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 442145,
+        "Network": "VISA",
+        "Category": "PURCHASING",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 442149,
+        "Network": "VISA",
+        "Category": "PURCHASING",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 442153,
+        "Network": "VISA",
+        "Category": "BUSINESS ENHANCED",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 442154,
+        "Network": "VISA",
+        "Category": "SIGNATURE BUSINESS",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 442155,
+        "Network": "VISA",
+        "Category": "PURCHASING",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 442156,
+        "Network": "VISA",
+        "Category": "PURCHASING",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 442157,
+        "Network": "VISA",
+        "Category": "PURCHASING",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 442158,
+        "Network": "VISA",
+        "Category": "CORPORATE T&E",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 442437,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "DCB Bank"
+    },
+    {
+        "BIN": 442783,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "DBS Bank"
+    },
+    {
+        "BIN": 443814,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "Canara Bank"
+    },
+    {
+        "BIN": 443816,
+        "Network": "VISA",
+        "Category": "GOLD",
+        "Bank": "Canara Bank"
+    },
+    {
+        "BIN": 443820,
+        "Network": "VISA",
+        "Category": "REWARDS",
+        "Bank": "Yes Bank"
+    },
+    {
+        "BIN": 444341,
+        "Network": "VISA",
+        "Category": "REWARDS",
+        "Bank": "IDFC First Bank"
+    },
+    {
+        "BIN": 445084,
+        "Network": "VISA",
+        "Category": "CORPORATE T&E",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 445310,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 445865,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 446604,
+        "Network": "VISA",
+        "Category": "CORPORATE T&E",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 446605,
+        "Network": "VISA",
+        "Category": "PURCHASING",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 446606,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 446607,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 447380,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 447692,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "THE HONGKONG AND SHANGHAI BANKING CORPORATION"
+    },
+    {
+        "BIN": 447746,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 447747,
+        "Network": "VISA",
+        "Category": "GOLD",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 447758,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 448197,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 448787,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 448967,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 449331,
+        "Network": "VISA",
+        "Category": "CORPORATE T&E",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 450014,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Jammu and Kashmir Bank"
+    },
+    {
+        "BIN": 450172,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 450506,
+        "Network": "VISA",
+        "Category": "CORPORATE T&E",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 450623,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "Union Bank of India"
+    },
+    {
+        "BIN": 450900,
+        "Network": "VISA",
+        "Category": "PURCHASING",
+        "Bank": "SBM Bank"
+    },
+    {
+        "BIN": 451104,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 451150,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "Union Bank of India"
+    },
+    {
+        "BIN": 451456,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 451457,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 451458,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Federal Bank"
+    },
+    {
+        "BIN": 451459,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 451460,
+        "Network": "VISA",
+        "Category": "INFINITE",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 451469,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 451487,
+        "Network": "VISA",
+        "Category": "REWARDS",
+        "Bank": "DBS Bank"
+    },
+    {
+        "BIN": 451840,
+        "Network": "VISA",
+        "Category": "BUSINESS",
+        "Bank": "Canara Bank"
+    },
+    {
+        "BIN": 452572,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 452574,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 453124,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Dhanlaxmi Bank"
+    },
+    {
+        "BIN": 453125,
+        "Network": "VISA",
+        "Category": "CORPORATE T&E",
+        "Bank": "Dhanlaxmi Bank"
+    },
+    {
+        "BIN": 453156,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "Bank of Baroda"
+    },
+    {
+        "BIN": 453157,
+        "Network": "VISA",
+        "Category": "INFINITE",
+        "Bank": "Bank of Baroda"
+    },
+    {
+        "BIN": 453158,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 453159,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "DCB Bank"
+    },
+    {
+        "BIN": 453757,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Bank of Nova Scotia"
+    },
+    {
+        "BIN": 453992,
+        "Network": "VISA",
+        "Category": "GOLD",
+        "Bank": "Union Bank of India"
+    },
+    {
+        "BIN": 454198,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Standard Chartered Bank"
+    },
+    {
+        "BIN": 454362,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "Canara Bank"
+    },
+    {
+        "BIN": 454363,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "Canara Bank"
+    },
+    {
+        "BIN": 454485,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "Central Bank of India"
+    },
+    {
+        "BIN": 454848,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 455038,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 455390,
+        "Network": "VISA",
+        "Category": "CORPORATE T&E",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 455392,
+        "Network": "VISA",
+        "Category": "CORPORATE T&E",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 456342,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "THE HONGKONG AND SHANGHAI BANKING CORPORATION"
+    },
+    {
+        "BIN": 456398,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "Standard Chartered Bank"
+    },
+    {
+        "BIN": 456407,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 456719,
+        "Network": "VISA",
+        "Category": "GOLD",
+        "Bank": "THE HONGKONG AND SHANGHAI BANKING CORPORATION"
+    },
+    {
+        "BIN": 457036,
+        "Network": "VISA",
+        "Category": "INFINITE",
+        "Bank": "AU Small Finance Bank"
+    },
+    {
+        "BIN": 457262,
+        "Network": "VISA",
+        "Category": "SIGNATURE BUSINESS",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 457623,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "BANK OF INDIA"
+    },
+    {
+        "BIN": 457704,
+        "Network": "VISA",
+        "Category": "BUSINESS ENHANCED",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 459185,
+        "Network": "VISA",
+        "Category": "BUSINESS",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 459188,
+        "Network": "VISA",
+        "Category": "BUSINESS SIGNATURE",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 459223,
+        "Network": "VISA",
+        "Category": "BUSINESS ENHANCED",
+        "Bank": "Union Bank of India"
+    },
+    {
+        "BIN": 459247,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 459249,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Union Bank of India"
+    },
+    {
+        "BIN": 460139,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Bank of Baroda"
+    },
+    {
+        "BIN": 460156,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Bank of Baroda"
+    },
+    {
+        "BIN": 460214,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 460689,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 460721,
+        "Network": "VISA",
+        "Category": "BUSINESS",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 461116,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 461117,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 461118,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 461119,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 461133,
+        "Network": "VISA",
+        "Category": "INFINITE",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 461244,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 461707,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 461709,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "THE HONGKONG AND SHANGHAI BANKING CORPORATION"
+    },
+    {
+        "BIN": 461714,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Yes Bank"
+    },
+    {
+        "BIN": 461715,
+        "Network": "VISA",
+        "Category": "BUSINESS",
+        "Bank": "HONGKONG AND SHANGHAI BANKING CORP"
+    },
+    {
+        "BIN": 461716,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "THE HONGKONG AND SHANGHAI BANKING CORPORATION"
+    },
+    {
+        "BIN": 461721,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "THE HONGKONG AND SHANGHAI BANKING CORPORATION"
+    },
+    {
+        "BIN": 461749,
+        "Network": "VISA",
+        "Category": "CORPORATE T&E",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 461786,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 461787,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 461795,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 461796,
+        "Network": "VISA",
+        "Category": "INFINITE",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 461797,
+        "Network": "VISA",
+        "Category": "INFINITE",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 461940,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 462242,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 462243,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Central Bank of India"
+    },
+    {
+        "BIN": 462269,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Standard Chartered Bank"
+    },
+    {
+        "BIN": 462271,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Standard Chartered Bank"
+    },
+    {
+        "BIN": 462273,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Standard Chartered Bank"
+    },
+    {
+        "BIN": 462409,
+        "Network": "VISA",
+        "Category": "CORPORATE T&E",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 462477,
+        "Network": "VISA",
+        "Category": "BUSINESS ENHANCED",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 462490,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Bank of Baroda"
+    },
+    {
+        "BIN": 462491,
+        "Network": "VISA",
+        "Category": "CORPORATE T&E",
+        "Bank": "Bank of Baroda"
+    },
+    {
+        "BIN": 462846,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 462847,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 462848,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Union Bank of India"
+    },
+    {
+        "BIN": 462963,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "Union Bank of India"
+    },
+    {
+        "BIN": 462986,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 462994,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Punjab National Bank"
+    },
+    {
+        "BIN": 463202,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 463228,
+        "Network": "VISA",
+        "Category": "CORPORATE T&E",
+        "Bank": "IDFC First Bank"
+    },
+    {
+        "BIN": 463663,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 463787,
+        "Network": "VISA",
+        "Category": "BUSINESS",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 463917,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 463918,
+        "Network": "VISA",
+        "Category": "SIGNATURE BUSINESS",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 463919,
+        "Network": "VISA",
+        "Category": "CORPORATE T&E",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 463921,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 464118,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 464119,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 464558,
+        "Network": "VISA",
+        "Category": "CORPORATE T&E",
+        "Bank": "CitiBank"
+    },
+    {
+        "BIN": 464656,
+        "Network": "VISA",
+        "Category": "PLATINUM REWARDS",
+        "Bank": "Karur Vysya Bank"
+    },
+    {
+        "BIN": 464958,
+        "Network": "VISA",
+        "Category": "CORPORATE T&E",
+        "Bank": "Punjab National Bank"
+    },
+    {
+        "BIN": 465523,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "AU Small Finance Bank"
+    },
+    {
+        "BIN": 466505,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "AU Small Finance Bank"
+    },
+    {
+        "BIN": 466572,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "AU Small Finance Bank"
+    },
+    {
+        "BIN": 466705,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "SBM Bank"
+    },
+    {
+        "BIN": 466730,
+        "Network": "VISA",
+        "Category": "REWARDS",
+        "Bank": "Federal Bank"
+    },
+    {
+        "BIN": 466731,
+        "Network": "VISA",
+        "Category": "REWARDS",
+        "Bank": "Federal Bank"
+    },
+    {
+        "BIN": 467190,
+        "Network": "VISA",
+        "Category": "PURCHASING",
+        "Bank": "IDFC First Bank"
+    },
+    {
+        "BIN": 467191,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "HONG KONG AND SHANGHAI BANKING CORP"
+    },
+    {
+        "BIN": 467741,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Federal Bank"
+    },
+    {
+        "BIN": 467742,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 468742,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 468743,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 468772,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Central Bank of India"
+    },
+    {
+        "BIN": 468778,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "Canara Bank"
+    },
+    {
+        "BIN": 468798,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Federal Bank"
+    },
+    {
+        "BIN": 468936,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 468943,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Bank of Baroda"
+    },
+    {
+        "BIN": 469130,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 469131,
+        "Network": "VISA",
+        "Category": "GOLD",
+        "Bank": "Union Bank of India"
+    },
+    {
+        "BIN": 469525,
+        "Network": "VISA",
+        "Category": "REWARDS",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 470011,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 470035,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 470050,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 470441,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 470573,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 470948,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "SBM Bank"
+    },
+    {
+        "BIN": 470963,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "Indian Overseas Bank"
+    },
+    {
+        "BIN": 470964,
+        "Network": "VISA",
+        "Category": "GOLD",
+        "Bank": "Indian Overseas Bank"
+    },
+    {
+        "BIN": 471227,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Bank of Baroda"
+    },
+    {
+        "BIN": 471228,
+        "Network": "VISA",
+        "Category": "CORPORATE T&E",
+        "Bank": "SBM Bank"
+    },
+    {
+        "BIN": 471860,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 471861,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 471863,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 471864,
+        "Network": "VISA",
+        "Category": "CORPORATE T&E",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 471865,
+        "Network": "VISA",
+        "Category": "PURCHASING",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 472614,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Union Bank of India"
+    },
+    {
+        "BIN": 472638,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Bank of Baroda"
+    },
+    {
+        "BIN": 472642,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 472739,
+        "Network": "VISA",
+        "Category": "REWARDS",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 472803,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "SBM Bank"
+    },
+    {
+        "BIN": 473195,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "SBM Bank"
+    },
+    {
+        "BIN": 473196,
+        "Network": "VISA",
+        "Category": "REWARDS",
+        "Bank": "SBM Bank"
+    },
+    {
+        "BIN": 473279,
+        "Network": "VISA",
+        "Category": "SIGNATURE BUSINESS",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 474224,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "ASIA-PACIFIC REGION"
+    },
+    {
+        "BIN": 474723,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "SBM Bank"
+    },
+    {
+        "BIN": 474814,
+        "Network": "VISA",
+        "Category": "BUSINESS",
+        "Bank": "IDFC First Bank"
+    },
+    {
+        "BIN": 474846,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 475825,
+        "Network": "VISA",
+        "Category": "CORPORATE T&E",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 476136,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "INTL HDQTRS-CENTER OWNED"
+    },
+    {
+        "BIN": 476137,
+        "Network": "VISA",
+        "Category": "INFINITE",
+        "Bank": "DBS Bank"
+    },
+    {
+        "BIN": 476646,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 477035,
+        "Network": "VISA",
+        "Category": "CORPORATE T&E",
+        "Bank": "Canara Bank"
+    },
+    {
+        "BIN": 477036,
+        "Network": "VISA",
+        "Category": "GOLD",
+        "Bank": "Canara Bank"
+    },
+    {
+        "BIN": 478006,
+        "Network": "VISA",
+        "Category": "PURCHASING",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 478007,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 478008,
+        "Network": "VISA",
+        "Category": "PURCHASING",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 478024,
+        "Network": "VISA",
+        "Category": "REWARDS",
+        "Bank": "Yes Bank"
+    },
+    {
+        "BIN": 478053,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 478451,
+        "Network": "VISA",
+        "Category": "SIGNATURE BUSINESS",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 478672,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 478748,
+        "Network": "VISA",
+        "Category": "INFINITE",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 478844,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 478847,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 478857,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 478858,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Standard Chartered Bank"
+    },
+    {
+        "BIN": 478910,
+        "Network": "VISA",
+        "Category": "GOLD",
+        "Bank": "Bank of Baroda"
+    },
+    {
+        "BIN": 478971,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 479959,
+        "Network": "VISA",
+        "Category": "REWARDS",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 480251,
+        "Network": "VISA",
+        "Category": "INFINITE",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 480320,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Union Bank of India"
+    },
+    {
+        "BIN": 480322,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Union Bank of India"
+    },
+    {
+        "BIN": 480414,
+        "Network": "VISA",
+        "Category": "CORPORATE T&E",
+        "Bank": "CitiBank"
+    },
+    {
+        "BIN": 480475,
+        "Network": "VISA",
+        "Category": "CORPORATE T&E",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 480695,
+        "Network": "VISA",
+        "Category": "GOLD",
+        "Bank": "Union Bank of India"
+    },
+    {
+        "BIN": 480696,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 480697,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Union Bank of India"
+    },
+    {
+        "BIN": 481362,
+        "Network": "VISA",
+        "Category": "BUSINESS ENHANCED",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 481408,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Yes Bank"
+    },
+    {
+        "BIN": 481508,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 481963,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 482024,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 482026,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 482028,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 482039,
+        "Network": "VISA",
+        "Category": "GOLD",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 482040,
+        "Network": "VISA",
+        "Category": "INFINITE",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 482044,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 483828,
+        "Network": "VISA",
+        "Category": "BUSINESS ENHANCED",
+        "Bank": "BANK OF INDIA"
+    },
+    {
+        "BIN": 483894,
+        "Network": "VISA",
+        "Category": "SIGNATURE BUSINESS",
+        "Bank": "AU Small Finance Bank"
+    },
+    {
+        "BIN": 483974,
+        "Network": "VISA",
+        "Category": "PURCHASING",
+        "Bank": "AU Small Finance Bank"
+    },
+    {
+        "BIN": 483976,
+        "Network": "VISA",
+        "Category": "CORPORATE T&E",
+        "Bank": "AU Small Finance Bank"
+    },
+    {
+        "BIN": 484382,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Karur Vysya Bank"
+    },
+    {
+        "BIN": 485068,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "IDBI Bank"
+    },
+    {
+        "BIN": 485069,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "IDBI Bank"
+    },
+    {
+        "BIN": 485171,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "IDBI Bank"
+    },
+    {
+        "BIN": 485455,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 485498,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 485499,
+        "Network": "VISA",
+        "Category": "REWARDS",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 485732,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "SBM Bank"
+    },
+    {
+        "BIN": 485903,
+        "Network": "VISA",
+        "Category": "PURCHASING",
+        "Bank": "CITIBANK NA"
+    },
+    {
+        "BIN": 485905,
+        "Network": "VISA",
+        "Category": "PURCHASING",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 485924,
+        "Network": "VISA",
+        "Category": "PURCHASING",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 486199,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Central Bank of India"
+    },
+    {
+        "BIN": 486269,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "THE HONGKONG AND SHANGHAI BANKING CORPORATION"
+    },
+    {
+        "BIN": 486272,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "Canara Bank"
+    },
+    {
+        "BIN": 486293,
+        "Network": "VISA",
+        "Category": "INFINITE",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 486409,
+        "Network": "VISA",
+        "Category": "CORPORATE T&E",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 486410,
+        "Network": "VISA",
+        "Category": "CORPORATE T&E",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 486461,
+        "Network": "VISA",
+        "Category": "CORPORATE T&E",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 486536,
+        "Network": "VISA",
+        "Category": "PURCHASING",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 486541,
+        "Network": "VISA",
+        "Category": "PURCHASING",
+        "Bank": "CITIBANK NA"
+    },
+    {
+        "BIN": 486575,
+        "Network": "VISA",
+        "Category": "PURCHASING",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 486586,
+        "Network": "VISA",
+        "Category": "PURCHASING",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 486602,
+        "Network": "VISA",
+        "Category": "PURCHASING",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 488994,
+        "Network": "VISA",
+        "Category": "CORPORATE T&E",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 489376,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 489377,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 489500,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "Union Bank of India"
+    },
+    {
+        "BIN": 489519,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 490026,
+        "Network": "VISA",
+        "Category": "INFINITE",
+        "Bank": "BC CARD CO"
+    },
+    {
+        "BIN": 490027,
+        "Network": "VISA",
+        "Category": "INFINITE",
+        "Bank": "BC CARD CO"
+    },
+    {
+        "BIN": 490030,
+        "Network": "VISA",
+        "Category": "INFINITE",
+        "Bank": "BC CARD CO"
+    },
+    {
+        "BIN": 490081,
+        "Network": "VISA",
+        "Category": "INFINITE",
+        "Bank": "BC CARD CO"
+    },
+    {
+        "BIN": 490083,
+        "Network": "VISA",
+        "Category": "INFINITE",
+        "Bank": "BC CARD CO"
+    },
+    {
+        "BIN": 490092,
+        "Network": "VISA",
+        "Category": "INFINITE",
+        "Bank": "BC CARD CO"
+    },
+    {
+        "BIN": 490247,
+        "Network": "VISA",
+        "Category": "BUSINESS ENHANCED",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 490900,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "HONG KONG AND SHANGHAI BANKING CORP"
+    },
+    {
+        "BIN": 490906,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 491087,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 491467,
+        "Network": "VISA",
+        "Category": "GOLD",
+        "Bank": "Union Bank of India"
+    },
+    {
+        "BIN": 491519,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 491817,
+        "Network": "VISA",
+        "Category": "GOLD",
+        "Bank": "Canara Bank"
+    },
+    {
+        "BIN": 491866,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "City Union Bank"
+    },
+    {
+        "BIN": 491907,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "Standard Chartered Bank"
+    },
+    {
+        "BIN": 492105,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 492124,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 492140,
+        "Network": "VISA",
+        "Category": "INFINITE",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 492294,
+        "Network": "VISA",
+        "Category": "SIGNATURE BUSINESS",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 493714,
+        "Network": "VISA",
+        "Category": "PURCHASING",
+        "Bank": "SBM Bank"
+    },
+    {
+        "BIN": 493826,
+        "Network": "VISA",
+        "Category": "CORPORATE T&E",
+        "Bank": "Bank of Baroda"
+    },
+    {
+        "BIN": 494060,
+        "Network": "VISA",
+        "Category": "SIGNATURE",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 494076,
+        "Network": "VISA",
+        "Category": "CLASSIC",
+        "Bank": "Standard Chartered Bank"
+    },
+    {
+        "BIN": 494077,
+        "Network": "VISA",
+        "Category": "REWARDS",
+        "Bank": "Standard Chartered Bank"
+    },
+    {
+        "BIN": 498726,
+        "Network": "VISA",
+        "Category": "INFINITE",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 498757,
+        "Network": "VISA",
+        "Category": "PLATINUM",
+        "Bank": "SBM Bank"
+    },
+    {
+        "BIN": 499200,
+        "Network": "VISA",
+        "Category": "CORPORATE T&E",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 508854,
+        "Network": "Rupay",
+        "Category": "CLASSIC",
+        "Bank": "VIDHARBHA KONKAN GRAMIN BANK"
+    },
+    {
+        "BIN": 510096,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "RBL Bank"
+    },
+    {
+        "BIN": 510128,
+        "Network": "Mastercard",
+        "Category": "TITANIUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 510135,
+        "Network": "Mastercard",
+        "Category": "TITANIUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 510223,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 512042,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "THE HONGKONG AND SHANGHAI BANKING CORPORATION"
+    },
+    {
+        "BIN": 512260,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 512319,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 512358,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "JAMMU & KASHMIR BANK"
+    },
+    {
+        "BIN": 512384,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "Bank of Baroda"
+    },
+    {
+        "BIN": 512583,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 512622,
+        "Network": "Mastercard",
+        "Category": "TITANIUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 512916,
+        "Network": "Mastercard",
+        "Category": "CORPORATE WORLD",
+        "Bank": "THE HONGKONG AND SHANGHAI BANKING CORPORATION"
+    },
+    {
+        "BIN": 512919,
+        "Network": "Mastercard",
+        "Category": "CORPORATE PURCHASING",
+        "Bank": "THE HONGKONG AND SHANGHAI BANKING CORPORATION"
+    },
+    {
+        "BIN": 513134,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 513344,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "Union Bank of India"
+    },
+    {
+        "BIN": 513346,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 513483,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 514840,
+        "Network": "Mastercard",
+        "Category": "BUSINESS",
+        "Bank": "BANK OF INDIA"
+    },
+    {
+        "BIN": 515349,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "IDFC First Bank"
+    },
+    {
+        "BIN": 515661,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "Canara Bank"
+    },
+    {
+        "BIN": 515681,
+        "Network": "Mastercard",
+        "Category": "CORPORATE PURCHASING",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 515686,
+        "Network": "Mastercard",
+        "Category": "GOLD",
+        "Bank": "Canara Bank"
+    },
+    {
+        "BIN": 516068,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 516299,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "Canara Bank"
+    },
+    {
+        "BIN": 516472,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "Central Bank of India"
+    },
+    {
+        "BIN": 517089,
+        "Network": "Mastercard",
+        "Category": "CORPORATE",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 517129,
+        "Network": "Mastercard",
+        "Category": "BUSINESS",
+        "Bank": "SBM Bank"
+    },
+    {
+        "BIN": 517203,
+        "Network": "Mastercard",
+        "Category": "CORPORATE",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 517215,
+        "Network": "Mastercard",
+        "Category": "CORPORATE",
+        "Bank": "RBL Bank"
+    },
+    {
+        "BIN": 517252,
+        "Network": "Mastercard",
+        "Category": "TITANIUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 517456,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "RBL Bank"
+    },
+    {
+        "BIN": 517632,
+        "Network": "Mastercard",
+        "Category": "CORPORATE",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 517635,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 517637,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 517652,
+        "Network": "Mastercard",
+        "Category": "GOLD",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 517653,
+        "Network": "Mastercard",
+        "Category": "GOLD",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 517700,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 517719,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 517782,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "THE HONGKONG AND SHANGHAI BANKING CORPORATION"
+    },
+    {
+        "BIN": 517798,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "THE HONGKONG AND SHANGHAI BANKING CORPORATION"
+    },
+    {
+        "BIN": 517804,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "IDBI Bank"
+    },
+    {
+        "BIN": 518159,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 518192,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "JAMMU & KASHMIR BANK"
+    },
+    {
+        "BIN": 518686,
+        "Network": "Mastercard",
+        "Category": "BUSINESS",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 518851,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "Yes Bank"
+    },
+    {
+        "BIN": 518936,
+        "Network": "Mastercard",
+        "Category": "TITANIUM",
+        "Bank": "CITIBANK NA"
+    },
+    {
+        "BIN": 519144,
+        "Network": "Mastercard",
+        "Category": "CENTRAL TRAVEL SOLUTIONS AIR",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 519760,
+        "Network": "Mastercard",
+        "Category": "CORPORATE",
+        "Bank": "Bank of America"
+    },
+    {
+        "BIN": 519980,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "Yes Bank"
+    },
+    {
+        "BIN": 520038,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 520039,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 520041,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 520042,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 520044,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 520210,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "Union Bank of India"
+    },
+    {
+        "BIN": 520214,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "Karur Vysya Bank"
+    },
+    {
+        "BIN": 520386,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 520700,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "Standard Chartered Bank"
+    },
+    {
+        "BIN": 520897,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "Canara Bank"
+    },
+    {
+        "BIN": 521203,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 521452,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 521508,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 521561,
+        "Network": "Mastercard",
+        "Category": "CORPORATE WORLD",
+        "Bank": "Bank of America"
+    },
+    {
+        "BIN": 521703,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "IDFC First Bank"
+    },
+    {
+        "BIN": 522012,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "RBL Bank"
+    },
+    {
+        "BIN": 522024,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 522852,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 522967,
+        "Network": "Mastercard",
+        "Category": "CORPORATE EXECUTIVE",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 523052,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 523248,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 523429,
+        "Network": "Mastercard",
+        "Category": "CORPORATE",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 523435,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "CSB BANK"
+    },
+    {
+        "BIN": 523650,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "RBL Bank"
+    },
+    {
+        "BIN": 523845,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 523950,
+        "Network": "Mastercard",
+        "Category": "TITANIUM",
+        "Bank": "RBL Bank"
+    },
+    {
+        "BIN": 523951,
+        "Network": "Mastercard",
+        "Category": "TITANIUM",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 523988,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "Standard Chartered Bank"
+    },
+    {
+        "BIN": 523996,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 524098,
+        "Network": "Mastercard",
+        "Category": "GOLD",
+        "Bank": "JAMMU & KASHMIR BANK"
+    },
+    {
+        "BIN": 524111,
+        "Network": "Mastercard",
+        "Category": "TITANIUM",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 524133,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 524162,
+        "Network": "Mastercard",
+        "Category": "TITANIUM",
+        "Bank": "Central Bank of India"
+    },
+    {
+        "BIN": 524167,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "Yes Bank"
+    },
+    {
+        "BIN": 524178,
+        "Network": "Mastercard",
+        "Category": "TITANIUM",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 524181,
+        "Network": "Mastercard",
+        "Category": "TITANIUM",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 524182,
+        "Network": "Mastercard",
+        "Category": "TITANIUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 524193,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 524216,
+        "Network": "Mastercard",
+        "Category": "TITANIUM",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 524240,
+        "Network": "Mastercard",
+        "Category": "TITANIUM",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 524247,
+        "Network": "Mastercard",
+        "Category": "TITANIUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 524253,
+        "Network": "Mastercard",
+        "Category": "TITANIUM",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 524317,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 524368,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 524373,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "RBL Bank"
+    },
+    {
+        "BIN": 524376,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 524446,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "Canara Bank"
+    },
+    {
+        "BIN": 524480,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 524487,
+        "Network": "Mastercard",
+        "Category": "CORPORATE",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 524498,
+        "Network": "Mastercard",
+        "Category": "TITANIUM",
+        "Bank": "ANDHRA BANK"
+    },
+    {
+        "BIN": 524499,
+        "Network": "Mastercard",
+        "Category": "TITANIUM",
+        "Bank": "ANDHRA BANK"
+    },
+    {
+        "BIN": 524508,
+        "Network": "Mastercard",
+        "Category": "TITANIUM",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 524512,
+        "Network": "Mastercard",
+        "Category": "TITANIUM",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 524652,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "RBL Bank"
+    },
+    {
+        "BIN": 524715,
+        "Network": "Mastercard",
+        "Category": "GOLD",
+        "Bank": "Canara Bank"
+    },
+    {
+        "BIN": 524877,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 524927,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 524931,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 525154,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 525175,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 525301,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 525352,
+        "Network": "Mastercard",
+        "Category": "WORLD BUSINESS",
+        "Bank": "SBM Bank"
+    },
+    {
+        "BIN": 525504,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 525567,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "IDFC First Bank"
+    },
+    {
+        "BIN": 525611,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "RBL Bank"
+    },
+    {
+        "BIN": 525768,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 525779,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 525996,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 526336,
+        "Network": "Mastercard",
+        "Category": "CORPORATE",
+        "Bank": "Yes Bank"
+    },
+    {
+        "BIN": 526468,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 526550,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "Yes Bank"
+    },
+    {
+        "BIN": 526861,
+        "Network": "Mastercard",
+        "Category": "GOLD",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 526873,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 527393,
+        "Network": "Mastercard",
+        "Category": "WORLD ELITE",
+        "Bank": "THE HONGKONG AND SHANGHAI BANKING CORPORATION"
+    },
+    {
+        "BIN": 527625,
+        "Network": "Mastercard",
+        "Category": "CENTRAL TRAVEL SOLUTIONS AIR",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 527672,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 527753,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "Bank of Baroda"
+    },
+    {
+        "BIN": 527759,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "BANK OF INDIA"
+    },
+    {
+        "BIN": 527766,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 528028,
+        "Network": "Mastercard",
+        "Category": "TITANIUM",
+        "Bank": "RBL Bank"
+    },
+    {
+        "BIN": 528037,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 528571,
+        "Network": "Mastercard",
+        "Category": "CENTRAL TRAVEL SOLUTIONS AIR",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 528614,
+        "Network": "Mastercard",
+        "Category": "CORPORATE",
+        "Bank": "IDFC First Bank"
+    },
+    {
+        "BIN": 528694,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "Yes Bank"
+    },
+    {
+        "BIN": 528734,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 528945,
+        "Network": "Mastercard",
+        "Category": "TITANIUM",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 529117,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 529131,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "Canara Bank"
+    },
+    {
+        "BIN": 529243,
+        "Network": "Mastercard",
+        "Category": "WORLD ELITE",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 529303,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "Bank of Baroda"
+    },
+    {
+        "BIN": 529370,
+        "Network": "Mastercard",
+        "Category": "WORLD ELITE",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 529495,
+        "Network": "Mastercard",
+        "Category": "WORLD ELITE",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 529629,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 529745,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "FIRSTRAND BANK"
+    },
+    {
+        "BIN": 529812,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 529870,
+        "Network": "Mastercard",
+        "Category": "GOLD",
+        "Bank": "Canara Bank"
+    },
+    {
+        "BIN": 530562,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 530917,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 531217,
+        "Network": "Mastercard",
+        "Category": "WORLD BUSINESS",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 531230,
+        "Network": "Mastercard",
+        "Category": "TITANIUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 531453,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "JAMMU & KASHMIR BANK"
+    },
+    {
+        "BIN": 531662,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 531698,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 531849,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "Yes Bank"
+    },
+    {
+        "BIN": 531858,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 531861,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 531865,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "UTKARSH SMALL FINANCE BANK"
+    },
+    {
+        "BIN": 531909,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 532000,
+        "Network": "Mastercard",
+        "Category": "TITANIUM",
+        "Bank": "Bank of Baroda"
+    },
+    {
+        "BIN": 532118,
+        "Network": "Mastercard",
+        "Category": "CORPORATE PURCHASING",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 532135,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 532960,
+        "Network": "Mastercard",
+        "Category": "CORPORATE",
+        "Bank": "CITIBANK NA"
+    },
+    {
+        "BIN": 532961,
+        "Network": "Mastercard",
+        "Category": "CORPORATE",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 532973,
+        "Network": "Mastercard",
+        "Category": "CORPORATE",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 533467,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 533744,
+        "Network": "Mastercard",
+        "Category": "TITANIUM",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 533779,
+        "Network": "Mastercard",
+        "Category": "TITANIUM",
+        "Bank": "City Union Bank"
+    },
+    {
+        "BIN": 534322,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 534444,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "Bank of Baroda"
+    },
+    {
+        "BIN": 534460,
+        "Network": "Mastercard",
+        "Category": "CORPORATE",
+        "Bank": "RBL Bank"
+    },
+    {
+        "BIN": 534622,
+        "Network": "Mastercard",
+        "Category": "GOLD",
+        "Bank": "Canara Bank"
+    },
+    {
+        "BIN": 534697,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "RBL Bank"
+    },
+    {
+        "BIN": 534777,
+        "Network": "Mastercard",
+        "Category": "WORLD ELITE",
+        "Bank": "Canara Bank"
+    },
+    {
+        "BIN": 535102,
+        "Network": "Mastercard",
+        "Category": "GOLD",
+        "Bank": "Canara Bank"
+    },
+    {
+        "BIN": 535322,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 536089,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 536298,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 536303,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "Yes Bank"
+    },
+    {
+        "BIN": 536311,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 536577,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 536786,
+        "Network": "Mastercard",
+        "Category": "CORPORATE",
+        "Bank": "SBM Bank"
+    },
+    {
+        "BIN": 536806,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 536881,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "Federal Bank"
+    },
+    {
+        "BIN": 536907,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "RBL Bank"
+    },
+    {
+        "BIN": 537028,
+        "Network": "Mastercard",
+        "Category": "TITANIUM",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 537206,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 537405,
+        "Network": "Mastercard",
+        "Category": "CENTRAL TRAVEL SOLUTIONS AIR",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 537652,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 538830,
+        "Network": "Mastercard",
+        "Category": "GOLD",
+        "Bank": "THE HONGKONG AND SHANGHAI BANKING CORPORATION"
+    },
+    {
+        "BIN": 538865,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 538870,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "Qatar National Bank"
+    },
+    {
+        "BIN": 539109,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "IDBI Bank"
+    },
+    {
+        "BIN": 539169,
+        "Network": "Mastercard",
+        "Category": "TITANIUM",
+        "Bank": "Bank of Baroda"
+    },
+    {
+        "BIN": 539494,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 539705,
+        "Network": "Mastercard",
+        "Category": "CORPORATE PURCHASING",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 539710,
+        "Network": "Mastercard",
+        "Category": "CENTRAL TRAVEL SOLUTIONS AIR",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 539874,
+        "Network": "Mastercard",
+        "Category": "CORPORATE",
+        "Bank": "SBM Bank"
+    },
+    {
+        "BIN": 540128,
+        "Network": "Mastercard",
+        "Category": "MIXED PRODUCT",
+        "Bank": "Central Bank of India"
+    },
+    {
+        "BIN": 540165,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "CITIBANK NA"
+    },
+    {
+        "BIN": 540239,
+        "Network": "Mastercard",
+        "Category": "WORLD ELITE",
+        "Bank": "Canara Bank"
+    },
+    {
+        "BIN": 540259,
+        "Network": "Mastercard",
+        "Category": "GOLD",
+        "Bank": "THE HONGKONG AND SHANGHAI BANKING CORPORATION"
+    },
+    {
+        "BIN": 540276,
+        "Network": "Mastercard",
+        "Category": "CORPORATE",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 540282,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 540351,
+        "Network": "Mastercard",
+        "Category": "WORLD ELITE",
+        "Bank": "Canara Bank"
+    },
+    {
+        "BIN": 540460,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "Standard Chartered Bank"
+    },
+    {
+        "BIN": 540529,
+        "Network": "Mastercard",
+        "Category": "CORPORATE PURCHASING",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 540531,
+        "Network": "Mastercard",
+        "Category": "CORPORATE PURCHASING",
+        "Bank": "CITIBANK NA"
+    },
+    {
+        "BIN": 540536,
+        "Network": "Mastercard",
+        "Category": "CORPORATE PURCHASING",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 540544,
+        "Network": "Mastercard",
+        "Category": "CORPORATE PURCHASING",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 540547,
+        "Network": "Mastercard",
+        "Category": "CORPORATE PURCHASING",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 540555,
+        "Network": "Mastercard",
+        "Category": "CORPORATE PURCHASING",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 540560,
+        "Network": "Mastercard",
+        "Category": "CORPORATE PURCHASING",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 540564,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "Federal Bank"
+    },
+    {
+        "BIN": 540590,
+        "Network": "Mastercard",
+        "Category": "CORPORATE PURCHASING",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 540706,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 540711,
+        "Network": "Mastercard",
+        "Category": "GOLD",
+        "Bank": "Standard Chartered Bank"
+    },
+    {
+        "BIN": 540899,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 541174,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "BANK OF INDIA"
+    },
+    {
+        "BIN": 541175,
+        "Network": "Mastercard",
+        "Category": "GOLD",
+        "Bank": "BANK OF INDIA"
+    },
+    {
+        "BIN": 541377,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "SBM Bank"
+    },
+    {
+        "BIN": 541445,
+        "Network": "Mastercard",
+        "Category": "MIXED PRODUCT",
+        "Bank": "Central Bank of India"
+    },
+    {
+        "BIN": 541497,
+        "Network": "Mastercard",
+        "Category": "GOLD",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 541538,
+        "Network": "Mastercard",
+        "Category": "TITANIUM",
+        "Bank": "RBL Bank"
+    },
+    {
+        "BIN": 541608,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 542034,
+        "Network": "Mastercard",
+        "Category": "MIXED PRODUCT",
+        "Bank": "BANK OF INDIA"
+    },
+    {
+        "BIN": 542086,
+        "Network": "Mastercard",
+        "Category": "MIXED PRODUCT",
+        "Bank": "ANDHRA BANK"
+    },
+    {
+        "BIN": 542207,
+        "Network": "Mastercard",
+        "Category": "MIXED PRODUCT",
+        "Bank": "THE HONGKONG AND SHANGHAI BANKING CORPORATION"
+    },
+    {
+        "BIN": 542368,
+        "Network": "Mastercard",
+        "Category": "WORLD BUSINESS",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 542505,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "RBL Bank"
+    },
+    {
+        "BIN": 542556,
+        "Network": "Mastercard",
+        "Category": "TITANIUM",
+        "Bank": "CITIBANK NA"
+    },
+    {
+        "BIN": 542609,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "RBL Bank"
+    },
+    {
+        "BIN": 542782,
+        "Network": "Mastercard",
+        "Category": "CORPORATE WORLD",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 543124,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 543186,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "Standard Chartered Bank"
+    },
+    {
+        "BIN": 543705,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 543765,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 544170,
+        "Network": "Mastercard",
+        "Category": "TITANIUM",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 544438,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "Standard Chartered Bank"
+    },
+    {
+        "BIN": 544655,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "Yes Bank"
+    },
+    {
+        "BIN": 545005,
+        "Network": "Mastercard",
+        "Category": "MIXED PRODUCT",
+        "Bank": "DEBIT ISIS"
+    },
+    {
+        "BIN": 545034,
+        "Network": "Mastercard",
+        "Category": "CORPORATE PURCHASING",
+        "Bank": "CITIBANK NA"
+    },
+    {
+        "BIN": 545080,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 545207,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 545226,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 545422,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "Canara Bank"
+    },
+    {
+        "BIN": 545452,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "UTKARSH SMALL FINANCE BANK"
+    },
+    {
+        "BIN": 545671,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "Yes Bank"
+    },
+    {
+        "BIN": 545964,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 546094,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 546358,
+        "Network": "Mastercard",
+        "Category": "CORPORATE",
+        "Bank": "Yes Bank"
+    },
+    {
+        "BIN": 547122,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "Yes Bank"
+    },
+    {
+        "BIN": 547277,
+        "Network": "Mastercard",
+        "Category": "BUSINESS",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 547309,
+        "Network": "Mastercard",
+        "Category": "WORLD ELITE",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 547344,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "Bank of Baroda"
+    },
+    {
+        "BIN": 547359,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 547467,
+        "Network": "Mastercard",
+        "Category": "BUSINESS",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 547827,
+        "Network": "Mastercard",
+        "Category": "BUSINESS",
+        "Bank": "RBL Bank"
+    },
+    {
+        "BIN": 547981,
+        "Network": "Mastercard",
+        "Category": "BUSINESS",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 548002,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 548174,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "SBM Bank"
+    },
+    {
+        "BIN": 548245,
+        "Network": "Mastercard",
+        "Category": "BUSINESS",
+        "Bank": "Bank of Baroda"
+    },
+    {
+        "BIN": 549124,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "Standard Chartered Bank"
+    },
+    {
+        "BIN": 549132,
+        "Network": "Mastercard",
+        "Category": "CORPORATE WORLD",
+        "Bank": "Standard Chartered Bank"
+    },
+    {
+        "BIN": 549205,
+        "Network": "Mastercard",
+        "Category": "WORLD ELITE",
+        "Bank": "Yes Bank"
+    },
+    {
+        "BIN": 549489,
+        "Network": "Mastercard",
+        "Category": "TITANIUM",
+        "Bank": "Royal Bank of Scotland"
+    },
+    {
+        "BIN": 549852,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 549921,
+        "Network": "Mastercard",
+        "Category": "WORLD ELITE",
+        "Bank": "Yes Bank"
+    },
+    {
+        "BIN": 549947,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "IDFC First Bank"
+    },
+    {
+        "BIN": 550067,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 550078,
+        "Network": "Mastercard",
+        "Category": "MIXED PRODUCT",
+        "Bank": "DEBIT ISIS"
+    },
+    {
+        "BIN": 550079,
+        "Network": "Mastercard",
+        "Category": "MIXED PRODUCT",
+        "Bank": "DEBIT ISIS"
+    },
+    {
+        "BIN": 550275,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "Yes Bank"
+    },
+    {
+        "BIN": 550343,
+        "Network": "Mastercard",
+        "Category": "WORLD BUSINESS",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 552088,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 552093,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "CITIBANK NA"
+    },
+    {
+        "BIN": 552137,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 552260,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 552274,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 552279,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "Bank of Baroda"
+    },
+    {
+        "BIN": 552344,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 552365,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 552385,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 552389,
+        "Network": "Mastercard",
+        "Category": "WORLD ELITE",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 552394,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 552418,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 552468,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "Central Bank of India"
+    },
+    {
+        "BIN": 552790,
+        "Network": "Mastercard",
+        "Category": "CORPORATE",
+        "Bank": "CITIBANK NA"
+    },
+    {
+        "BIN": 552900,
+        "Network": "Mastercard",
+        "Category": "CORPORATE PURCHASING",
+        "Bank": "CITIBANK NA"
+    },
+    {
+        "BIN": 553047,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 553158,
+        "Network": "Mastercard",
+        "Category": "CORPORATE",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 553160,
+        "Network": "Mastercard",
+        "Category": "WORLD BUSINESS",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 553162,
+        "Network": "Mastercard",
+        "Category": "CORPORATE EXECUTIVE",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 553167,
+        "Network": "Mastercard",
+        "Category": "CENTRAL TRAVEL SOLUTIONS AIR",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 553204,
+        "Network": "Mastercard",
+        "Category": "CORPORATE EXECUTIVE",
+        "Bank": "Yes Bank"
+    },
+    {
+        "BIN": 553392,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 553414,
+        "Network": "Mastercard",
+        "Category": "CORPORATE WORLD",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 553418,
+        "Network": "Mastercard",
+        "Category": "CORPORATE EXECUTIVE",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 553573,
+        "Network": "Mastercard",
+        "Category": "PURCHASING",
+        "Bank": "Yes Bank"
+    },
+    {
+        "BIN": 553583,
+        "Network": "Mastercard",
+        "Category": "BUSINESS",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 554006,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 554071,
+        "Network": "Mastercard",
+        "Category": "CORPORATE",
+        "Bank": "SBM Bank"
+    },
+    {
+        "BIN": 554283,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "IDFC First Bank"
+    },
+    {
+        "BIN": 554350,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "BANK OF INDIA"
+    },
+    {
+        "BIN": 554351,
+        "Network": "Mastercard",
+        "Category": "GOLD",
+        "Bank": "BANK OF INDIA"
+    },
+    {
+        "BIN": 554374,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "Standard Chartered Bank"
+    },
+    {
+        "BIN": 554375,
+        "Network": "Mastercard",
+        "Category": "TITANIUM",
+        "Bank": "Standard Chartered Bank"
+    },
+    {
+        "BIN": 554378,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "Standard Chartered Bank"
+    },
+    {
+        "BIN": 554619,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "CITIBANK NA"
+    },
+    {
+        "BIN": 554623,
+        "Network": "Mastercard",
+        "Category": "TITANIUM",
+        "Bank": "Standard Chartered Bank"
+    },
+    {
+        "BIN": 554637,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 554837,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "THE HONGKONG AND SHANGHAI BANKING CORPORATION"
+    },
+    {
+        "BIN": 554851,
+        "Network": "Mastercard",
+        "Category": "GOLD",
+        "Bank": "THE HONGKONG AND SHANGHAI BANKING CORPORATION"
+    },
+    {
+        "BIN": 555020,
+        "Network": "Mastercard",
+        "Category": "CORPORATE PURCHASING",
+        "Bank": "THE HONGKONG AND SHANGHAI BANKING CORPORATION"
+    },
+    {
+        "BIN": 555086,
+        "Network": "Mastercard",
+        "Category": "CORPORATE PURCHASING",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 555153,
+        "Network": "Mastercard",
+        "Category": "CORPORATE PURCHASING",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 555160,
+        "Network": "Mastercard",
+        "Category": "CORPORATE PURCHASING",
+        "Bank": "Bank of America"
+    },
+    {
+        "BIN": 555219,
+        "Network": "Mastercard",
+        "Category": "CORPORATE PURCHASING",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 555280,
+        "Network": "Mastercard",
+        "Category": "CORPORATE PURCHASING",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 555283,
+        "Network": "Mastercard",
+        "Category": "CORPORATE PURCHASING",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 555300,
+        "Network": "Mastercard",
+        "Category": "CORPORATE PURCHASING",
+        "Bank": "Bank of America"
+    },
+    {
+        "BIN": 555318,
+        "Network": "Mastercard",
+        "Category": "CORPORATE PURCHASING",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 555327,
+        "Network": "Mastercard",
+        "Category": "PURCHASING",
+        "Bank": "IndusInd Bank"
+    },
+    {
+        "BIN": 555331,
+        "Network": "Mastercard",
+        "Category": "CORPORATE PURCHASING",
+        "Bank": "RBL Bank"
+    },
+    {
+        "BIN": 555378,
+        "Network": "Mastercard",
+        "Category": "CORPORATE PURCHASING",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 555379,
+        "Network": "Mastercard",
+        "Category": "CORPORATE PURCHASING",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 555381,
+        "Network": "Mastercard",
+        "Category": "CORPORATE PURCHASING",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 555382,
+        "Network": "Mastercard",
+        "Category": "CORPORATE PURCHASING",
+        "Bank": "Yes Bank"
+    },
+    {
+        "BIN": 555447,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 555551,
+        "Network": "Mastercard",
+        "Category": "CORPORATE PURCHASING",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 555589,
+        "Network": "Mastercard",
+        "Category": "CORPORATE PURCHASING",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 555598,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "Federal Bank"
+    },
+    {
+        "BIN": 555982,
+        "Network": "Mastercard",
+        "Category": "CORPORATE PURCHASING",
+        "Bank": "SBM Bank"
+    },
+    {
+        "BIN": 556042,
+        "Network": "Mastercard",
+        "Category": "BUSINESS",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 556541,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 556546,
+        "Network": "Mastercard",
+        "Category": "WORLD FOR BUSINESS",
+        "Bank": "SBM Bank"
+    },
+    {
+        "BIN": 556555,
+        "Network": "Mastercard",
+        "Category": "CORPORATE",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 556567,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 556598,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 556620,
+        "Network": "Mastercard",
+        "Category": "CORPORATE",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 556819,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "Bank of Baroda"
+    },
+    {
+        "BIN": 556858,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "IDFC First Bank"
+    },
+    {
+        "BIN": 557902,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "SBM Bank"
+    },
+    {
+        "BIN": 558450,
+        "Network": "Mastercard",
+        "Category": "PLATINUM",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 558818,
+        "Network": "Mastercard",
+        "Category": "EXECUTIVE BUSINESS",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 558918,
+        "Network": "Mastercard",
+        "Category": "WORLD BUSINESS",
+        "Bank": "Yes Bank"
+    },
+    {
+        "BIN": 558959,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "Standard Chartered Bank"
+    },
+    {
+        "BIN": 558983,
+        "Network": "Mastercard",
+        "Category": "WORLD BUSINESS",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 559001,
+        "Network": "Mastercard",
+        "Category": "TITANIUM",
+        "Bank": "Tamilnad Mercantile Bank"
+    },
+    {
+        "BIN": 559153,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "RBL Bank"
+    },
+    {
+        "BIN": 559197,
+        "Network": "Mastercard",
+        "Category": "CORPORATE",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 559300,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 559340,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 559341,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 559342,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 559344,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 559345,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 559535,
+        "Network": "Mastercard",
+        "Category": "STANDARD",
+        "Bank": "Yes Bank"
+    },
+    {
+        "BIN": 559558,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "IDBI Bank"
+    },
+    {
+        "BIN": 559568,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "Canara Bank"
+    },
+    {
+        "BIN": 559770,
+        "Network": "Mastercard",
+        "Category": "CENTRAL TRAVEL SOLUTIONS AIR",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 559876,
+        "Network": "Mastercard",
+        "Category": "WORLD",
+        "Bank": "Yes Bank"
+    },
+    {
+        "BIN": 607095,
+        "Network": "Rupay",
+        "Category": "CLASSIC",
+        "Bank": "IDBI Bank"
+    },
+    {
+        "BIN": 607104,
+        "Network": "Rupay",
+        "Category": "CLASSIC",
+        "Bank": "NKGSB CO-OPERATIVE BANK"
+    },
+    {
+        "BIN": 607387,
+        "Network": "Rupay",
+        "Category": "CLASSIC",
+        "Bank": "Bank of Maharashtra"
+    },
+    {
+        "BIN": 607399,
+        "Network": "Rupay",
+        "Category": "CLASSIC",
+        "Bank": "KERALA GRAMIN BANK"
+    },
+    {
+        "BIN": 607444,
+        "Network": "Rupay",
+        "Category": "CLASSIC",
+        "Bank": "Kotak Mahindra Bank"
+    },
+    {
+        "BIN": 607915,
+        "Network": "Rupay",
+        "Category": "CLASSIC",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 607916,
+        "Network": "Rupay",
+        "Category": "CLASSIC",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 607917,
+        "Network": "Rupay",
+        "Category": "CLASSIC",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 608112,
+        "Network": "Rupay",
+        "Category": "CLASSIC",
+        "Bank": "Indian Bank"
+    },
+    {
+        "BIN": 608114,
+        "Network": "Rupay",
+        "Category": "CLASSIC",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 608201,
+        "Network": "Rupay",
+        "Category": "CLASSIC",
+        "Bank": "Canara Bank"
+    },
+    {
+        "BIN": 650444,
+        "Network": "DISCOVER",
+        "Category": "PERSONAL",
+        "Bank": "AXIS BANK INDIA - USD"
+    },
+    {
+        "BIN": 650452,
+        "Network": "DISCOVER",
+        "Category": "PERSONAL",
+        "Bank": "HDFC BANK - YSE USD"
+    },
+    {
+        "BIN": 650453,
+        "Network": "DISCOVER",
+        "Category": "PERSONAL",
+        "Bank": "HDFC BANK - YSE USD"
+    },
+    {
+        "BIN": 650542,
+        "Network": "DISCOVER",
+        "Category": "PERSONAL",
+        "Bank": "AXIS BANK INDIA - USD"
+    },
+    {
+        "BIN": 650543,
+        "Network": "DISCOVER",
+        "Category": "PERSONAL",
+        "Bank": "AXIS BANK INDIA - USD"
+    },
+    {
+        "BIN": 650544,
+        "Network": "DISCOVER",
+        "Category": "PERSONAL",
+        "Bank": "AXIS BANK INDIA - USD"
+    },
+    {
+        "BIN": 652267,
+        "Network": "Rupay",
+        "Category": "CLASSIC",
+        "Bank": "Rupay PLATINUM"
+    },
+    {
+        "BIN": 652271,
+        "Network": "Rupay",
+        "Category": "CLASSIC",
+        "Bank": "Rupay PLATINUM"
+    },
+    {
+        "BIN": 652277,
+        "Network": "Rupay",
+        "Category": "CLASSIC",
+        "Bank": "Rupay PLATINUM"
+    },
+    {
+        "BIN": 652318,
+        "Network": "Rupay",
+        "Category": "CLASSIC",
+        "Bank": "Rupay PLATINUM"
+    },
+    {
+        "BIN": 652322,
+        "Network": "Rupay",
+        "Category": "CLASSIC",
+        "Bank": "Rupay PLATINUM"
+    },
+    {
+        "BIN": 652515,
+        "Network": "Rupay",
+        "Category": "CLASSIC",
+        "Bank": "Rupay SUPER PLATINUM"
+    },
+    {
+        "BIN": 652517,
+        "Network": "Rupay",
+        "Category": "CLASSIC",
+        "Bank": "Rupay SUPER PLATINUM"
+    },
+    {
+        "BIN": 652601,
+        "Network": "DISCOVER",
+        "Category": "Rupay SELECT",
+        "Bank": "Discover Bank"
+    },
+    {
+        "BIN": 652611,
+        "Network": "DISCOVER",
+        "Category": "Rupay SELECT",
+        "Bank": "ICICI Bank"
+    },
+    {
+        "BIN": 652624,
+        "Network": "DISCOVER",
+        "Category": "Rupay SELECT",
+        "Bank": "AU Small Finance Bank"
+    },
+    {
+        "BIN": 652754,
+        "Network": "DISCOVER",
+        "Category": "Rupay SELECT",
+        "Bank": "IDBI"
+    },
+    {
+        "BIN": 652756,
+        "Network": "DISCOVER",
+        "Category": "Rupay SELECT",
+        "Bank": "Central Bank of India"
+    },
+    {
+        "BIN": 652758,
+        "Network": "DISCOVER",
+        "Category": "Rupay SELECT",
+        "Bank": "PUNJAB & MAHARASHTRA CO-OPERATIVE BANK"
+    },
+    {
+        "BIN": 652761,
+        "Network": "DISCOVER",
+        "Category": "Rupay SELECT",
+        "Bank": "BANK OF INDIA"
+    },
+    {
+        "BIN": 652782,
+        "Network": "DISCOVER",
+        "Category": "Rupay SELECT",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 652791,
+        "Network": "DISCOVER",
+        "Category": "Rupay SELECT",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 652797,
+        "Network": "DISCOVER",
+        "Category": "Rupay SELECT",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 652800,
+        "Network": "DISCOVER",
+        "Category": "Rupay SELECT",
+        "Bank": "Indian Bank"
+    },
+    {
+        "BIN": 652804,
+        "Network": "DISCOVER",
+        "Category": "Rupay SELECT",
+        "Bank": "IDBI"
+    },
+    {
+        "BIN": 652823,
+        "Network": "DISCOVER",
+        "Category": "Rupay SELECT",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 652831,
+        "Network": "DISCOVER",
+        "Category": "Rupay SELECT",
+        "Bank": "Bank of Baroda"
+    },
+    {
+        "BIN": 652842,
+        "Network": "DISCOVER",
+        "Category": "Rupay SELECT",
+        "Bank": "Indian Overseas Bank"
+    },
+    {
+        "BIN": 652850,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 652851,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Union Bank of India"
+    },
+    {
+        "BIN": 652852,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "Union Bank of India"
+    },
+    {
+        "BIN": 652853,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Punjab National Bank"
+    },
+    {
+        "BIN": 652854,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "Punjab National Bank"
+    },
+    {
+        "BIN": 652855,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Union Bank of India"
+    },
+    {
+        "BIN": 652856,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "Union Bank of India"
+    },
+    {
+        "BIN": 652857,
+        "Network": "Rupay",
+        "Category": "CLASSIC",
+        "Bank": "Rupay CREDIT CLASSIC"
+    },
+    {
+        "BIN": 652858,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Punjab National Bank"
+    },
+    {
+        "BIN": 652859,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "Punjab National Bank"
+    },
+    {
+        "BIN": 652860,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "IDBI"
+    },
+    {
+        "BIN": 652861,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Central Bank of India"
+    },
+    {
+        "BIN": 652862,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "Central Bank of India"
+    },
+    {
+        "BIN": 652863,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Union Bank of India"
+    },
+    {
+        "BIN": 652864,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "PUNJAB & MAHARASHTRA CO-OPERATIVE BANK"
+    },
+    {
+        "BIN": 652865,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "PUNJAB & MAHARASHTRA CO-OPERATIVE BANK"
+    },
+    {
+        "BIN": 652866,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "BANK OF INDIA"
+    },
+    {
+        "BIN": 652867,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "BANK OF INDIA"
+    },
+    {
+        "BIN": 652868,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 652869,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 652870,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "Union Bank of India"
+    },
+    {
+        "BIN": 652872,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "GOPINATH PATIL PARSIK JANATA SAHAKARI BANK"
+    },
+    {
+        "BIN": 652873,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "SARASWAT CO-OPERATIVE BANK"
+    },
+    {
+        "BIN": 652874,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Union Bank of India"
+    },
+    {
+        "BIN": 652875,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 652876,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 652877,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "Canara Bank"
+    },
+    {
+        "BIN": 652878,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Punjab National Bank"
+    },
+    {
+        "BIN": 652879,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Indian Bank"
+    },
+    {
+        "BIN": 652880,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 652881,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 652882,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 652883,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "BANK OF INDIA"
+    },
+    {
+        "BIN": 652884,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "Canara Bank"
+    },
+    {
+        "BIN": 652885,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Canara Bank"
+    },
+    {
+        "BIN": 652886,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "Punjab National Bank"
+    },
+    {
+        "BIN": 652887,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Punjab National Bank"
+    },
+    {
+        "BIN": 652888,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 652889,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 652890,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "Union Bank of India"
+    },
+    {
+        "BIN": 652891,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 652892,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 652893,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "SBM BANK"
+    },
+    {
+        "BIN": 652894,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 652895,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 652896,
+        "Network": "Rupay",
+        "Category": "CLASSIC",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 652897,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 652898,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 652899,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 652900,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "SBM BANK"
+    },
+    {
+        "BIN": 652901,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 652902,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 652903,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 652904,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 652905,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Union Bank of India"
+    },
+    {
+        "BIN": 652906,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "Indian Bank"
+    },
+    {
+        "BIN": 652907,
+        "Network": "Rupay",
+        "Category": "CLASSIC",
+        "Bank": "Indian Bank"
+    },
+    {
+        "BIN": 652908,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 652909,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "IDBI"
+    },
+    {
+        "BIN": 652910,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "IDBI"
+    },
+    {
+        "BIN": 652915,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 652916,
+        "Network": "Rupay",
+        "Category": "PERSONAL",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 652917,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 652919,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 652920,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 652921,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 652922,
+        "Network": "Rupay",
+        "Category": "PERSONAL",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 652923,
+        "Network": "Rupay",
+        "Category": "PERSONAL",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 652924,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 652925,
+        "Network": "Rupay",
+        "Category": "PERSONAL",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 652926,
+        "Network": "Rupay",
+        "Category": "PERSONAL",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 652927,
+        "Network": "Rupay",
+        "Category": "CLASSIC",
+        "Bank": "Rupay CREDIT CLASSIC"
+    },
+    {
+        "BIN": 652928,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 652929,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 652930,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 652931,
+        "Network": "Rupay",
+        "Category": "PERSONAL",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 652932,
+        "Network": "Rupay",
+        "Category": "PERSONAL",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 652933,
+        "Network": "Rupay",
+        "Category": "PERSONAL",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 652934,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 652935,
+        "Network": "Rupay",
+        "Category": "PERSONAL",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 652936,
+        "Network": "Rupay",
+        "Category": "PERSONAL",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 652937,
+        "Network": "Rupay",
+        "Category": "PERSONAL",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 652938,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 652939,
+        "Network": "Rupay",
+        "Category": "PERSONAL",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 652940,
+        "Network": "Rupay",
+        "Category": "PERSONAL",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 652941,
+        "Network": "Rupay",
+        "Category": "PERSONAL",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 652942,
+        "Network": "Rupay",
+        "Category": "PERSONAL",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 652943,
+        "Network": "Rupay",
+        "Category": "PERSONAL",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 652944,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 652945,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 652946,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 652947,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 652948,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 652949,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 652950,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 652951,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 652970,
+        "Network": "Rupay",
+        "Category": "PERSONAL",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 652971,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 652972,
+        "Network": "Rupay",
+        "Category": "PERSONAL",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 652973,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 652974,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 652975,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 652976,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 652977,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 652978,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 652979,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 652980,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 652981,
+        "Network": "Rupay",
+        "Category": "PERSONAL",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 652982,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 652983,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 652984,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 652985,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 652986,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 652987,
+        "Network": "Rupay",
+        "Category": "PERSONAL",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 652988,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 652989,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 652990,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 652991,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 652992,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 652993,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 652994,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 652995,
+        "Network": "DISCOVER",
+        "Category": "Rupay SELECT",
+        "Bank": "HDFC Bank"
+    },
+    {
+        "BIN": 652996,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 652997,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 652998,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 653000,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 653001,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Union Bank of India"
+    },
+    {
+        "BIN": 653002,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "Union Bank of India"
+    },
+    {
+        "BIN": 653003,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 653004,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "SBI"
+    },
+    {
+        "BIN": 653006,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 653007,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 653008,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 653009,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 653010,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 653011,
+        "Network": "Rupay",
+        "Category": "PERSONAL",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 653012,
+        "Network": "Rupay",
+        "Category": "PERSONAL",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 653013,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 653014,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 653015,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 653016,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 653017,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 653018,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 653019,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 653020,
+        "Network": "Rupay",
+        "Category": "PERSONAL",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 653021,
+        "Network": "Rupay",
+        "Category": "PERSONAL",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 653022,
+        "Network": "Rupay",
+        "Category": "CLASSIC",
+        "Bank": "Rupay CREDIT CLASSIC"
+    },
+    {
+        "BIN": 653023,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 653024,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 653025,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 653026,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 653027,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 653028,
+        "Network": "Rupay",
+        "Category": "PERSONAL",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 653029,
+        "Network": "Rupay",
+        "Category": "PERSONAL",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 653030,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 653031,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 653032,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 653033,
+        "Network": "Rupay",
+        "Category": "PERSONAL",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 653034,
+        "Network": "Rupay",
+        "Category": "PERSONAL",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 653035,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 653036,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 653037,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 653038,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 653039,
+        "Network": "Rupay",
+        "Category": "CLASSIC",
+        "Bank": "Rupay CREDIT CLASSIC"
+    },
+    {
+        "BIN": 653040,
+        "Network": "Rupay",
+        "Category": "PERSONAL",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 653041,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 653042,
+        "Network": "Rupay",
+        "Category": "PERSONAL",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 653043,
+        "Network": "Rupay",
+        "Category": "PERSONAL",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 653044,
+        "Network": "Rupay",
+        "Category": "PERSONAL",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 653045,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT CLASSIC"
+    },
+    {
+        "BIN": 653046,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Axis Bank"
+    },
+    {
+        "BIN": 653047,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Rupay CREDIT PLATINUM"
+    },
+    {
+        "BIN": 653048,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 653049,
+        "Network": "Rupay",
+        "Category": "Rupay SELECT",
+        "Bank": "Rupay CREDIT SUPER PLATINUM"
+    },
+    {
+        "BIN": 817617,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Bank of Baroda"
+    },
+    {
+        "BIN": 817618,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Bank of Baroda"
+    },
+    {
+        "BIN": 818319,
+        "Network": "Rupay",
+        "Category": "CLASSIC",
+        "Bank": "Canara Bank"
+    },
+    {
+        "BIN": 819847,
+        "Network": "Rupay",
+        "Category": "PLATINUM",
+        "Bank": "Bank of Baroda"
+    }
+]

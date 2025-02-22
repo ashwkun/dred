@@ -1,0 +1,179 @@
+.
+├── directory_structure.txt
+├── dist
+│   ├── index.db9ed22c.css
+│   ├── index.db9ed22c.css.map
+│   ├── index.fb506c2f.js
+│   ├── index.fb506c2f.js.map
+│   ├── index.html
+│   └── logo.73091252.png
+├── firebase.json
+├── package-lock.json
+├── package.json
+├── public
+│   ├── index.html
+│   ├── logos
+│   │   ├── amex.svg
+│   │   ├── ausmallfinancebank
+│   │   │   ├── logo.png
+│   │   │   ├── logo.svg
+│   │   │   ├── symbol.png
+│   │   │   └── symbol.svg
+│   │   ├── axisbank
+│   │   │   ├── logo.png
+│   │   │   ├── logo.svg
+│   │   │   ├── symbol.png
+│   │   │   └── symbol.svg
+│   │   ├── bandhanbank
+│   │   │   ├── logo.png
+│   │   │   ├── logo.svg
+│   │   │   ├── symbol.png
+│   │   │   └── symbol.svg
+│   │   ├── bankofbaroda
+│   │   │   ├── logo.png
+│   │   │   ├── logo.svg
+│   │   │   ├── symbol.png
+│   │   │   └── symbol.svg
+│   │   ├── bankofindia
+│   │   │   ├── logo.png
+│   │   │   ├── logo.svg
+│   │   │   ├── symbol.png
+│   │   │   └── symbol.svg
+│   │   ├── canarabank
+│   │   │   ├── logo.png
+│   │   │   ├── logo.svg
+│   │   │   ├── symbol.png
+│   │   │   └── symbol.svg
+│   │   ├── centralbankofindia
+│   │   │   ├── logo.png
+│   │   │   ├── logo.svg
+│   │   │   ├── symbol.png
+│   │   │   └── symbol.svg
+│   │   ├── cityunionbank
+│   │   │   ├── logo.png
+│   │   │   ├── logo.svg
+│   │   │   ├── symbol.png
+│   │   │   └── symbol.svg
+│   │   ├── csbbank
+│   │   │   ├── logo.png
+│   │   │   ├── logo.svg
+│   │   │   ├── symbol.png
+│   │   │   └── symbol.svg
+│   │   ├── dcbbank
+│   │   │   ├── logo.png
+│   │   │   ├── logo.svg
+│   │   │   ├── symbol.png
+│   │   │   └── symbol.svg
+│   │   ├── dhanlaxmibank
+│   │   │   ├── logo.png
+│   │   │   ├── logo.svg
+│   │   │   ├── symbol.png
+│   │   │   └── symbol.svg
+│   │   ├── dinersclub.svg
+│   │   ├── discover.svg
+│   │   ├── federalbank
+│   │   │   ├── logo.png
+│   │   │   ├── logo.svg
+│   │   │   ├── symbol.png
+│   │   │   └── symbol.svg
+│   │   ├── hdfcbank
+│   │   │   ├── logo.png
+│   │   │   ├── logo.svg
+│   │   │   ├── symbol.png
+│   │   │   └── symbol.svg
+│   │   ├── icicibank
+│   │   │   ├── logo.png
+│   │   │   ├── logo.svg
+│   │   │   ├── symbol.png
+│   │   │   └── symbol.svg
+│   │   ├── idbibank
+│   │   │   ├── logo.png
+│   │   │   ├── logo.svg
+│   │   │   ├── symbol.png
+│   │   │   └── symbol.svg
+│   │   ├── idfcfirstbank
+│   │   │   ├── logo.png
+│   │   │   ├── logo.svg
+│   │   │   ├── symbol.png
+│   │   │   └── symbol.svg
+│   │   ├── indianbank
+│   │   │   ├── logo.png
+│   │   │   ├── logo.svg
+│   │   │   ├── symbol.png
+│   │   │   └── symbol.svg
+│   │   ├── indianoverseasbank
+│   │   │   ├── logo.png
+│   │   │   ├── logo.svg
+│   │   │   ├── symbol.png
+│   │   │   └── symbol.svg
+│   │   ├── indusindbank
+│   │   │   ├── logo.png
+│   │   │   ├── logo.svg
+│   │   │   ├── symbol.png
+│   │   │   └── symbol.svg
+│   │   ├── jammuandkashmirbank
+│   │   │   ├── logo.png
+│   │   │   ├── logo.svg
+│   │   │   ├── symbol.png
+│   │   │   └── symbol.svg
+│   │   ├── karurvysyabank
+│   │   │   ├── logo.png
+│   │   │   ├── logo.svg
+│   │   │   ├── symbol.png
+│   │   │   └── symbol.svg
+│   │   ├── kotakmahindrabank
+│   │   │   ├── logo.png
+│   │   │   ├── logo.svg
+│   │   │   ├── symbol.png
+│   │   │   └── symbol.svg
+│   │   ├── mastercard.svg
+│   │   ├── punjabnationalbank
+│   │   │   ├── logo.png
+│   │   │   ├── logo.svg
+│   │   │   ├── symbol.png
+│   │   │   └── symbol.svg
+│   │   ├── q.py
+│   │   ├── rblbank
+│   │   │   ├── logo.png
+│   │   │   ├── logo.svg
+│   │   │   ├── symbol.png
+│   │   │   └── symbol.svg
+│   │   ├── rupay.svg
+│   │   ├── sbi
+│   │   │   ├── logo.png
+│   │   │   ├── logo.svg
+│   │   │   ├── symbol.png
+│   │   │   └── symbol.svg
+│   │   ├── unionbankofindia
+│   │   │   ├── logo.png
+│   │   │   ├── logo.svg
+│   │   │   ├── symbol.png
+│   │   │   └── symbol.svg
+│   │   ├── visa.svg
+│   │   └── yesbank
+│   │       ├── logo.png
+│   │       ├── logo.svg
+│   │       ├── symbol.png
+│   │       └── symbol.svg
+│   ├── pictures
+│   │   └── logo.png
+│   └── styles.css
+├── src
+│   ├── AddCard.jsx
+│   ├── App.jsx
+│   ├── Auth.jsx
+│   ├── CardCustomization.jsx
+│   ├── CardPreview.jsx
+│   ├── Dashboard.jsx
+│   ├── MasterPasswordPrompt.jsx
+│   ├── ViewCards.jsx
+│   ├── assets
+│   │   └── logo.png
+│   ├── binData.json
+│   ├── cardThemes.js
+│   ├── firebase.js
+│   ├── main.jsx
+│   └── tailwind.css
+└── tailwind.config.js
+
+34 directories, 143 files

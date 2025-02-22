@@ -1,0 +1,265 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base styles and typography */
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+    height: 100%;
+    @apply overscroll-none;
+  }
+
+  h1 {
+    @apply text-3xl font-bold tracking-tight;
+  }
+
+  h2 {
+    @apply text-2xl font-semibold tracking-tight;
+  }
+
+  h3 {
+    @apply text-xl font-semibold;
+  }
+
+  body {
+    height: 100%;
+    @apply overscroll-none bg-[#1a1a2e];
+  }
+
+  #root {
+    height: 100%;
+    @apply overscroll-none;
+  }
+}
+
+/* Component styles with improved typography */
+@layer components {
+  .page-title {
+    @apply text-3xl font-bold tracking-tight text-white mb-8;
+  }
+
+  .section-title {
+    @apply text-2xl font-semibold tracking-tight text-white mb-6;
+  }
+
+  .card-title {
+    @apply text-lg font-medium text-white mb-4;
+  }
+
+  .label-text {
+    @apply text-sm font-medium text-gray-300 mb-2;
+  }
+
+  .body-text {
+    @apply text-base text-gray-100 leading-relaxed;
+  }
+
+  .small-text {
+    @apply text-sm text-gray-300;
+  }
+
+  /* Input styling with better typography */
+  .input-style {
+    @apply w-full p-3 bg-[#2D2D44] border border-gray-600 rounded-lg 
+    text-white placeholder-gray-400 
+    focus:ring-2 focus:ring-[#6a3de8] focus:outline-none 
+    transition-all duration-200
+    text-base font-normal tracking-wide;
+  }
+
+  /* Button styling with better typography */
+  .btn-primary {
+    @apply w-full py-3 bg-[#6a3de8] hover:bg-[#5a2de0] 
+    text-white font-semibold rounded-lg 
+    text-base tracking-wide
+    transition-all duration-200 shadow-lg;
+  }
+
+  .btn-secondary {
+    @apply w-full py-3 bg-gray-700 hover:bg-gray-600 
+    text-white font-semibold rounded-lg 
+    text-base tracking-wide
+    transition-all duration-200 shadow-lg;
+  }
+
+  /* Card container styling */
+  .card-container {
+    @apply w-full max-w-sm rounded-xl shadow-lg p-6 text-white flex flex-col justify-between transition-all duration-300;
+  }
+
+  /* Gradient picker styling */
+  .gradient-picker {
+    @apply w-full bg-gray-700 p-2 rounded-lg text-white cursor-pointer;
+  }
+
+  /* Card delete button styles */
+  .card-wrapper {
+    @apply relative w-full;
+  }
+
+  .delete-btn {
+    @apply absolute -top-2 -right-2 w-8 h-8 
+      bg-white/10 hover:bg-red-500
+      text-white/60 hover:text-white
+      font-medium text-lg
+      rounded-full cursor-pointer
+      flex items-center justify-center
+      opacity-0 scale-75
+      transition-all duration-300 ease-in-out
+      leading-none p-0
+      backdrop-blur-sm
+      border border-white/20
+      shadow-lg;
+    z-index: 20; /* Higher than card but lower than header/footer */
+  }
+
+  .card-wrapper:hover .delete-btn {
+    @apply opacity-100 scale-100;
+  }
+
+  /* Update the hover effect to not affect z-index */
+  .card-wrapper:hover > div:first-of-type {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2); /* Softer hover shadow */
+    transition: all 0.3s ease;
+  }
+
+  /* Animation classes for the confirmation dialog */
+  .animate-fade-in {
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.2s ease-out;
+  }
+
+  /* Add shine animation */
+  @keyframes shine {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+
+  .card-container {
+    @apply relative overflow-hidden;
+    transition: all 0.3s ease;
+  }
+
+  .card-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      120deg,
+      transparent,
+      rgba(255, 255, 255, 0.3) 30%,
+      transparent 60%
+    );
+    animation: shine 3s infinite linear;
+  }
+
+  .animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { 
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to { 
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Animations */
+@keyframes glow {
+  0% { filter: brightness(1); }
+  100% { filter: brightness(1.5); }
+}
+.animate-glow {
+  animation: glow 1.5s infinite alternate;
+}
+
+@keyframes wave {
+  0% { transform: translateX(-10px); }
+  100% { transform: translateX(10px); }
+}
+.animate-wave {
+  animation: wave 2s linear infinite;
+}
+
+@keyframes flicker {
+  0% { opacity: 1; }
+  50% { opacity: 0.7; }
+  100% { opacity: 1; }
+}
+.animate-flicker {
+  animation: flicker 1.2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 640px) {
+  .input-style {
+    @apply text-sm p-2;
+  }
+  .btn-primary, .btn-secondary {
+    @apply text-base py-2;
+  }
+}
+
+@media (max-width: 768px) {
+  .card-wrapper {
+    @apply mx-0 mb-2;
+  }
+
+  .card-container {
+    @apply w-[95%] mx-auto; /* Slightly reduced width on mobile */
+  }
+
+  /* Adjust text sizes for mobile */
+  .card-number {
+    @apply text-lg tracking-wider;
+  }
+
+  .card-holder {
+    @apply text-sm;
+  }
+
+  /* Always show delete button on mobile */
+  .delete-btn {
+    @apply opacity-100 scale-100;
+  }
+}
+
+/* Update scrollable content styles */
+@layer utilities {
+  .scrollable-content {
+    @apply overflow-y-auto overflow-x-hidden overscroll-none;
+    -webkit-overflow-scrolling: touch;
+  }
+}

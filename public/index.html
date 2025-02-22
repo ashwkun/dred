@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#2A2A72" />
+    <meta name="description" content="Securely manage your credit and debit cards" />
+    <link rel="manifest" href="./manifest.webmanifest" crossorigin="use-credentials">
+    <link rel="apple-touch-icon" href="./icons/icon-192.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Dred - Card Manager</title>
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  </head>
+  <body>
+    <div id="root"></div>
+    <!-- Hidden reference to force Parcel to copy the logos folder.
+         Using a relative path (without a leading slash) ensures Parcel
+         resolves it correctly from this file's location (public folder). -->
+    <img src="logos/hdfcbank/logo.svg" style="display: none" alt="force logos copy" />
+    <script type="module" src="../src/main.jsx"></script>
+    <script type="module">
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', async () => {
+          try {
+            const registration = await navigator.serviceWorker.register(
+              new URL('./serviceWorker.js', import.meta.url),
+              { scope: './' }
+            );
+            console.log('ServiceWorker registration successful with scope:', registration.scope);
+
+            // Force update check
+            registration.update();
+
+            // Handle updates
+            registration.addEventListener('updatefound', () => {
+              const newWorker = registration.installing;
+              console.log('Service Worker update found!');
+              
+              newWorker.addEventListener('statechange', () => {
+                console.log('Service Worker state:', newWorker.state);
+              });
+            });
+
+          } catch (err) {
+            console.error('ServiceWorker registration failed:', err);
+          }
+        });
+      }
+    </script>
+  </body>
+</html>
