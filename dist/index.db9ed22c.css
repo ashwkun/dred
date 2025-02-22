@@ -474,8 +474,16 @@ body {
   bottom: 0;
 }
 
+.bottom-4 {
+  bottom: 1rem;
+}
+
 .left-0 {
   left: 0;
+}
+
+.left-4 {
+  left: 1rem;
 }
 
 .right-0 {
@@ -486,12 +494,20 @@ body {
   right: .75rem;
 }
 
+.right-4 {
+  right: 1rem;
+}
+
 .top-0 {
   top: 0;
 }
 
 .top-1\/2 {
   top: 50%;
+}
+
+.top-4 {
+  top: 1rem;
 }
 
 .top-full {
@@ -581,6 +597,14 @@ body {
 
 .hidden {
   display: none;
+}
+
+.aspect-\[1\.586\/1\] {
+  aspect-ratio: 1.586;
+}
+
+.aspect-square {
+  aspect-ratio: 1;
 }
 
 .h-1 {
@@ -785,6 +809,10 @@ body {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.grid-cols-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
 .grid-cols-5 {
   grid-template-columns: repeat(5, minmax(0, 1fr));
 }
@@ -835,6 +863,10 @@ body {
 
 .gap-4 {
   gap: 1rem;
+}
+
+.gap-6 {
+  gap: 1.5rem;
 }
 
 .gap-8 {
@@ -926,12 +958,21 @@ body {
   border-color: #ef44444d;
 }
 
+.border-white {
+  --tw-border-opacity: 1;
+  border-color: rgb(255 255 255 / var(--tw-border-opacity, 1));
+}
+
 .border-white\/10 {
   border-color: #ffffff1a;
 }
 
 .border-white\/20 {
   border-color: #fff3;
+}
+
+.border-white\/30 {
+  border-color: #ffffff4d;
 }
 
 .border-t-white {
@@ -1346,6 +1387,16 @@ body {
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 
+.ring-2 {
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+}
+
+.ring-white\/30 {
+  --tw-ring-color: #ffffff4d;
+}
+
 .blur {
   --tw-blur: blur(8px);
   filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
@@ -1548,6 +1599,10 @@ body {
   border-color: #fff3;
 }
 
+.hover\:border-white\/30:hover {
+  border-color: #ffffff4d;
+}
+
 .hover\:border-white\/40:hover {
   border-color: #fff6;
 }
@@ -1626,6 +1681,14 @@ body {
   --tw-ring-color: #fff3;
 }
 
+.disabled\:cursor-not-allowed:disabled {
+  cursor: not-allowed;
+}
+
+.disabled\:opacity-50:disabled {
+  opacity: .5;
+}
+
 .group:hover .group-hover\:scale-110 {
   --tw-scale-x: 1.1;
   --tw-scale-y: 1.1;
@@ -1657,6 +1720,10 @@ body {
 
   .md\:h-full {
     height: 100%;
+  }
+
+  .md\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .md\:grid-cols-3 {

@@ -1,202 +1,230 @@
-import React, { useEffect, useState } from "react";
-import { bankThemes, popularColors } from "./cardThemes";
-import LogoWithFallback from "./LogoWithFallback";
+import React, { useState, useEffect } from 'react';
+import { BiChevronLeft, BiCheck } from 'react-icons/bi';
+import binData from '../../binData.json';
+import LogoWithFallback from '../../LogoWithFallback';
+import { cardThemes } from '../../cardThemes';
 
-function CardCustomization({ cardHolder, cardNumber, bankName, networkName, expiry, theme, setTheme }) {
-  const [showMoreGradients, setShowMoreGradients] = useState(false);
-  const [showMoreSolids, setShowMoreSolids] = useState(false);
+export default function CardCustomization({ onBack, onSubmit, cardNumber, loading }) {
+  const [customization, setCustomization] = useState({
+    bankName: '',
+    networkName: '',
+    cardType: '',
+    theme: 'default'
+  });
+  const [selectedBank, setSelectedBank] = useState(null);
+  const [error, setError] = useState('');
 
-  // Auto-apply bank theme if available
+  // Detect card network and bank from card number
   useEffect(() => {
-    if (bankName && bankThemes[bankName]) {
-      setTheme(bankThemes[bankName]);
-    }
-  }, [bankName]);
+    const bin = cardNumber.replace(/\s/g, '').substring(0, 6);
+    const cardInfo = binData.find(item => item.bin === bin);
 
-  // Use the same styleConfig as ViewCards for consistency
-  const styleConfig = {
-    cardContainer: {
-      width: '100%',
-      maxWidth: '384px',
-      height: '224px',
-      margin: '0 auto',
-      borderRadius: '12px',
-      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
-      overflow: 'hidden',
-      color: 'white',
-      background: 'rgba(255, 255, 255, 0.1)',
-      backdropFilter: 'blur(8px)',
-      border: '1px solid rgba(255, 255, 255, 0.2)',
-      position: 'relative',
-    },
-    bankLogoStyle: {
-      position: 'absolute',
-      top: '10px',
-      left: '16px',
-      width: '96px',
-      height: '40px',
-    },
-    cardNumberTextStyle: {
-      fontSize: '24px',
-      letterSpacing: '0.1em',
-      textAlign: 'center',
-      fontWeight: '500',
-    },
-    cardHolderStyle: {
-      position: 'absolute',
-      bottom: '16px',
-      left: '16px',
-      fontSize: '14px',
-      fontWeight: '500',
-      textAlign: 'left',
-      letterSpacing: '0.025em',
-    },
-    networkLogoStyle: {
-      position: 'absolute',
-      bottom: '5px',
-      right: '16px',
-      width: '70px',
-      height: '50px',
-    },
-    middleContainerStyle: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: '100%',
-      padding: '0 16px',
-    },
+    if (cardInfo) {
+      setCustomization(prev => ({
+        ...prev,
+        networkName: cardInfo.network,
+        bankName: cardInfo.bank
+      }));
+      
+      // Find bank in supported banks list
+      const bank = supportedBanks.find(b => 
+        b.name.toLowerCase() === cardInfo.bank.toLowerCase()
+      );
+      if (bank) setSelectedBank(bank);
+    }
+  }, [cardNumber]);
+
+  const supportedBanks = [
+    { name: 'HDFC Bank', id: 'hdfcbank' },
+    { name: 'ICICI Bank', id: 'icicibank' },
+    { name: 'Axis Bank', id: 'axisbank' },
+    { name: 'SBI', id: 'sbi' },
+    { name: 'IDFC First Bank', id: 'idfcfirstbank' },
+    { name: 'Kotak Mahindra Bank', id: 'kotakmahindrabank' },
+    // Add more banks as needed
+  ];
+
+  const cardTypes = [
+    'Credit Card',
+    'Debit Card',
+    'Business Credit Card',
+    'Corporate Card'
+  ];
+
+  const handleSubmit = () => {
+    if (!customization.bankName) {
+      setError('Please select a bank');
+      return;
+    }
+    if (!customization.cardType) {
+      setError('Please select a card type');
+      return;
+    }
+    onSubmit(customization);
   };
 
   return (
-    <div className="w-full max-w-sm">
-      <h3 className="text-xl font-semibold text-white mb-4">Customize Your Card</h3>
+    <div className="max-w-4xl mx-auto">
+      <div className="flex items-center justify-between text-white mb-6">
+        <button
+          onClick={onBack}
+          className="flex items-center gap-1 text-white/70 hover:text-white transition-colors"
+        >
+          <BiChevronLeft className="text-xl" />
+          Back
+        </button>
+        <h1 className="text-2xl font-bold">Customize Your Card</h1>
+        <div className="w-16" /> {/* Spacer for alignment */}
+      </div>
 
-      {/* Live Card Preview */}
-      <div style={styleConfig.cardContainer}>
-        {/* Theme color with reduced opacity */}
-        <div 
-          style={{ 
-            position: 'absolute',
-            inset: 0,
-            background: theme,
-            opacity: 0.3,
-          }} 
-        />
-
-        {/* Glass overlay */}
-        <div 
-          style={{ 
-            position: 'absolute',
-            inset: 0,
-            backdropFilter: 'blur(8px)',
-            background: 'rgba(255, 255, 255, 0.05)',
-            borderRadius: '12px',
-          }} 
-        />
-
-        {/* Card content */}
-        <div style={{ position: 'relative', height: '100%' }}>
-          <div style={styleConfig.bankLogoStyle}>
-            <LogoWithFallback
-              logoName={bankName}
-              logoType="bank"
-              style={{
-                width: styleConfig.bankLogoStyle.width,
-                height: styleConfig.bankLogoStyle.height,
-                objectFit: 'contain',
-              }}
-            />
+      <div className="grid md:grid-cols-2 gap-6">
+        {/* Left Column - Card Preview */}
+        <div className="space-y-4">
+          <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6">
+            <h2 className="text-lg font-medium text-white mb-4">Card Preview</h2>
+            
+            <div className={`aspect-[1.586/1] rounded-xl overflow-hidden relative ${cardThemes[customization.theme]}`}>
+              {selectedBank && (
+                <div className="absolute top-4 left-4">
+                  <LogoWithFallback 
+                    bankId={selectedBank.id}
+                    type="symbol"
+                    className="h-8 w-8"
+                  />
+                </div>
+              )}
+              
+              <div className="absolute bottom-4 left-4 right-4">
+                <div className="text-white/70 text-xs mb-1">
+                  {customization.cardType || 'Card Type'}
+                </div>
+                <div className="font-mono text-white text-lg mb-2">
+                  •••• •••• •••• {cardNumber.slice(-4)}
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    {selectedBank && (
+                      <LogoWithFallback 
+                        bankId={selectedBank.id}
+                        type="logo"
+                        className="h-6"
+                      />
+                    )}
+                  </div>
+                  {customization.networkName && (
+                    <img 
+                      src={`/logos/${customization.networkName.toLowerCase()}.svg`}
+                      alt={customization.networkName}
+                      className="h-6"
+                    />
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
+        </div>
 
-          <div style={styleConfig.middleContainerStyle}>
-            <div style={styleConfig.cardNumberTextStyle}>
-              {cardNumber ? cardNumber.replace(/(.{4})/g, "$1 ") : "•••• •••• •••• ••••"}
+        {/* Right Column - Customization Options */}
+        <div className="space-y-4">
+          {/* Bank Selection */}
+          <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6">
+            <h2 className="text-lg font-medium text-white mb-4">Select Bank</h2>
+            <div className="grid grid-cols-2 gap-3">
+              {supportedBanks.map(bank => (
+                <button
+                  key={bank.id}
+                  onClick={() => {
+                    setSelectedBank(bank);
+                    setCustomization(prev => ({ ...prev, bankName: bank.name }));
+                    setError('');
+                  }}
+                  className={`flex items-center gap-2 p-3 rounded-xl border transition-all
+                    ${selectedBank?.id === bank.id 
+                      ? 'bg-white/20 border-white/30' 
+                      : 'bg-white/5 border-white/10 hover:bg-white/10'
+                    }`}
+                >
+                  <LogoWithFallback 
+                    bankId={bank.id}
+                    type="symbol"
+                    className="h-6 w-6"
+                  />
+                  <span className="text-sm text-white font-medium truncate">
+                    {bank.name}
+                  </span>
+                </button>
+              ))}
             </div>
           </div>
 
-          <div style={styleConfig.cardHolderStyle}>
-            <span style={{ fontSize: '14px' }}>{cardHolder || "Your Name"}</span>
+          {/* Card Type Selection */}
+          <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6">
+            <h2 className="text-lg font-medium text-white mb-4">Card Type</h2>
+            <div className="grid grid-cols-2 gap-3">
+              {cardTypes.map(type => (
+                <button
+                  key={type}
+                  onClick={() => {
+                    setCustomization(prev => ({ ...prev, cardType: type }));
+                    setError('');
+                  }}
+                  className={`p-3 rounded-xl border transition-all text-left
+                    ${customization.cardType === type 
+                      ? 'bg-white/20 border-white/30' 
+                      : 'bg-white/5 border-white/10 hover:bg-white/10'
+                    }`}
+                >
+                  <span className="text-sm text-white font-medium">
+                    {type}
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
 
-          <div style={styleConfig.networkLogoStyle}>
-            <LogoWithFallback
-              logoName={networkName}
-              logoType="network"
-              style={{
-                width: styleConfig.networkLogoStyle.width,
-                height: styleConfig.networkLogoStyle.height,
-                objectFit: 'contain',
-              }}
-            />
+          {/* Theme Selection */}
+          <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6">
+            <h2 className="text-lg font-medium text-white mb-4">Card Theme</h2>
+            <div className="grid grid-cols-4 gap-3">
+              {Object.entries(cardThemes).map(([name, theme]) => (
+                <button
+                  key={name}
+                  onClick={() => setCustomization(prev => ({ ...prev, theme: name }))}
+                  className={`aspect-square rounded-xl border transition-all ${theme}
+                    ${customization.theme === name 
+                      ? 'border-white ring-2 ring-white/30' 
+                      : 'border-white/10 hover:border-white/30'
+                    }`}
+                />
+              ))}
+            </div>
           </div>
+
+          {error && (
+            <p className="text-red-400 text-sm">{error}</p>
+          )}
+
+          <button
+            onClick={handleSubmit}
+            disabled={loading}
+            className="w-full px-6 py-3 bg-white/10 hover:bg-white/20 
+              rounded-xl text-white font-medium transition-all flex items-center 
+              justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? (
+              <>
+                <div className="animate-spin w-5 h-5 border-2 border-white/20 border-t-white rounded-full" />
+                <span>Adding Card...</span>
+              </>
+            ) : (
+              <>
+                <BiCheck className="text-xl" />
+                <span>Add Card</span>
+              </>
+            )}
+          </button>
         </div>
-      </div>
-
-      {/* Suggested Bank Themes (Preview Blocks) */}
-      <div>
-        <label className="text-sm text-gray-400">Bank-Based Backgrounds</label>
-        <div className="grid grid-cols-5 gap-3 mt-2">
-          {Object.entries(bankThemes).slice(0, 5).map(([name, gradient]) => (
-            <div
-              key={name}
-              className="w-14 h-10 rounded-md cursor-pointer transition-all duration-200 shadow-md hover:scale-105 border border-gray-700"
-              style={{ background: gradient }}
-              onClick={() => setTheme(gradient)}
-            ></div>
-          ))}
-        </div>
-
-        {/* Collapsible More Gradients */}
-        {showMoreGradients && (
-          <div className="grid grid-cols-5 gap-3 mt-2">
-            {Object.entries(bankThemes).slice(5).map(([name, gradient]) => (
-              <div
-                key={name}
-                className="w-14 h-10 rounded-md cursor-pointer transition-all duration-200 shadow-md hover:scale-105 border border-gray-700"
-                style={{ background: gradient }}
-                onClick={() => setTheme(gradient)}
-              ></div>
-            ))}
-          </div>
-        )}
-        <button className="text-sm text-gray-400 mt-2 hover:text-white transition" onClick={() => setShowMoreGradients(!showMoreGradients)}>
-          {showMoreGradients ? "Show Less" : "Show More"}
-        </button>
-      </div>
-
-      {/* Solid Color Selection */}
-      <div>
-        <label className="text-sm text-gray-400">Solid Colors</label>
-        <div className="grid grid-cols-5 gap-3 mt-2">
-          {popularColors.slice(0, 5).map((color, index) => (
-            <div
-              key={index}
-              className="w-14 h-10 rounded-md cursor-pointer transition-all duration-200 shadow-md hover:scale-105 border border-gray-700"
-              style={{ background: color }}
-              onClick={() => setTheme(color)}
-            ></div>
-          ))}
-        </div>
-
-        {/* Collapsible More Solid Colors */}
-        {showMoreSolids && (
-          <div className="grid grid-cols-5 gap-3 mt-2">
-            {popularColors.slice(5).map((color, index) => (
-              <div
-                key={index}
-                className="w-14 h-10 rounded-md cursor-pointer transition-all duration-200 shadow-md hover:scale-105 border border-gray-700"
-                style={{ background: color }}
-                onClick={() => setTheme(color)}
-              ></div>
-            ))}
-          </div>
-        )}
-        <button className="text-sm text-gray-400 mt-2 hover:text-white transition" onClick={() => setShowMoreSolids(!showMoreSolids)}>
-          {showMoreSolids ? "Show Less" : "Show More"}
-        </button>
       </div>
     </div>
   );
 }
-
-export default CardCustomization;
