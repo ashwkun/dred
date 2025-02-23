@@ -5,7 +5,7 @@ import { db } from "../../firebase";
 import CryptoJS from "crypto-js";
 import Dialog from '../../components/Dialog';
 import { BiCog } from 'react-icons/bi';
-import { LoadingSpinner } from '../../components/LoadingSpinner';
+import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { SuccessAnimation } from '../../components/SuccessAnimation';
 
 function Settings({ user, masterPassword }) {
@@ -516,19 +516,7 @@ function Settings({ user, masterPassword }) {
 
       {showSuccess && <SuccessAnimation message={successMessage} />}
       
-      {reorderLoading && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/20 backdrop-blur-md">
-          <div className="flex flex-col items-center gap-8">
-            <div className="bg-white/5 backdrop-blur-xl p-8 rounded-2xl border border-white/10">
-              <LoadingSpinner size="lg" />
-            </div>
-            <div className="flex flex-col items-center gap-2">
-              <p className="text-xl font-medium text-white">Updating card order</p>
-              <p className="text-white/70 animate-pulse">Please wait...</p>
-            </div>
-          </div>
-        </div>
-      )}
+      {reorderLoading && <LoadingOverlay message="Updating card order" />}
     </div>
   );
 }

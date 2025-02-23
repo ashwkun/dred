@@ -6,7 +6,7 @@ import binData from "./binData.json";
 import CardCustomization from "./CardCustomization";
 import { securityManager } from './utils/security';
 import { BiAddToQueue } from 'react-icons/bi';
-import LoadingSpinner from './LoadingSpinner';
+import { LoadingSpinner } from './components/LoadingSpinner';
 
 function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
   const [cardHolder, setCardHolder] = useState(user?.displayName || ""); // Editable

@@ -3,7 +3,7 @@ import { db } from "./firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import CryptoJS from "crypto-js";
 import { BiCreditCard, BiTrendingUp, BiMoney, BiInfoCircle, BiBarChartAlt } from 'react-icons/bi';
-import LoadingSpinner from './LoadingSpinner';
+import { LoadingOverlay } from './components/LoadingOverlay';
 
 function Dashboard({ user, masterPassword }) {
   const [stats, setStats] = useState({
@@ -111,19 +111,7 @@ function Dashboard({ user, masterPassword }) {
   }, [user, masterPassword]);
 
   if (loading) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center bg-black/20 backdrop-blur-md">
-        <div className="flex flex-col items-center gap-8">
-          <div className="bg-white/5 backdrop-blur-xl p-8 rounded-2xl border border-white/10">
-            <LoadingSpinner size="lg" />
-          </div>
-          <div className="flex flex-col items-center gap-2">
-            <p className="text-xl font-medium text-white">Loading dashboard</p>
-            <p className="text-white/70 animate-pulse">Please wait...</p>
-          </div>
-        </div>
-      </div>
-    );
+    return <LoadingOverlay message="Loading dashboard" />;
   }
 
   return (
