@@ -1,33 +1,42 @@
 import React from 'react';
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell
+  PieChart, Pie, Cell, BarChart, Bar
 } from 'recharts';
 
 export const InvestmentSection = ({ investments }) => {
   const COLORS = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
 
+  // Calculate portfolio metrics
+  const totalInvested = investments.totalInvested;
+  const projectedValue = investments.totalProjected.fiveYear;
+  const expectedReturn = ((projectedValue / totalInvested - 1) * 100).toFixed(1);
+  const monthlyAvg = investments.sipProjections?.monthly || 0;
+
   return (
     <div className="space-y-6">
       {/* Investment Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 border border-white/20">
           <h3 className="text-white/60 text-sm">Total Invested</h3>
-          <p className="text-2xl font-bold text-white">₹{investments.totalInvested.toFixed(2)}</p>
+          <p className="text-2xl font-bold text-white">₹{Math.round(totalInvested).toLocaleString()}</p>
         </div>
         <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 border border-white/20">
-          <h3 className="text-white/60 text-sm">1 Year Projection</h3>
-          <p className="text-2xl font-bold text-white">₹{investments.totalProjected.oneYear.toFixed(2)}</p>
-          <p className="text-green-400 text-sm">
-            +₹{(investments.totalProjected.oneYear - investments.totalInvested).toFixed(2)}
-          </p>
+          <h3 className="text-white/60 text-sm">5Y Projection</h3>
+          <p className="text-2xl font-bold text-white">₹{Math.round(projectedValue).toLocaleString()}</p>
+          <p className="text-green-400 text-sm">+{expectedReturn}% return</p>
         </div>
         <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 border border-white/20">
-          <h3 className="text-white/60 text-sm">5 Year Projection</h3>
-          <p className="text-2xl font-bold text-white">₹{investments.totalProjected.fiveYear.toFixed(2)}</p>
-          <p className="text-green-400 text-sm">
-            +₹{(investments.totalProjected.fiveYear - investments.totalInvested).toFixed(2)}
+          <h3 className="text-white/60 text-sm">Monthly Average</h3>
+          <p className="text-2xl font-bold text-white">₹{Math.round(monthlyAvg).toLocaleString()}</p>
+          <p className="text-white/60 text-sm">SIP equivalent</p>
+        </div>
+        <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 border border-white/20">
+          <h3 className="text-white/60 text-sm">Investment Status</h3>
+          <p className="text-2xl font-bold text-white">
+            {investments.investmentTrends?.consistency || 'New'}
           </p>
+          <p className="text-white/60 text-sm">based on pattern</p>
         </div>
       </div>
 
@@ -57,7 +66,8 @@ export const InvestmentSection = ({ investments }) => {
                     innerRadius,
                     outerRadius,
                     value,
-                    name
+                    name,
+                    percent
                   }) => {
                     const RADIAN = Math.PI / 180;
                     const radius = outerRadius * 1.2;
@@ -72,7 +82,7 @@ export const InvestmentSection = ({ investments }) => {
                         dominantBaseline="central"
                         fontSize="12"
                       >
-                        {name}
+                        {`${name} (${(percent * 100).toFixed(0)}%)`}
                       </text>
                     );
                   }}
@@ -83,10 +93,11 @@ export const InvestmentSection = ({ investments }) => {
                 </Pie>
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    backgroundColor: 'rgba(20, 20, 20, 0.95)',
                     border: '1px solid rgba(255, 255, 255, 0.2)',
                     borderRadius: '8px'
                   }}
+                  formatter={(value) => [`₹${Math.round(value).toLocaleString()}`, 'Amount']}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -94,24 +105,24 @@ export const InvestmentSection = ({ investments }) => {
         </div>
 
         <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 md:p-6 border border-white/20">
-          <h3 className="text-lg font-semibold text-white mb-4">Investment Returns</h3>
+          <h3 className="text-lg font-semibold text-white mb-4">Expected Returns</h3>
           <div className="space-y-4">
             {Object.entries(investments.projectedReturns)
-              .sort(([, a], [, b]) => b.amount - a.amount)
+              .sort(([, a], [, b]) => b.fiveYear - a.fiveYear)
               .map(([instrument, data]) => (
                 <div key={instrument} className="bg-white/5 rounded-lg p-4">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-white">{instrument}</span>
-                    <span className="text-white font-medium">₹{data.amount.toFixed(2)}</span>
+                    <span className="text-green-400">{data.rate.toFixed(1)}% ROI</span>
                   </div>
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div>
-                      <span className="text-white/60">Expected ROI:</span>
-                      <span className="text-green-400 ml-2">{data.rate.toFixed(1)}%</span>
+                      <span className="text-white/60">Current: </span>
+                      <span className="text-white">₹{Math.round(data.amount).toLocaleString()}</span>
                     </div>
                     <div>
-                      <span className="text-white/60">5Y Projection:</span>
-                      <span className="text-white ml-2">₹{data.fiveYear.toFixed(2)}</span>
+                      <span className="text-white/60">5Y: </span>
+                      <span className="text-white">₹{Math.round(data.fiveYear).toLocaleString()}</span>
                     </div>
                   </div>
                 </div>
