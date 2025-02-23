@@ -182,17 +182,24 @@ export const calculateInsights = (transactions, monthlyBudget) => {
   // Add these new calculations in calculateInsights
   // Weekly patterns
   const weeklyPatterns = nonInvestmentTransactions.reduce((acc, t) => {
-    const date = new Date(t.date);
-    const dayOfWeek = date.getDay();
-    const amount = parseFloat(t.amount);
-    
-    acc.dayWise[dayOfWeek] = (acc.dayWise[dayOfWeek] || 0) + amount;
-    acc.weekendTotal += (dayOfWeek === 0 || dayOfWeek === 6) ? amount : 0;
-    acc.weekdayTotal += (dayOfWeek > 0 && dayOfWeek < 6) ? amount : 0;
-    acc.count.weekend += (dayOfWeek === 0 || dayOfWeek === 6) ? 1 : 0;
-    acc.count.weekday += (dayOfWeek > 0 && dayOfWeek < 6) ? 1 : 0;
-    
-    return acc;
+    try {
+      const date = new Date(t.date);
+      if (isNaN(date.getTime())) return acc; // Skip invalid dates
+      
+      const dayOfWeek = date.getDay();
+      const amount = parseFloat(t.amount) || 0;
+      
+      acc.dayWise[dayOfWeek] = (acc.dayWise[dayOfWeek] || 0) + amount;
+      acc.weekendTotal += (dayOfWeek === 0 || dayOfWeek === 6) ? amount : 0;
+      acc.weekdayTotal += (dayOfWeek > 0 && dayOfWeek < 6) ? amount : 0;
+      acc.count.weekend += (dayOfWeek === 0 || dayOfWeek === 6) ? 1 : 0;
+      acc.count.weekday += (dayOfWeek > 0 && dayOfWeek < 6) ? 1 : 0;
+      
+      return acc;
+    } catch (error) {
+      console.error('Error processing transaction:', error);
+      return acc;
+    }
   }, { 
     dayWise: {}, 
     weekendTotal: 0, 
@@ -306,10 +313,11 @@ export const calculateInsights = (transactions, monthlyBudget) => {
       }
     },
     weeklyAnalysis: {
-      mostExpensiveDay: Object.entries(weeklyPatterns.dayWise)
-        .sort(([, a], [, b]) => b - a)[0],
-      weekendAvg: weeklyPatterns.weekendTotal / (weeklyPatterns.count.weekend || 1),
-      weekdayAvg: weeklyPatterns.weekdayTotal / (weeklyPatterns.count.weekday || 1),
+      mostExpensiveDay: Object.entries(weeklyPatterns.dayWise).length > 0
+        ? Object.entries(weeklyPatterns.dayWise).sort(([, a], [, b]) => b - a)[0]
+        : null,
+      weekendAvg: weeklyPatterns.count.weekend ? weeklyPatterns.weekendTotal / weeklyPatterns.count.weekend : 0,
+      weekdayAvg: weeklyPatterns.count.weekday ? weeklyPatterns.weekdayTotal / weeklyPatterns.count.weekday : 0,
       dayWiseSpending: weeklyPatterns.dayWise
     },
     categoryInsights: {

@@ -1077,6 +1077,18 @@ body {
   border-color: #ffffff0d;
 }
 
+.border-blue-500\/20 {
+  border-color: #3b82f633;
+}
+
+.border-green-500\/20 {
+  border-color: #22c55e33;
+}
+
+.border-red-500\/20 {
+  border-color: #ef444433;
+}
+
 .border-t-white {
   --tw-border-opacity: 1;
   border-top-color: rgb(255 255 255 / var(--tw-border-opacity, 1));
@@ -1188,6 +1200,14 @@ body {
 
 .bg-black\/90 {
   background-color: #000000e6;
+}
+
+.bg-blue-500\/10 {
+  background-color: #3b82f61a;
+}
+
+.bg-green-500\/10 {
+  background-color: #22c55e1a;
 }
 
 .bg-gradient-to-b {
@@ -1500,6 +1520,10 @@ body {
 
 .lowercase {
   text-transform: lowercase;
+}
+
+.capitalize {
+  text-transform: capitalize;
 }
 
 .italic {

@@ -335,6 +335,12 @@ const InsightsView = ({ transactions, cards, monthlyBudget, onSetBudget }) => {
             <SavingsAnalysisCard insights={insights} />
             <SpendingHeatmapCard insights={insights} />
           </div>
+
+          {/* Spending Goals */}
+          <SpendingGoalsCard insights={insights} monthlyBudget={monthlyBudget} />
+
+          {/* Spending Recommendations */}
+          <SpendingRecommendationsCard insights={insights} />
         </div>
       ) : (
         <InvestmentSection investments={insights.investments} />
@@ -349,6 +355,9 @@ const WeeklyAnalysisCard = ({ weeklyAnalysis }) => {
     name: day,
     amount: weeklyAnalysis.dayWiseSpending[index] || 0
   }));
+
+  const mostExpensiveDay = weeklyAnalysis.mostExpensiveDay || [];
+  const hasMostExpensiveDay = mostExpensiveDay.length === 2;
 
   return (
     <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 md:p-6 border border-white/20">
@@ -383,20 +392,26 @@ const WeeklyAnalysisCard = ({ weeklyAnalysis }) => {
         <div>
           <p className="text-white/60 text-sm">Weekend vs Weekday</p>
           <p className="text-white">
-            {Math.round(weeklyAnalysis.weekendAvg) > Math.round(weeklyAnalysis.weekdayAvg) 
+            {Math.round(weeklyAnalysis.weekendAvg || 0) > Math.round(weeklyAnalysis.weekdayAvg || 0) 
               ? '↑ Higher weekend spending' 
               : '↓ Lower weekend spending'}
           </p>
           <p className="text-white/60 text-sm">
-            ₹{Math.round(Math.abs(weeklyAnalysis.weekendAvg - weeklyAnalysis.weekdayAvg)).toLocaleString()} difference
+            ₹{Math.round(Math.abs((weeklyAnalysis.weekendAvg || 0) - (weeklyAnalysis.weekdayAvg || 0))).toLocaleString()} difference
           </p>
         </div>
         <div>
           <p className="text-white/60 text-sm">Most Expensive Day</p>
-          <p className="text-white">{dayNames[weeklyAnalysis.mostExpensiveDay[0]]}</p>
-          <p className="text-white/60 text-sm">
-            ₹{Math.round(weeklyAnalysis.mostExpensiveDay[1]).toLocaleString()}
-          </p>
+          {hasMostExpensiveDay ? (
+            <>
+              <p className="text-white">{dayNames[mostExpensiveDay[0]]}</p>
+              <p className="text-white/60 text-sm">
+                ₹{Math.round(mostExpensiveDay[1]).toLocaleString()}
+              </p>
+            </>
+          ) : (
+            <p className="text-white/60">No data available</p>
+          )}
         </div>
       </div>
     </div>
@@ -481,6 +496,9 @@ const CategoryTrendsCard = ({ categoryInsights }) => {
 };
 
 const MerchantAnalysisCard = ({ merchantInsights }) => {
+  const topMerchants = merchantInsights.topByFrequency || [];
+  const recentTransactions = merchantInsights.recentTransactions || [];
+
   return (
     <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 md:p-6 border border-white/20">
       <h3 className="text-lg font-semibold text-white mb-4">Merchant Analysis</h3>
@@ -488,18 +506,22 @@ const MerchantAnalysisCard = ({ merchantInsights }) => {
         <div>
           <p className="text-white/60 text-sm mb-2">Most Frequent Merchants</p>
           <div className="space-y-2">
-            {merchantInsights.topByFrequency.map(([merchant, frequency]) => (
-              <div key={merchant} className="flex justify-between items-center p-2 bg-white/5 rounded-lg">
-                <span className="text-white">{merchant}</span>
-                <span className="text-white/60">{frequency}x</span>
-              </div>
-            ))}
+            {topMerchants.length > 0 ? (
+              topMerchants.map(([merchant, frequency]) => (
+                <div key={merchant} className="flex justify-between items-center p-2 bg-white/5 rounded-lg">
+                  <span className="text-white">{merchant}</span>
+                  <span className="text-white/60">{frequency}x</span>
+                </div>
+              ))
+            ) : (
+              <p className="text-white/60">No merchant data available</p>
+            )}
           </div>
         </div>
         <div>
           <p className="text-white/60 text-sm mb-2">Recent Transactions</p>
           <div className="space-y-2 max-h-48 overflow-y-auto">
-            {merchantInsights.recentTransactions.map((t, idx) => (
+            {recentTransactions.map((t, idx) => (
               <div key={idx} className="p-2 bg-white/5 rounded-lg">
                 <div className="flex justify-between items-center">
                   <span className="text-white">{t.merchant}</span>
@@ -739,6 +761,131 @@ const SpendingHeatmapCard = ({ insights }) => {
           <div className="w-3 h-3 rounded bg-[#4ECDC4]"></div>
           <span className="text-white/60 text-xs">More</span>
         </div>
+      </div>
+    </div>
+  );
+};
+
+const SpendingGoalsCard = ({ insights, monthlyBudget }) => {
+  const progress = {
+    essential: {
+      target: monthlyBudget * 0.5, // 50% for essential spending
+      current: insights.categoryInsights.topCategories
+        .filter(c => ['Food & Dining', 'Bills & Utilities', 'Transportation'].includes(c.name))
+        .reduce((sum, c) => sum + c.amount, 0)
+    },
+    discretionary: {
+      target: monthlyBudget * 0.3, // 30% for discretionary
+      current: insights.categoryInsights.topCategories
+        .filter(c => !['Food & Dining', 'Bills & Utilities', 'Transportation', 'Investment'].includes(c.name))
+        .reduce((sum, c) => sum + c.amount, 0)
+    },
+    savings: {
+      target: monthlyBudget * 0.2, // 20% for savings/investments
+      current: insights.investments?.totalInvested || 0
+    }
+  };
+
+  return (
+    <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 md:p-6 border border-white/20">
+      <h3 className="text-lg font-semibold text-white mb-4">50/30/20 Budget Rule</h3>
+      <div className="space-y-4">
+        {Object.entries(progress).map(([category, data]) => (
+          <div key={category} className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-white capitalize">{category}</span>
+              <span className="text-white/60">
+                ₹{Math.round(data.current).toLocaleString()} / ₹{Math.round(data.target).toLocaleString()}
+              </span>
+            </div>
+            <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+              <div 
+                className={`h-full rounded-full ${
+                  data.current > data.target 
+                    ? 'bg-red-500' 
+                    : data.current > data.target * 0.9
+                    ? 'bg-yellow-500'
+                    : 'bg-green-500'
+                }`}
+                style={{ width: `${Math.min((data.current / data.target) * 100, 100)}%` }}
+              />
+            </div>
+            <p className="text-white/60 text-xs">
+              {data.current > data.target 
+                ? `Exceeded by ₹${Math.round(data.current - data.target).toLocaleString()}`
+                : `₹${Math.round(data.target - data.current).toLocaleString()} remaining`}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const SpendingRecommendationsCard = ({ insights }) => {
+  const getRecommendations = () => {
+    const recs = [];
+
+    // Budget-based recommendations
+    if (insights.budgetStatus > 80) {
+      recs.push({
+        type: 'warning',
+        message: 'You\'re close to your budget limit. Consider reducing discretionary spending.'
+      });
+    }
+
+    // Category-based recommendations
+    const topCategory = insights.categoryInsights.topCategories[0];
+    if (topCategory && (topCategory.amount / insights.thisMonthTotal) > 0.4) {
+      recs.push({
+        type: 'info',
+        message: `${topCategory.name} makes up ${Math.round(topCategory.amount / insights.thisMonthTotal * 100)}% of your spending. Consider diversifying expenses.`
+      });
+    }
+
+    // Merchant-based recommendations
+    const frequentMerchant = insights.merchantInsights.topByFrequency[0];
+    if (frequentMerchant && frequentMerchant[1] > 5) {
+      recs.push({
+        type: 'tip',
+        message: `You frequently shop at ${frequentMerchant[0]}. Look for loyalty programs or bulk purchase discounts.`
+      });
+    }
+
+    // Weekend spending recommendations
+    if (insights.weeklyAnalysis.weekendAvg > insights.weeklyAnalysis.weekdayAvg * 1.5) {
+      recs.push({
+        type: 'warning',
+        message: 'Weekend spending is significantly higher. Plan weekend activities in advance to control costs.'
+      });
+    }
+
+    return recs;
+  };
+
+  const recommendations = getRecommendations();
+
+  return (
+    <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 md:p-6 border border-white/20">
+      <h3 className="text-lg font-semibold text-white mb-4">Smart Recommendations</h3>
+      <div className="space-y-3">
+        {recommendations.map((rec, idx) => (
+          <div 
+            key={idx} 
+            className={`p-3 rounded-lg ${
+              rec.type === 'warning' ? 'bg-red-500/10 border-red-500/20' :
+              rec.type === 'info' ? 'bg-blue-500/10 border-blue-500/20' :
+              'bg-green-500/10 border-green-500/20'
+            } border`}
+          >
+            <div className="flex items-start gap-2">
+              <span className="mt-1">
+                {rec.type === 'warning' ? '⚠️' : rec.type === 'info' ? 'ℹ️' : '💡'}
+              </span>
+              <p className="text-white/90">{rec.message}</p>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
