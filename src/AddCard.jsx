@@ -5,6 +5,7 @@ import { addDoc, collection, serverTimestamp, query, getDocs, orderBy, limit, wh
 import binData from "./binData.json";
 import CardCustomization from "./CardCustomization";
 import { securityManager } from './utils/security';
+import { BiAddToQueue } from 'react-icons/bi';
 
 function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
   const [cardHolder, setCardHolder] = useState(user?.displayName || ""); // Editable
@@ -103,6 +104,17 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
 
   return (
     <div className="container mx-auto px-4 py-6">
+      {/* Header Section */}
+      <div className="flex items-center gap-3 mb-6">
+        <div className="h-12 w-12 rounded-xl bg-white/10 flex items-center justify-center">
+          <BiAddToQueue className="text-2xl text-white" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold text-white">Add New Card</h1>
+          <p className="text-white/60">Securely store your card information</p>
+        </div>
+      </div>
+
       <div className="flex flex-col xl:flex-row gap-6">
         {/* Left: Form */}
         <div className="w-full xl:w-1/2">

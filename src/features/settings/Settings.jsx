@@ -4,6 +4,7 @@ import { collection, query, where, getDocs, deleteDoc, doc, orderBy, writeBatch,
 import { db } from "../../firebase";
 import CryptoJS from "crypto-js";
 import Dialog from '../../components/Dialog';
+import { BiCog } from 'react-icons/bi';
 
 function Settings({ user, masterPassword }) {
   const { themes, currentTheme, setCurrentTheme, currentThemeData } = useTheme();
@@ -228,7 +229,18 @@ function Settings({ user, masterPassword }) {
   };
 
   return (
-    <div className="max-w-4xl mx-auto mb-16 md:mb-0">
+    <div className="container mx-auto px-4 py-6">
+      {/* Header Section */}
+      <div className="flex items-center gap-3 mb-6">
+        <div className="h-12 w-12 rounded-xl bg-white/10 flex items-center justify-center">
+          <BiCog className="text-2xl text-white" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold text-white">Settings</h1>
+          <p className="text-white/60">Customize your app preferences</p>
+        </div>
+      </div>
+
       <div className="space-y-6">
         {/* Delete Cards Section */}
         <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20">

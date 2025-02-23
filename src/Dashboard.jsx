@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { db } from "./firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import CryptoJS from "crypto-js";
-import { BiCreditCard, BiTrendingUp, BiMoney, BiInfoCircle } from 'react-icons/bi';
+import { BiCreditCard, BiTrendingUp, BiMoney, BiInfoCircle, BiBarChartAlt } from 'react-icons/bi';
 
 function Dashboard({ user, masterPassword }) {
   const [stats, setStats] = useState({
@@ -110,7 +110,18 @@ function Dashboard({ user, masterPassword }) {
   }, [user, masterPassword]);
 
   return (
-    <div className="max-w-4xl mx-auto mb-16 md:mb-0">
+    <div className="container mx-auto px-4 py-6">
+      {/* Header Section */}
+      <div className="flex items-center gap-3 mb-6">
+        <div className="h-12 w-12 rounded-xl bg-white/10 flex items-center justify-center">
+          <BiBarChartAlt className="text-2xl text-white" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold text-white">Dashboard</h1>
+          <p className="text-white/60">Overview of your cards and spending</p>
+        </div>
+      </div>
+
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">

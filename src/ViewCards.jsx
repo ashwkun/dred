@@ -5,6 +5,7 @@ import { collection, query, where, orderBy, onSnapshot, deleteDoc, doc } from "f
 import CryptoJS from "crypto-js";
 import LogoWithFallback from "./LogoWithFallback";
 import { securityManager } from "./utils/security";
+import { BiCreditCard } from 'react-icons/bi';
 
 function ViewCards({ user, masterPassword, setActivePage }) {
   const [cards, setCards] = useState([]);
@@ -186,6 +187,17 @@ function ViewCards({ user, masterPassword, setActivePage }) {
 
   return (
     <div className="container mx-auto px-4 py-6">
+      {/* Header Section */}
+      <div className="flex items-center gap-3 mb-6">
+        <div className="h-12 w-12 rounded-xl bg-white/10 flex items-center justify-center">
+          <BiCreditCard className="text-2xl text-white" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold text-white">Your Cards</h1>
+          <p className="text-white/60">Manage and view your saved cards</p>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {cards.map((card) => {
           const decryptedTheme = decryptField(card.theme);
