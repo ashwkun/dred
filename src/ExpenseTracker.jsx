@@ -91,6 +91,83 @@ const AccountSelector = ({ isOpen, onClose, onSelect, accounts }) => {
   );
 };
 
+// Add this new component at the top of the file
+const TransactionItem = ({ transaction, cards, onDelete }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  return (
+    <div className="overflow-hidden">
+      <div 
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="flex items-center justify-between py-2 px-3 bg-white/5 rounded-lg border border-white/10 cursor-pointer hover:bg-white/10 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <div className="text-white/70">
+            {React.createElement(getCategoryIcon(transaction.categoryIcon || 'FaUtensils'), {
+              className: "text-lg"
+            })}
+          </div>
+          <p className="text-white font-medium">₹{parseFloat(transaction.amount).toFixed(2)}</p>
+        </div>
+        <div className="flex items-center gap-4">
+          <p className="text-white/60 text-sm">
+            {formatAccountName(transaction.account, cards)}
+          </p>
+          <button
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent expansion when clicking delete
+              onDelete(transaction.id);
+            }}
+            className="text-white/40 hover:text-white/60 transition-colors"
+          >
+            <BiTrash className="text-sm" />
+          </button>
+        </div>
+      </div>
+
+      {/* Expanded Details */}
+      <div 
+        className={`grid transition-all duration-200 ${
+          isExpanded 
+            ? 'grid-rows-[1fr] opacity-100 mt-2' 
+            : 'grid-rows-[0fr] opacity-0'
+        }`}
+      >
+        <div className="overflow-hidden">
+          <div className="bg-white/5 rounded-lg p-4 space-y-3">
+            <p className="text-white text-2xl font-bold">₹{parseFloat(transaction.amount).toFixed(2)}</p>
+            
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <p className="text-white/50 text-sm">Date</p>
+                <p className="text-white">{new Date(transaction.date).toLocaleDateString()}</p>
+              </div>
+              <div>
+                <p className="text-white/50 text-sm">Category</p>
+                <p className="text-white">{transaction.category}</p>
+              </div>
+              <div>
+                <p className="text-white/50 text-sm">Merchant</p>
+                <p className="text-white">{transaction.merchant}</p>
+              </div>
+              <div>
+                <p className="text-white/50 text-sm">Account</p>
+                <p className="text-white">{formatAccountName(transaction.account, cards)}</p>
+              </div>
+              {transaction.description && (
+                <div className="col-span-2">
+                  <p className="text-white/50 text-sm">Description</p>
+                  <p className="text-white">{transaction.description}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 function ExpenseTracker({ user, masterPassword }) {
   const [activeView, setActiveView] = useState('transactions');
   const [loading, setLoading] = useState(true);
@@ -525,36 +602,18 @@ function ExpenseTracker({ user, masterPassword }) {
               </div>
             </div>
 
-            {/* Transactions List - Compact Version */}
+            {/* Transactions List */}
             <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20">
               <div className="p-4">
                 <h2 className="text-lg font-semibold text-white mb-3">Recent Transactions</h2>
                 <div className="space-y-2">
                   {transactions.map((transaction) => (
-                    <div 
+                    <TransactionItem
                       key={transaction.id}
-                      className="flex items-center justify-between py-2 px-3 bg-white/5 rounded-lg border border-white/10"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="text-white/70">
-                          {React.createElement(getCategoryIcon(transaction.categoryIcon || 'FaUtensils'), {
-                            className: "text-lg"
-                          })}
-                        </div>
-                        <p className="text-white font-medium">₹{parseFloat(transaction.amount).toFixed(2)}</p>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <p className="text-white/60 text-sm">
-                          {formatAccountName(transaction.account, cards)}
-                        </p>
-                        <button
-                          onClick={() => handleDeleteTransaction(transaction.id)}
-                          className="text-white/40 hover:text-white/60 transition-colors"
-                        >
-                          <BiTrash className="text-sm" />
-                        </button>
-                      </div>
-                    </div>
+                      transaction={transaction}
+                      cards={cards}
+                      onDelete={handleDeleteTransaction}
+                    />
                   ))}
                   {transactions.length === 0 && (
                     <p className="text-white/60 text-center py-3 text-sm">
