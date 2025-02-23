@@ -102,45 +102,44 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
   };
 
   return (
-    <div className="relative mb-16 md:mb-0">
-      {/* Loading Overlay */}
-      {isLoading && (
-        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="animate-spin rounded-full h-12 w-12 border-4 border-white/20 border-t-white"></div>
-        </div>
-      )}
-
-      <div className="min-h-screen py-12 px-4">
-        <div className="flex flex-col sm:flex-row gap-8 max-w-5xl mx-auto">
-          {/* Left: Form Section */}
-          <div className="w-full sm:w-1/2">
-            <div className="bg-[#1E1E2F] p-8 rounded-lg shadow-lg text-white">
-              <h2 className="section-title">Add New Card</h2>
-
-              {status && (
-                <p className={`text-center mb-6 body-text ${status.includes("✅") ? "text-green-400" : "text-red-400"}`}>
-                  {status}
-                </p>
-              )}
-
-              <form onSubmit={handleAddCard} className="w-full space-y-6">
+    <div className="container mx-auto px-4 py-6">
+      <div className="flex flex-col xl:flex-row gap-6">
+        {/* Left: Form */}
+        <div className="w-full xl:w-1/2">
+          <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6">
+            <h2 className="text-lg font-medium text-white mb-6">Card Details</h2>
+            
+            <form onSubmit={handleAddCard}>
+              <div className="space-y-4">
+                {/* Card Holder Name */}
                 <div>
-                  <label className="label-text">Cardholder Name</label>
+                  <label className="block text-white/70 text-sm font-medium mb-2">
+                    Card Holder Name
+                  </label>
                   <input
                     type="text"
-                    className="input-style"
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
+                      text-white placeholder-white/30 focus:outline-none focus:ring-2 
+                      focus:ring-primary/30 focus:border-transparent backdrop-blur-sm
+                      transition-all duration-200"
                     value={cardHolder}
                     onChange={(e) => setCardHolder(e.target.value)}
+                    placeholder="Name on card"
                     required
                   />
                 </div>
 
-                {/* Credit Card Number */}
+                {/* Card Number */}
                 <div>
-                  <label className="label-text">Credit Card Number</label>
+                  <label className="block text-white/70 text-sm font-medium mb-2">
+                    Card Number
+                  </label>
                   <input
                     type="text"
-                    className="input-style"
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
+                      text-white placeholder-white/30 focus:outline-none focus:ring-2 
+                      focus:ring-primary/30 focus:border-transparent backdrop-blur-sm
+                      transition-all duration-200"
                     value={cardNumber}
                     onChange={(e) => {
                       const value = e.target.value.replace(/\D/g, '').slice(0, 16);
@@ -152,24 +151,45 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
                   />
                 </div>
 
-                {/* Bank Name & Network (Auto-filled) */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="label-text">Bank Name</label>
-                    <input type="text" className="input-style bg-white/10" value={bankName} disabled />
-                  </div>
-                  <div>
-                    <label className="label-text">Network</label>
-                    <input type="text" className="input-style bg-white/10" value={networkName} disabled />
-                  </div>
+                {/* Bank */}
+                <div>
+                  <label className="block text-white/70 text-sm font-medium mb-2">
+                    Bank
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
+                      text-white/50 backdrop-blur-sm cursor-not-allowed"
+                    value={bankName}
+                    disabled
+                  />
+                </div>
+
+                {/* Network */}
+                <div>
+                  <label className="block text-white/70 text-sm font-medium mb-2">
+                    Network
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
+                      text-white/50 backdrop-blur-sm cursor-not-allowed"
+                    value={networkName}
+                    disabled
+                  />
                 </div>
 
                 {/* Card Type */}
                 <div>
-                  <label className="label-text">Card Type</label>
+                  <label className="block text-white/70 text-sm font-medium mb-2">
+                    Card Type
+                  </label>
                   <input
                     type="text"
-                    className="input-style"
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
+                      text-white placeholder-white/30 focus:outline-none focus:ring-2 
+                      focus:ring-primary/30 focus:border-transparent backdrop-blur-sm
+                      transition-all duration-200"
                     value={cardType}
                     onChange={(e) => setCardType(e.target.value)}
                     placeholder="Credit, Debit, Prepaid"
@@ -177,44 +197,70 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
                   />
                 </div>
 
-                {/* Expiry Date & CVV */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="label-text">Expiry Date</label>
-                    <input
-                      type="text"
-                      className="input-style"
-                      value={expiry}
-                      onChange={(e) => setExpiry(e.target.value)}
-                      placeholder="MM/YY"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="label-text">CVV</label>
-                    <input
-                      type="password"
-                      className="input-style"
-                      value={cvv}
-                      onChange={(e) => setCvv(e.target.value)}
-                      placeholder="•••"
-                      required
-                    />
-                  </div>
+                {/* Expiry Date */}
+                <div>
+                  <label className="block text-white/70 text-sm font-medium mb-2">
+                    Expiry Date
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
+                      text-white placeholder-white/30 focus:outline-none focus:ring-2 
+                      focus:ring-primary/30 focus:border-transparent backdrop-blur-sm
+                      transition-all duration-200"
+                    value={expiry}
+                    onChange={(e) => setExpiry(e.target.value)}
+                    placeholder="MM/YY"
+                    required
+                  />
                 </div>
 
-                <button type="submit" className="btn-primary">
-                  Add Card
-                </button>
-              </form>
-            </div>
-          </div>
+                {/* CVV */}
+                <div>
+                  <label className="block text-white/70 text-sm font-medium mb-2">
+                    CVV
+                  </label>
+                  <input
+                    type="password"
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
+                      text-white placeholder-white/30 focus:outline-none focus:ring-2 
+                      focus:ring-primary/30 focus:border-transparent backdrop-blur-sm
+                      transition-all duration-200"
+                    value={cvv}
+                    onChange={(e) => setCvv(e.target.value)}
+                    placeholder="•••"
+                    required
+                  />
+                </div>
 
-          {/* Right: Live Card Preview & Customization */}
-          <div className="w-full sm:w-1/2">
+                <button
+                  type="submit"
+                  className="w-full mt-6 px-6 py-4 bg-primary hover:bg-primary/90 
+                    rounded-xl text-white font-medium transition-all duration-200 
+                    focus:outline-none focus:ring-2 focus:ring-primary/50 
+                    disabled:opacity-50 disabled:cursor-not-allowed
+                    shadow-lg shadow-primary/25"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <div className="flex items-center justify-center">
+                      <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin mr-2" />
+                      Adding Card...
+                    </div>
+                  ) : (
+                    'Add Card'
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        {/* Right: Preview & Customization */}
+        <div className="w-full xl:w-1/2">
+          <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6">
             <CardCustomization
               cardHolder={cardHolder}
-              setCardHolder={setCardHolder}
               cardNumber={cardNumber}
               bankName={bankName}
               networkName={networkName}

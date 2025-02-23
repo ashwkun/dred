@@ -68,132 +68,160 @@ function CardCustomization({ cardHolder, cardNumber, bankName, networkName, expi
   };
 
   return (
-    <div className="w-full max-w-sm">
-      <h3 className="text-xl font-semibold text-white mb-4">Customize Your Card</h3>
-
-      {/* Live Card Preview */}
-      <div style={styleConfig.cardContainer}>
+    <div className="space-y-8">
+      {/* Card Preview */}
+      <div className="relative w-full max-w-md mx-auto aspect-[1.586/1] rounded-xl overflow-hidden">
         {/* Theme color with reduced opacity */}
         <div 
-          style={{ 
-            position: 'absolute',
-            inset: 0,
-            background: theme,
-            opacity: 0.3,
-          }} 
+          className="absolute inset-0 transition-colors duration-300"
+          style={{ background: theme, opacity: 0.3 }}
         />
 
         {/* Glass overlay */}
-        <div 
-          style={{ 
-            position: 'absolute',
-            inset: 0,
-            backdropFilter: 'blur(8px)',
-            background: 'rgba(255, 255, 255, 0.05)',
-            borderRadius: '12px',
-          }} 
-        />
+        <div className="absolute inset-0 backdrop-blur-sm bg-white/5" />
 
         {/* Card content */}
-        <div style={{ position: 'relative', height: '100%' }}>
-          <div style={styleConfig.bankLogoStyle}>
+        <div className="relative h-full p-6 flex flex-col justify-between">
+          {/* Bank Logo */}
+          <div className="h-6 md:h-8 w-24 md:w-32">
             <LogoWithFallback
               logoName={bankName}
               logoType="bank"
-              style={{
-                width: styleConfig.bankLogoStyle.width,
-                height: styleConfig.bankLogoStyle.height,
-                objectFit: 'contain',
-              }}
+              className="h-full w-full object-contain object-left"
             />
           </div>
 
-          <div style={styleConfig.middleContainerStyle}>
-            <div style={styleConfig.cardNumberTextStyle}>
-              {cardNumber ? cardNumber.replace(/(.{4})/g, "$1 ") : "•••• •••• •••• ••••"}
+          {/* Card Number */}
+          <div className="text-xl md:text-2xl text-white tracking-wider text-center font-medium">
+            {cardNumber ? cardNumber.replace(/(.{4})/g, "$1 ").trim() : "•••• •••• •••• ••••"}
+          </div>
+
+          {/* Card Holder & Network Logo */}
+          <div className="flex items-end justify-between">
+            <div>
+              <p className="text-white/50 text-xs mb-1">Card Holder</p>
+              <p className="text-white text-sm font-medium">{cardHolder || "Your Name"}</p>
+            </div>
+            <div className="h-10 md:h-12 w-16 md:w-20">
+              <LogoWithFallback
+                logoName={networkName}
+                logoType="network"
+                className="h-full w-full object-contain object-right"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Theme Selection */}
+      <div className="space-y-8">
+        <div>
+          <h3 className="text-lg font-medium text-white mb-6">Customize Design</h3>
+          
+          {/* Bank Themes */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-3">
+              <label className="text-white/70 text-sm font-medium">
+                Bank Themes
+              </label>
+              {Object.keys(bankThemes).length > 8 && (
+                <button
+                  className="text-sm text-white/50 hover:text-white
+                    transition-colors duration-200 flex items-center gap-2"
+                  onClick={() => setShowMoreGradients(!showMoreGradients)}
+                >
+                  {showMoreGradients ? (
+                    <>
+                      <span>Show Less</span>
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                      </svg>
+                    </>
+                  ) : (
+                    <>
+                      <span>Show More</span>
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              {Object.entries(bankThemes)
+                .slice(0, showMoreGradients ? undefined : 8)
+                .map(([name, gradient]) => (
+                  <button
+                    key={name}
+                    className="group relative aspect-video rounded-xl transition-all duration-200 
+                      hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white/20
+                      hover:shadow-lg hover:shadow-white/10 overflow-hidden"
+                    onClick={() => setTheme(gradient)}
+                  >
+                    <div className="absolute inset-0" style={{ background: gradient }} />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 
+                      transition-opacity duration-200 flex items-center justify-center">
+                      <span className="text-white text-sm font-medium">{name}</span>
+                    </div>
+                  </button>
+                ))}
             </div>
           </div>
 
-          <div style={styleConfig.cardHolderStyle}>
-            <span style={{ fontSize: '14px' }}>{cardHolder || "Your Name"}</span>
-          </div>
-
-          <div style={styleConfig.networkLogoStyle}>
-            <LogoWithFallback
-              logoName={networkName}
-              logoType="network"
-              style={{
-                width: styleConfig.networkLogoStyle.width,
-                height: styleConfig.networkLogoStyle.height,
-                objectFit: 'contain',
-              }}
-            />
+          {/* Custom Palettes */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <label className="text-white/70 text-sm font-medium">
+                Custom Palettes
+              </label>
+              {popularColors.length > 8 && (
+                <button
+                  className="text-sm text-white/50 hover:text-white
+                    transition-colors duration-200 flex items-center gap-2"
+                  onClick={() => setShowMoreSolids(!showMoreSolids)}
+                >
+                  {showMoreSolids ? (
+                    <>
+                      <span>Show Less</span>
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                      </svg>
+                    </>
+                  ) : (
+                    <>
+                      <span>Show More</span>
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              {popularColors
+                .slice(0, showMoreSolids ? undefined : 8)
+                .map((color, index) => (
+                  <button
+                    key={index}
+                    className="group relative aspect-video rounded-xl transition-all duration-200 
+                      hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white/20
+                      hover:shadow-lg hover:shadow-white/10 overflow-hidden"
+                    onClick={() => setTheme(color)}
+                  >
+                    <div className="absolute inset-0" style={{ background: color }} />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 
+                      transition-opacity duration-200 flex items-center justify-center">
+                      <span className="text-white text-sm font-medium">
+                        {color.replace('#', '')}
+                      </span>
+                    </div>
+                  </button>
+                ))}
+            </div>
           </div>
         </div>
-      </div>
-
-      {/* Suggested Bank Themes (Preview Blocks) */}
-      <div>
-        <label className="text-sm text-gray-400">Bank-Based Backgrounds</label>
-        <div className="grid grid-cols-5 gap-3 mt-2">
-          {Object.entries(bankThemes).slice(0, 5).map(([name, gradient]) => (
-            <div
-              key={name}
-              className="w-14 h-10 rounded-md cursor-pointer transition-all duration-200 shadow-md hover:scale-105 border border-gray-700"
-              style={{ background: gradient }}
-              onClick={() => setTheme(gradient)}
-            ></div>
-          ))}
-        </div>
-
-        {/* Collapsible More Gradients */}
-        {showMoreGradients && (
-          <div className="grid grid-cols-5 gap-3 mt-2">
-            {Object.entries(bankThemes).slice(5).map(([name, gradient]) => (
-              <div
-                key={name}
-                className="w-14 h-10 rounded-md cursor-pointer transition-all duration-200 shadow-md hover:scale-105 border border-gray-700"
-                style={{ background: gradient }}
-                onClick={() => setTheme(gradient)}
-              ></div>
-            ))}
-          </div>
-        )}
-        <button className="text-sm text-gray-400 mt-2 hover:text-white transition" onClick={() => setShowMoreGradients(!showMoreGradients)}>
-          {showMoreGradients ? "Show Less" : "Show More"}
-        </button>
-      </div>
-
-      {/* Solid Color Selection */}
-      <div>
-        <label className="text-sm text-gray-400">Solid Colors</label>
-        <div className="grid grid-cols-5 gap-3 mt-2">
-          {popularColors.slice(0, 5).map((color, index) => (
-            <div
-              key={index}
-              className="w-14 h-10 rounded-md cursor-pointer transition-all duration-200 shadow-md hover:scale-105 border border-gray-700"
-              style={{ background: color }}
-              onClick={() => setTheme(color)}
-            ></div>
-          ))}
-        </div>
-
-        {/* Collapsible More Solid Colors */}
-        {showMoreSolids && (
-          <div className="grid grid-cols-5 gap-3 mt-2">
-            {popularColors.slice(5).map((color, index) => (
-              <div
-                key={index}
-                className="w-14 h-10 rounded-md cursor-pointer transition-all duration-200 shadow-md hover:scale-105 border border-gray-700"
-                style={{ background: color }}
-                onClick={() => setTheme(color)}
-              ></div>
-            ))}
-          </div>
-        )}
-        <button className="text-sm text-gray-400 mt-2 hover:text-white transition" onClick={() => setShowMoreSolids(!showMoreSolids)}>
-          {showMoreSolids ? "Show Less" : "Show More"}
-        </button>
       </div>
     </div>
   );

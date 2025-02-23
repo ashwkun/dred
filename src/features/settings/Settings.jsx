@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTheme } from '../../contexts/ThemeContext';
-import { collection, query, where, getDocs, deleteDoc, doc, orderBy, writeBatch, serverTimestamp } from "firebase/firestore";
+import { collection, query, where, getDocs, deleteDoc, doc, orderBy, writeBatch, serverTimestamp, getDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 import CryptoJS from "crypto-js";
 import Dialog from '../../components/Dialog';
@@ -90,15 +90,35 @@ function Settings({ user, masterPassword }) {
       message: `Are you sure you want to delete ${cardType} (${bankName})? This action cannot be undone.`,
       onConfirm: async () => {
         try {
-          await deleteDoc(doc(db, "cards", cardId));
+          // First verify ownership
+          const cardRef = doc(db, "cards", cardId);
+          const cardDoc = await getDoc(cardRef);
+          
+          if (!cardDoc.exists()) {
+            throw new Error("Card not found");
+          }
+          
+          if (cardDoc.data().uid !== user.uid) {
+            throw new Error("You don't have permission to delete this card");
+          }
+
+          // Then delete
+          await deleteDoc(cardRef);
           setCards(cards.filter(card => card.id !== cardId));
-          closeDialog();
+          
+          setDialog({
+            isOpen: true,
+            title: 'Success',
+            message: 'Card deleted successfully',
+            type: 'success',
+            onConfirm: closeDialog
+          });
         } catch (error) {
           console.error('Error deleting card:', error);
           setDialog({
             isOpen: true,
             title: 'Error',
-            message: 'Failed to delete card. Please try again.',
+            message: error.message || 'Failed to delete card. Please try again.',
             type: 'danger',
             onConfirm: closeDialog
           });

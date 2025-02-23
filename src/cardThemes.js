@@ -22,15 +22,36 @@ export const bankThemes = {
   };
   
   export const popularColors = [
-    "#FF5733", // Vibrant Orange
-    "#2ECC71", // Fresh Green
-    "#3498DB", // Cool Blue
-    "#9B59B6", // Royal Purple
-    "#E74C3C", // Deep Red
-    "#F39C12", // Golden Yellow
-    "#16A085", // Teal Green
-    "#D35400", // Burnt Orange
-    "#34495E", // Dark Slate
-    "#27AE60", // Bright Green
+    // Modern Gradients
+    "linear-gradient(135deg, #6366F1, #3B82F6)", // Indigo to Blue
+    "linear-gradient(135deg, #10B981, #059669)", // Emerald
+    "linear-gradient(135deg, #F59E0B, #D97706)", // Amber
+    "linear-gradient(135deg, #EC4899, #BE185D)", // Pink
+    "linear-gradient(135deg, #8B5CF6, #6D28D9)", // Purple
+    "linear-gradient(135deg, #14B8A6, #0D9488)", // Teal
+    "linear-gradient(135deg, #F43F5E, #BE123C)", // Rose
+    "linear-gradient(135deg, #0EA5E9, #0369A1)", // Sky
+
+    // Solid Colors
+    "#1E293B", // Slate
+    "#334155", // Cool Gray
+    "#1F2937", // Gray
+    "#18181B", // Zinc
+    "#27272A", // Neutral
+    "#292524", // Stone
+    "#312E81", // Deep Indigo
+    "#831843", // Deep Pink
   ];
+  
+  // New: Premium Gradients
+  export const premiumGradients = {
+    "Midnight": "linear-gradient(135deg, #020617, #1E293B)",
+    "Ocean": "linear-gradient(135deg, #0C4A6E, #0EA5E9)",
+    "Forest": "linear-gradient(135deg, #064E3B, #059669)",
+    "Sunset": "linear-gradient(135deg, #7C2D12, #EA580C)",
+    "Royal": "linear-gradient(135deg, #581C87, #7E22CE)",
+    "Cherry": "linear-gradient(135deg, #881337, #BE123C)",
+    "Graphite": "linear-gradient(135deg, #18181B, #3F3F46)",
+    "Arctic": "linear-gradient(135deg, #0F172A, #334155)",
+  };
   
