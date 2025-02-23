@@ -22,7 +22,10 @@ const CategorySelector = ({ isOpen, onClose, onSelect, categories, onAddCategory
             <button
               key={cat.name}
               onClick={() => {
-                onSelect(cat.name);
+                onSelect({
+                  name: cat.name,
+                  iconName: cat.iconName || 'FaUtensils'
+                });
                 onClose();
               }}
               className="flex items-center gap-3 p-3 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
@@ -159,6 +162,7 @@ function ExpenseTracker({ user, masterPassword }) {
         amount: CryptoJS.AES.decrypt(doc.data().amount, masterPassword).toString(CryptoJS.enc.Utf8),
         merchant: CryptoJS.AES.decrypt(doc.data().merchant, masterPassword).toString(CryptoJS.enc.Utf8),
         description: CryptoJS.AES.decrypt(doc.data().description, masterPassword).toString(CryptoJS.enc.Utf8),
+        account: CryptoJS.AES.decrypt(doc.data().account, masterPassword).toString(CryptoJS.enc.Utf8),
         category: doc.data().category // Keep category as is since it's not encrypted
       }));
 
@@ -177,7 +181,6 @@ function ExpenseTracker({ user, masterPassword }) {
       await retryOperation(async () => {
         // Validate required fields
         if (!newTransaction.amount || !newTransaction.account || !newTransaction.category || !newTransaction.merchant) {
-          // You might want to show an error message to the user
           console.error("Please fill in all required fields");
           return;
         }
@@ -185,7 +188,7 @@ function ExpenseTracker({ user, masterPassword }) {
         const encryptedTransaction = {
           uid: user.uid,
           amount: CryptoJS.AES.encrypt(newTransaction.amount.toString(), masterPassword).toString(),
-          account: newTransaction.account,
+          account: CryptoJS.AES.encrypt(newTransaction.account, masterPassword).toString(),
           category: newTransaction.category,
           merchant: CryptoJS.AES.encrypt(newTransaction.merchant, masterPassword).toString(),
           description: CryptoJS.AES.encrypt(newTransaction.description || '', masterPassword).toString(),
@@ -309,13 +312,15 @@ function ExpenseTracker({ user, masterPassword }) {
 
       const docRef = await addDoc(collection(db, "custom_categories"), encryptedCategory);
       
-      setCustomCategories([...customCategories, {
+      const newCategory = {
         id: docRef.id,
         name: category.name,
+        iconName: category.iconName,
         icon: iconMap[category.iconName],
         merchants: category.merchants
-      }]);
+      };
       
+      setCustomCategories([...customCategories, newCategory]);
       setShowAddCategory(false);
     } catch (error) {
       console.error('Error adding custom category:', error);

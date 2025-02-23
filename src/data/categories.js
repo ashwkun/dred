@@ -29,11 +29,13 @@ export const defaultCategories = [
   {
     name: "Food & Dining",
     icon: FaUtensils,
+    iconName: "FaUtensils",
     merchants: ["Swiggy", "Zomato", "Eatclub", "Dining"]
   },
   {
     name: "Shopping",
     icon: FaShoppingBag,
+    iconName: "FaShoppingBag",
     merchants: [
       "Amazon", "Flipkart", "Myntra", "Reliance Trends",
       "Big Bazaar", "Shoppers Stop", "Croma", "Tata Cliq",
@@ -43,6 +45,7 @@ export const defaultCategories = [
   {
     name: "Travel",
     icon: FaPlane,
+    iconName: "FaPlane",
     merchants: [
       "MakeMyTrip", "Yatra", "Goibibo", "Cleartrip",
       "IndiGo", "SpiceJet", "Air India", "Ola Cabs",
@@ -52,6 +55,7 @@ export const defaultCategories = [
   {
     name: "Entertainment",
     icon: FaFilm,
+    iconName: "FaFilm",
     merchants: [
       "Netflix", "Amazon Prime Video", "Hotstar", "Zee5",
       "SonyLIV", "JioCinema", "Voot", "Eros Now",
@@ -61,6 +65,7 @@ export const defaultCategories = [
   {
     name: "Groceries",
     icon: FaShoppingBasket,
+    iconName: "FaShoppingBasket",
     merchants: [
       "BigBasket", "Grofers", "Reliance Fresh", "DMart",
       "Spencer's", "More Supermarket", "Nature's Basket",
@@ -71,6 +76,7 @@ export const defaultCategories = [
   {
     name: "Investment",
     icon: FaChartLine,
+    iconName: "FaChartLine",
     merchants: [
       "SIP (Systematic Investment Plan)", "Lump Sum Mutual Funds",
       "Stocks", "Gold", "Real Estate", "Fixed Deposits",
@@ -80,6 +86,7 @@ export const defaultCategories = [
   {
     name: "Bills & Utilities",
     icon: FaFileInvoiceDollar,
+    iconName: "FaFileInvoiceDollar",
     merchants: [
       "Tata Power", "Reliance Energy", "BSES", "Adani Electricity",
       "Mahanagar Gas", "Jio", "Airtel", "BSNL",
@@ -89,6 +96,7 @@ export const defaultCategories = [
   {
     name: "Wellness",
     icon: FaSpa,
+    iconName: "FaSpa",
     merchants: [
       "Nykaa", "Purplle", "The Body Shop", "Forest Essentials",
       "Biotique", "Mamaearth", "WOW Skin Science", "VLCC Beauty",
@@ -102,13 +110,13 @@ export const getCategoryIcon = (categoryName) => {
   const defaultCategory = defaultCategories.find(c => c.name === categoryName);
   if (defaultCategory) return defaultCategory.icon;
 
-  // If not found in default categories, check if it's a custom category icon name
-  if (typeof categoryName === 'string') {
-    // Try to get icon from iconMap
-    return iconMap[categoryName] || FaUtensils;
+  // If not found in default categories, check custom categories
+  const customCategory = customCategories?.find(c => c.name === categoryName);
+  if (customCategory && customCategory.iconName) {
+    return iconMap[customCategory.iconName] || FaUtensils;
   }
 
-  // Fallback to a default icon
+  // Fallback to default icon
   return FaUtensils;
 };
 
