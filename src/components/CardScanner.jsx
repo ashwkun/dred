@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { BiCamera } from 'react-icons/bi';
-import { FaSyncAlt, FaCamera, FaTimes, FaVideo } from 'react-icons/fa';
+import { FaCamera, FaTimes, FaVideo } from 'react-icons/fa';
 import { createWorker } from 'tesseract.js';
 import Dialog from './Dialog';
 
@@ -307,35 +307,29 @@ function CardScannerComponent({ onScanComplete }) {
         />
 
         {isScanning && (
-          <div className="absolute inset-0 flex flex-col justify-end p-4">
-            <div className="flex justify-center gap-4 bg-black/50 p-2 rounded-lg">
-              <button
-                onClick={() => setIsMirror(!isMirror)}
-                className="p-3 rounded-full bg-black text-white hover:bg-gray-700 transition-colors"
-              >
-                <FaSyncAlt className="w-6 h-6" />
-              </button>
+          <div className="absolute inset-0 flex flex-col justify-between p-4">
+            <div className="text-center mt-2">
+              <p className="text-white/60 text-sm">
+                {isInitializing ? 'Initializing camera...' : 
+                 isProcessing ? 'Processing card...' : 
+                 'Position your card within the frame'}
+              </p>
+            </div>
+            <div className="flex justify-center gap-4 p-2">
               <button
                 onClick={() => {
                   setUseFrontCamera(!useFrontCamera);
                   stopScanner();
                   handleStartScanner();
                 }}
-                className="p-3 rounded-full bg-black text-white hover:bg-gray-700 transition-colors"
+                className="p-3 rounded-full bg-white/20 backdrop-blur-md text-white hover:bg-white/30 transition-colors"
               >
                 <FaVideo className="w-6 h-6" />
               </button>
               <button
-                onClick={stopScanner}
-                className="p-3 rounded-full bg-black text-white hover:bg-gray-700 transition-colors"
-              >
-                <FaTimes className="w-6 h-6" />
-              </button>
-              
-              <button
                 onClick={captureImage}
                 disabled={isProcessing}
-                className="p-3 rounded-full bg-black text-white hover:bg-gray-700 transition-colors
+                className="p-3 rounded-full bg-white/20 backdrop-blur-md text-white hover:bg-white/30 transition-colors
                   disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isProcessing ? (
@@ -344,13 +338,12 @@ function CardScannerComponent({ onScanComplete }) {
                   <FaCamera className="w-6 h-6" />
                 )}
               </button>
-            </div>
-            <div className="text-center mt-2">
-              <p className="text-white/60 text-sm">
-                {isInitializing ? 'Initializing camera...' : 
-                 isProcessing ? 'Processing card...' : 
-                 'Position your card within the frame'}
-              </p>
+              <button
+                onClick={stopScanner}
+                className="p-3 rounded-full bg-white/20 backdrop-blur-md text-white hover:bg-white/30 transition-colors"
+              >
+                <FaTimes className="w-6 h-6" />
+              </button>
             </div>
           </div>
         )}
