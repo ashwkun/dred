@@ -1,8 +1,29 @@
 import { 
   FaUtensils, FaShoppingBag, FaPlane, FaFilm, 
   FaShoppingBasket, FaChartLine, FaFileInvoiceDollar, 
-  FaSpa 
+  FaSpa, FaCar, FaGraduationCap, FaGamepad, FaGift,
+  FaHome, FaPaw, FaHeart, FaBook
 } from 'react-icons/fa';
+
+// Create an icon map
+export const iconMap = {
+  FaUtensils,
+  FaShoppingBag,
+  FaPlane,
+  FaFilm,
+  FaShoppingBasket,
+  FaChartLine,
+  FaFileInvoiceDollar,
+  FaSpa,
+  FaCar,
+  FaGraduationCap,
+  FaGamepad,
+  FaGift,
+  FaHome,
+  FaPaw,
+  FaHeart,
+  FaBook
+};
 
 export const defaultCategories = [
   {
@@ -77,8 +98,17 @@ export const defaultCategories = [
 ];
 
 export const getCategoryIcon = (categoryName) => {
-  const category = defaultCategories.find(c => c.name === categoryName);
-  return category?.icon;
+  // First check default categories
+  const defaultCategory = defaultCategories.find(c => c.name === categoryName);
+  if (defaultCategory) return defaultCategory.icon;
+
+  // If not found in default categories, check if it's a custom category icon name
+  if (typeof categoryName === 'string' && iconMap[categoryName]) {
+    return iconMap[categoryName];
+  }
+
+  // Fallback to a default icon
+  return FaUtensils;
 };
 
 export const getMerchantSuggestions = (categoryName) => {

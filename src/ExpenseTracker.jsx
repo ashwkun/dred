@@ -6,7 +6,7 @@ import { BiReceipt, BiPlus, BiTrash, BiLineChart, BiChevronDown } from 'react-ic
 import { LoadingOverlay } from './components/LoadingOverlay';
 import Dialog from './components/Dialog';
 import { FaUtensils } from 'react-icons/fa';
-import { defaultCategories, getCategoryIcon, getMerchantSuggestions } from './data/categories';
+import { defaultCategories, getCategoryIcon, getMerchantSuggestions, iconMap } from './data/categories';
 import AddCategoryDialog from './components/AddCategoryDialog';
 
 // Add new component for category selector
@@ -270,6 +270,7 @@ function ExpenseTracker({ user, masterPassword }) {
           id: doc.id,
           ...doc.data(),
           name: CryptoJS.AES.decrypt(doc.data().name, masterPassword).toString(CryptoJS.enc.Utf8),
+          icon: iconMap[doc.data().iconName] || FaUtensils,
           merchants: doc.data().merchants.map(m => 
             CryptoJS.AES.decrypt(m, masterPassword).toString(CryptoJS.enc.Utf8)
           )
@@ -278,6 +279,7 @@ function ExpenseTracker({ user, masterPassword }) {
         setCustomCategories(categoriesData);
       } catch (error) {
         console.error('Error loading custom categories:', error);
+        setError('Failed to load custom categories');
       }
     };
 
@@ -297,7 +299,7 @@ function ExpenseTracker({ user, masterPassword }) {
       const encryptedCategory = {
         uid: user.uid,
         name: CryptoJS.AES.encrypt(category.name, masterPassword).toString(),
-        icon: category.iconName, // Store the icon name instead of the component
+        iconName: category.iconName,
         merchants: category.merchants.map(m => 
           CryptoJS.AES.encrypt(m, masterPassword).toString()
         ),
@@ -309,13 +311,14 @@ function ExpenseTracker({ user, masterPassword }) {
       setCustomCategories([...customCategories, {
         id: docRef.id,
         name: category.name,
-        icon: category.icon,
+        icon: iconMap[category.iconName],
         merchants: category.merchants
       }]);
       
       setShowAddCategory(false);
     } catch (error) {
       console.error('Error adding custom category:', error);
+      setError('Failed to add category. Please try again.');
     }
   };
 
@@ -340,6 +343,25 @@ function ExpenseTracker({ user, masterPassword }) {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Add this helper function at the top of your component
+  const formatAccountName = (account, cards) => {
+    // If it's a card
+    if (account.startsWith('card_')) {
+      const card = cards.find(c => c.id === account);
+      if (card) {
+        const bankNameFirst = card.bankName.split(' ')[0];
+        const lastFourDigits = card.cardNumber.slice(-4);
+        return `${bankNameFirst}-${lastFourDigits}`;
+      }
+    }
+    
+    // For cash and bank account, keep as is
+    if (account === 'cash') return 'Cash';
+    if (account === 'bank') return 'Bank';
+    
+    return account;
+  };
 
   if (error) {
     return (
@@ -516,7 +538,7 @@ function ExpenseTracker({ user, masterPassword }) {
                       </div>
                       <div className="flex items-center gap-4">
                         <p className="text-white/60 text-sm">
-                          {accounts.find(a => a.id === transaction.account)?.name || transaction.account}
+                          {formatAccountName(transaction.account, cards)}
                         </p>
                         <button
                           onClick={() => handleDeleteTransaction(transaction.id)}
