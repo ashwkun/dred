@@ -499,46 +499,24 @@ const MerchantAnalysisCard = ({ merchantInsights }) => {
   const topMerchants = merchantInsights.topByFrequency || [];
   const recentTransactions = merchantInsights.recentTransactions || [];
 
+  if (topMerchants.length === 0) {
+    return (
+      <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 border border-white/20">
+        <h3 className="text-white/60 text-sm mb-2">Most Frequent Merchants</h3>
+        <p className="text-white/50 text-sm">No merchant data available</p>
+      </div>
+    );
+  }
+
+  const [topMerchant] = topMerchants;
+
   return (
     <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 md:p-6 border border-white/20">
-      <h3 className="text-lg font-semibold text-white mb-4">Merchant Analysis</h3>
-      <div className="space-y-4">
-        <div>
-          <p className="text-white/60 text-sm mb-2">Most Frequent Merchants</p>
-          <div className="space-y-2">
-            {topMerchants.length > 0 ? (
-              topMerchants.map(([merchant, frequency]) => (
-                <div key={merchant} className="flex justify-between items-center p-2 bg-white/5 rounded-lg">
-                  <span className="text-white">{merchant}</span>
-                  <span className="text-white/60">{frequency}x</span>
-                </div>
-              ))
-            ) : (
-              <p className="text-white/60">No merchant data available</p>
-            )}
-          </div>
-        </div>
-        <div>
-          <p className="text-white/60 text-sm mb-2">Recent Transactions</p>
-          <div className="space-y-2 max-h-48 overflow-y-auto">
-            {recentTransactions.map((t, idx) => (
-              <div key={idx} className="p-2 bg-white/5 rounded-lg">
-                <div className="flex justify-between items-center">
-                  <span className="text-white">{t.merchant}</span>
-                  <span className="text-white">₹{Math.round(t.amount).toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-white/60">{t.category}</span>
-                  <span className="text-white/60">
-                    {new Date(t.date).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric'
-                    })}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
+      <h3 className="text-white/60 text-sm mb-2">Most Frequent Merchants</h3>
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <span className="text-white">{topMerchant[0]}</span>
+          <span className="text-white/60">{topMerchant[1]} times</span>
         </div>
       </div>
     </div>
