@@ -4,6 +4,8 @@ import { db } from "./firebase";
 import MobileNumberDialog from './components/MobileNumberDialog';
 import CryptoJS from 'crypto-js';
 import { BiCreditCard, BiMobile } from 'react-icons/bi';
+import { LoadingSpinner } from './components/LoadingSpinner';
+import { SuccessAnimation } from './components/SuccessAnimation';
 
 export default function BillPay({ user, masterPassword }) {
   const [cards, setCards] = useState([]);
@@ -11,6 +13,8 @@ export default function BillPay({ user, masterPassword }) {
   const [mobileNumber, setMobileNumber] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
     const loadData = async () => {
@@ -71,6 +75,9 @@ export default function BillPay({ user, masterPassword }) {
       });
       
       setMobileNumber(number); // Store decrypted version in state
+      setSuccessMessage('Mobile number updated successfully!');
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 2000);
       setShowMobileDialog(false);
     } catch (error) {
       console.error('Error saving mobile number:', error);
@@ -105,6 +112,17 @@ export default function BillPay({ user, masterPassword }) {
     const upiUrl = `upi://pay?pa=${upiId}&pn=Credit%20Card%20Bill&tn=Credit%20Card%20Bill%20Payment`;
     window.location.href = upiUrl;
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[300px]">
+        <div className="flex flex-col items-center gap-4">
+          <LoadingSpinner size="lg" />
+          <p className="text-white/70 animate-pulse">Loading your cards...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -217,6 +235,8 @@ export default function BillPay({ user, masterPassword }) {
         onClose={() => setShowMobileDialog(false)}
         onSubmit={handleMobileSubmit}
       />
+
+      {showSuccess && <SuccessAnimation message={successMessage} />}
     </div>
   );
 } 

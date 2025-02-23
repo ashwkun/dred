@@ -60,40 +60,24 @@ export default function TopBar({ user, onSignOut, onInstall, isAppInstalled, def
 
                 {/* Profile Dropdown */}
                 {showProfile && (
-                  <div className="absolute top-full right-0 mt-2 w-64 bg-black/40 
-                    backdrop-blur-xl border border-white/20 rounded-2xl overflow-hidden 
-                    shadow-xl animate-fade-in origin-top-right"
-                  >
-                    {/* Profile Info Section */}
-                    <div className="p-4 bg-white/10">
-                      <div className="flex items-center gap-3">
-                        <img 
-                          src={user.photoURL} 
-                          alt="" 
-                          className="w-12 h-12 rounded-xl border border-white/20"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-base font-medium text-white truncate">
-                            {user.displayName}
-                          </p>
-                          <p className="text-sm text-white/70 truncate">
-                            {user.email}
-                          </p>
-                        </div>
+                  <div className="absolute right-0 top-full mt-2 w-48 
+                    bg-white/20 backdrop-blur-xl rounded-xl border border-white/20
+                    shadow-lg overflow-hidden z-50">
+                    <div className="bg-black/40 backdrop-blur-xl">
+                      <div className="px-4 py-3 border-b border-white/10">
+                        <p className="text-sm font-medium text-white">{user.displayName}</p>
+                        <p className="text-xs text-white/70 truncate">{user.email}</p>
                       </div>
-                    </div>
-
-                    {/* Actions Section */}
-                    <div className="p-2">
-                      <button
-                        onClick={onSignOut}
-                        className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl
-                          text-red-400 hover:text-red-300 hover:bg-red-400/10
-                          transition-colors text-left"
-                      >
-                        <BiLogOut className="text-xl" />
-                        <span className="font-medium">Sign Out</span>
-                      </button>
+                      <div className="py-1">
+                        <button
+                          onClick={onSignOut}
+                          className="w-full px-4 py-2 text-sm text-white hover:bg-white/10
+                            flex items-center gap-2 transition-colors"
+                        >
+                          <BiLogOut className="text-lg" />
+                          Sign Out
+                        </button>
+                      </div>
                     </div>
                   </div>
                 )}

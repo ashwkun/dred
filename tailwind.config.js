@@ -46,19 +46,26 @@ module.exports = {
         },
       },
       keyframes: {
-        'fade-in': {
-          '0%': { 
-            opacity: '0',
-            transform: 'translateY(10px)'
-          },
-          '100%': {
-            opacity: '1',
-            transform: 'translateY(0)'
-          },
-        }
+        fadeUp: {
+          '0%': { opacity: '0', transform: 'translateY(10px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        successPop: {
+          '0%': { transform: 'scale(0.8)', opacity: '0' },
+          '40%': { transform: 'scale(1.1)' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
       },
       animation: {
-        'fade-in': 'fade-in 0.2s ease-out forwards',
+        'fade-up': 'fadeUp 0.3s ease-out',
+        'success-pop': 'successPop 0.4s cubic-bezier(0.19, 1, 0.22, 1)',
+        'fade-in': 'fadeIn 0.2s ease-out',
+        'spin-fast': 'spin 0.7s linear infinite',
+        'spin-slow': 'spin 1.5s linear infinite',
       }
     },
   },

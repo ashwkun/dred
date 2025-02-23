@@ -6,6 +6,7 @@ import CryptoJS from "crypto-js";
 import LogoWithFallback from "./LogoWithFallback";
 import { securityManager } from "./utils/security";
 import { BiCreditCard } from 'react-icons/bi';
+import { LoadingSpinner } from './components/LoadingSpinner';
 
 function ViewCards({ user, masterPassword, setActivePage }) {
   const [cards, setCards] = useState([]);
@@ -165,8 +166,11 @@ function ViewCards({ user, masterPassword, setActivePage }) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[200px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-white/20 border-t-white"></div>
+      <div className="flex items-center justify-center min-h-[300px]">
+        <div className="flex flex-col items-center gap-4">
+          <LoadingSpinner size="lg" />
+          <p className="text-white/70 animate-pulse">Loading your cards...</p>
+        </div>
       </div>
     );
   }

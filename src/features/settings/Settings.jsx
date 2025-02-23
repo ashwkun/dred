@@ -5,6 +5,8 @@ import { db } from "../../firebase";
 import CryptoJS from "crypto-js";
 import Dialog from '../../components/Dialog';
 import { BiCog } from 'react-icons/bi';
+import { LoadingSpinner } from '../../components/LoadingSpinner';
+import { SuccessAnimation } from '../../components/SuccessAnimation';
 
 function Settings({ user, masterPassword }) {
   const { themes, currentTheme, setCurrentTheme, currentThemeData } = useTheme();
@@ -23,6 +25,8 @@ function Settings({ user, masterPassword }) {
     onConfirm: null,
     type: 'default'
   });
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   const loadCards = async () => {
     setLoading(true);
@@ -107,13 +111,9 @@ function Settings({ user, masterPassword }) {
           await deleteDoc(cardRef);
           setCards(cards.filter(card => card.id !== cardId));
           
-          setDialog({
-            isOpen: true,
-            title: 'Success',
-            message: 'Card deleted successfully',
-            type: 'success',
-            onConfirm: closeDialog
-          });
+          // Use SuccessAnimation instead of dialog
+          handleSuccess('Card deleted successfully!');
+          closeDialog(); // Ensure dialog closes after success
         } catch (error) {
           console.error('Error deleting card:', error);
           setDialog({
@@ -193,6 +193,12 @@ function Settings({ user, masterPassword }) {
     });
   };
 
+  const handleSuccess = (message) => {
+    setSuccessMessage(message);
+    setShowSuccess(true);
+    setTimeout(() => setShowSuccess(false), 2000);
+  };
+
   const saveCardOrder = async () => {
     setReorderLoading(true);
     
@@ -207,13 +213,7 @@ function Settings({ user, masterPassword }) {
       
       await batch.commit();
       
-      setDialog({
-        isOpen: true,
-        title: 'Success',
-        message: 'Card order saved successfully!',
-        type: 'success',
-        onConfirm: closeDialog
-      });
+      handleSuccess('Card order updated successfully!');
     } catch (error) {
       console.error('Error saving card order:', error);
       setDialog({
@@ -513,6 +513,17 @@ function Settings({ user, masterPassword }) {
         message={dialog.message}
         type={dialog.type}
       />
+
+      {showSuccess && <SuccessAnimation message={successMessage} />}
+      
+      {reorderLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-4">
+            <LoadingSpinner size="lg" />
+            <p className="text-white/70 animate-pulse">Updating card order...</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
