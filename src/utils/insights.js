@@ -330,11 +330,11 @@ export const calculateInsights = (transactions, monthlyBudget) => {
     },
     spendingVelocity,
     merchantInsights: {
-      topByFrequency: Object.entries(merchantAnalytics.frequency)
+      topByFrequency: Object.entries(merchantAnalytics.frequency || {})
         .sort(([, a], [, b]) => b - a)
-        .slice(0, 5),
-      categoryDistribution: merchantAnalytics.categoryWise,
-      recentTransactions: merchantAnalytics.recent
+        .slice(0, 5) || [],
+      categoryDistribution: merchantAnalytics.categoryWise || {},
+      recentTransactions: (merchantAnalytics.recent || [])
         .sort((a, b) => b.date - a.date)
         .slice(0, 10)
     }
