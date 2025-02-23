@@ -275,10 +275,11 @@ function CardScannerComponent({ onScanComplete }) {
             text-white font-medium transition-all duration-200"
         >
           <BiCamera className="w-5 h-5" />
-          Scan Card with Camera
+          Scan Card (Alpha)
         </button>
         <p className="text-white/40 text-xs text-center mt-3">
-          Quickly add card by scanning with your phone's camera
+        
+          
         </p>
       </div>
 
@@ -299,62 +300,83 @@ function CardScannerComponent({ onScanComplete }) {
       <canvas ref={canvasRef} className="hidden" />
 
       {isScanning && (
-        <div className="relative w-full max-w-md mx-auto mt-4">
-          <div className="flex justify-center gap-4">
-            <button
-              onClick={() => setIsMirror(!isMirror)}
-              className="p-3 rounded-full bg-white/10 backdrop-blur-sm
-                text-white/60 hover:text-white transition-colors"
-            >
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                  d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-              </svg>
-            </button>
-            <button
-              onClick={() => {
-                setUseFrontCamera(!useFrontCamera);
-                stopScanner();
-                handleStartScanner();
-              }}
-              className="p-3 rounded-full bg-white/10 backdrop-blur-sm
-                text-white/60 hover:text-white transition-colors"
-            >
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                  d="M15 10l4.553-4.553a1 1 0 00-1.414-1.414L15 8.586V3a1 1 0 00-2 0v6a1 1 0 001 1h6a1 1 0 000-2h-4.586zM9 14l-4.553 4.553a1 1 0 001.414 1.414L9 15.414V21a1 1 0 002 0v-6a1 1 0 00-1-1H3a1 1 0 000 2h4.586z" />
-              </svg>
-            </button>
-            <button
-              onClick={stopScanner}
-              className="p-3 rounded-full bg-white/10 backdrop-blur-sm
-                text-white/60 hover:text-white transition-colors"
-            >
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+        <div className="fixed inset-0 bg-black/90 z-50
+          flex flex-col items-center justify-center p-4">
+          <div className="relative w-full max-w-md">
+            {isInitializing ? (
+              <div className="w-full aspect-video rounded-xl bg-black/50 
+                flex items-center justify-center">
+                <div className="w-8 h-8 border-2 border-white/20 border-t-white 
+                  rounded-full animate-spin" />
+              </div>
+            ) : (
+              <div className="relative">
+                <div className="w-full h-full rounded-xl overflow-hidden">
+                  {/* Video element is now outside and referenced */}
+                </div>
+                
+                <div className="absolute inset-0 border-2 border-white/20 rounded-xl">
+                  <div className="absolute inset-x-8 top-1/4 bottom-1/4 border-2 border-white/40 rounded-lg" />
+                </div>
+              </div>
+            )}
             
-            <button
-              onClick={captureImage}
-              disabled={isProcessing}
-              className="p-3 rounded-full bg-white/10 backdrop-blur-sm
-                text-white/60 hover:text-white transition-colors
-                disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isProcessing ? (
-                <div className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-              ) : (
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-4">
+              <button
+                onClick={() => setIsMirror(!isMirror)}
+                className="p-3 rounded-full bg-white/10 backdrop-blur-sm
+                  text-white/60 hover:text-white transition-colors"
+              >
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                    d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                    d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                 </svg>
-              )}
-            </button>
+              </button>
+              <button
+                onClick={() => {
+                  setUseFrontCamera(!useFrontCamera);
+                  stopScanner();
+                  handleStartScanner();
+                }}
+                className="p-3 rounded-full bg-white/10 backdrop-blur-sm
+                  text-white/60 hover:text-white transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                    d="M15 10l4.553-4.553a1 1 0 00-1.414-1.414L15 8.586V3a1 1 0 00-2 0v6a1 1 0 001 1h6a1 1 0 000-2h-4.586zM9 14l-4.553 4.553a1 1 0 001.414 1.414L9 15.414V21a1 1 0 002 0v-6a1 1 0 00-1-1H3a1 1 0 000 2h4.586z" />
+                </svg>
+              </button>
+              <button
+                onClick={stopScanner}
+                className="p-3 rounded-full bg-white/10 backdrop-blur-sm
+                  text-white/60 hover:text-white transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+              
+              <button
+                onClick={captureImage}
+                disabled={isProcessing}
+                className="p-3 rounded-full bg-white/10 backdrop-blur-sm
+                  text-white/60 hover:text-white transition-colors
+                  disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isProcessing ? (
+                  <div className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                      d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                )}
+              </button>
+            </div>
           </div>
           
-          <div className="text-center mt-4">
+          <div className="absolute bottom-8 left-0 right-0 text-center">
             <p className="text-white/60 text-sm">
               {isInitializing ? 'Initializing camera...' : 
                isProcessing ? 'Processing card...' : 
