@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { db } from "./firebase";
 import { collection, query, where, getDocs, addDoc, deleteDoc, doc, serverTimestamp } from "firebase/firestore";
 import CryptoJS from "crypto-js";
@@ -8,6 +8,44 @@ import Dialog from './components/Dialog';
 import { FaUtensils } from 'react-icons/fa';
 import { defaultCategories, getCategoryIcon, getMerchantSuggestions } from './data/categories';
 import AddCategoryDialog from './components/AddCategoryDialog';
+
+// Add new component for category selector
+const CategorySelector = ({ isOpen, onClose, onSelect, categories }) => {
+  return (
+    <div className={`fixed inset-0 bg-black/50 flex items-center justify-center ${
+      isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+    } transition-opacity`}>
+      <div className="bg-gray-900 rounded-xl p-6 w-full max-w-md">
+        <h2 className="text-xl font-semibold text-white mb-4">Select Category</h2>
+        <div className="grid grid-cols-2 gap-3">
+          {[...defaultCategories, ...categories].map(cat => (
+            <button
+              key={cat.name}
+              onClick={() => {
+                onSelect(cat.name);
+                onClose();
+              }}
+              className="flex items-center gap-3 p-3 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+            >
+              {React.createElement(cat.icon || FaUtensils, {
+                className: "text-white text-lg"
+              })}
+              <span className="text-white">{cat.name}</span>
+            </button>
+          ))}
+        </div>
+        <div className="flex justify-end mt-4">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 function ExpenseTracker({ user, masterPassword }) {
   const [activeView, setActiveView] = useState('transactions');
@@ -26,6 +64,7 @@ function ExpenseTracker({ user, masterPassword }) {
   const [showAddCategory, setShowAddCategory] = useState(false);
   const [merchantSuggestions, setMerchantSuggestions] = useState([]);
   const [customCategories, setCustomCategories] = useState([]);
+  const [showCategorySelector, setShowCategorySelector] = useState(false);
 
   const accounts = [
     { id: 'cash', name: 'Cash' },
@@ -305,56 +344,43 @@ function ExpenseTracker({ user, masterPassword }) {
                       </option>
                     ))}
                   </select>
-                  <div className="relative">
-                    <select
-                      value={newTransaction.category}
-                      onChange={handleCategoryChange}
-                      className="w-full bg-white/10 rounded-lg p-3 text-white appearance-none hover:bg-white/20 transition-colors cursor-pointer
-                        border border-white/10 focus:outline-none focus:border-white/30"
-                      style={{
-                        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='white' opacity='0.5'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E")`,
-                        backgroundRepeat: 'no-repeat',
-                        backgroundPosition: 'right 1rem center'
-                      }}
-                    >
-                      <option value="" disabled className="bg-gray-800">Select Category</option>
-                      {[...defaultCategories, ...customCategories].map(cat => (
-                        <option key={cat.name} value={cat.name} className="bg-gray-800">
-                          {cat.name}
-                        </option>
-                      ))}
-                    </select>
-                    <button
-                      onClick={() => setShowAddCategory(true)}
-                      className="absolute right-12 top-1/2 -translate-y-1/2 p-2 text-white/60 hover:text-white"
-                    >
-                      <BiPlus />
-                    </button>
-                  </div>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      placeholder="Merchant"
-                      value={newTransaction.merchant}
-                      onChange={(e) => setNewTransaction({ ...newTransaction, merchant: e.target.value })}
-                      className="w-full bg-white/10 rounded-lg p-3 text-white"
-                    />
-                    {merchantSuggestions.length > 0 && newTransaction.merchant && (
-                      <div className="absolute w-full mt-1 bg-gray-800 rounded-lg border border-white/10 max-h-48 overflow-y-auto">
-                        {merchantSuggestions
-                          .filter(m => m.toLowerCase().includes(newTransaction.merchant.toLowerCase()))
-                          .map((merchant, index) => (
-                            <button
-                              key={index}
-                              onClick={() => setNewTransaction({ ...newTransaction, merchant })}
-                              className="w-full text-left px-3 py-2 text-white hover:bg-white/10"
-                            >
-                              {merchant}
-                            </button>
-                          ))}
-                      </div>
+                  <button
+                    onClick={() => setShowCategorySelector(true)}
+                    className="w-full bg-white/10 rounded-lg p-3 text-left text-white hover:bg-white/20 transition-colors flex items-center justify-between"
+                  >
+                    <span>{newTransaction.category || 'Select Category'}</span>
+                    {newTransaction.category && (
+                      React.createElement(getCategoryIcon(newTransaction.category), {
+                        className: "text-lg"
+                      })
                     )}
-                  </div>
+                  </button>
+                  {newTransaction.category && (
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="Search Merchant"
+                        value={newTransaction.merchant}
+                        onChange={(e) => setNewTransaction({ ...newTransaction, merchant: e.target.value })}
+                        className="w-full bg-white/10 rounded-lg p-3 text-white"
+                      />
+                      {merchantSuggestions.length > 0 && (
+                        <div className="absolute w-full mt-1 bg-gray-800 rounded-lg border border-white/10 max-h-48 overflow-y-auto z-10">
+                          {merchantSuggestions
+                            .filter(m => m.toLowerCase().includes(newTransaction.merchant.toLowerCase()))
+                            .map((merchant, index) => (
+                              <button
+                                key={index}
+                                onClick={() => setNewTransaction({ ...newTransaction, merchant })}
+                                className="w-full text-left px-3 py-2 text-white hover:bg-white/10"
+                              >
+                                {merchant}
+                              </button>
+                            ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
                   <input
                     type="text"
                     placeholder="Description (optional)"
@@ -424,6 +450,17 @@ function ExpenseTracker({ user, masterPassword }) {
           </div>
         )}
       </div>
+
+      {/* Add Category Selector Dialog */}
+      <CategorySelector
+        isOpen={showCategorySelector}
+        onClose={() => setShowCategorySelector(false)}
+        onSelect={(category) => {
+          setNewTransaction({ ...newTransaction, category, merchant: '' });
+          setMerchantSuggestions(getMerchantSuggestions(category));
+        }}
+        categories={customCategories}
+      />
 
       {/* Add Category Dialog */}
       <AddCategoryDialog
