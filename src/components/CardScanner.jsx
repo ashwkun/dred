@@ -7,6 +7,7 @@ function CardScannerComponent({ onScanComplete }) {
   const [isMobile, setIsMobile] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isMirror, setIsMirror] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(false);
   const videoRef = useRef(null);
   const streamRef = useRef(null);
   const canvasRef = useRef(null);
@@ -71,35 +72,43 @@ function CardScannerComponent({ onScanComplete }) {
   };
 
   const startScanner = async () => {
+    setIsInitializing(true);
     try {
+      // Try with simpler constraints first
       const constraints = {
         video: {
-          facingMode: { ideal: 'environment' },
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
-        },
-        audio: false
+          facingMode: 'environment', // Try environment first
+          width: { min: 640, ideal: 1280, max: 1920 },
+          height: { min: 480, ideal: 720, max: 1080 },
+          aspectRatio: { ideal: 16/9 }
+        }
       };
 
-      const stream = await navigator.mediaDevices.getUserMedia(constraints)
-        .catch(error => {
-          // If environment camera fails, try user camera
-          if (error.name === 'OverconstrainedError') {
-            return navigator.mediaDevices.getUserMedia({
-              video: true,
-              audio: false
-            });
-          }
-          throw error;
+      let stream;
+      try {
+        // Try environment camera first
+        stream = await navigator.mediaDevices.getUserMedia(constraints);
+      } catch (err) {
+        console.log('Falling back to basic video constraints:', err);
+        // Fallback to any available camera
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: true
         });
+      }
 
       if (!stream || !stream.getVideoTracks().length) {
         throw new Error('Failed to get video stream');
       }
 
+      // Get video track for debugging
+      const videoTrack = stream.getVideoTracks()[0];
+      console.log('Using camera:', videoTrack.label);
+      console.log('Camera settings:', videoTrack.getSettings());
+
       streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
+        // Wait for video to be ready
         await new Promise((resolve) => {
           videoRef.current.onloadedmetadata = () => {
             videoRef.current.play()
@@ -114,6 +123,8 @@ function CardScannerComponent({ onScanComplete }) {
       setIsScanning(true);
     } catch (error) {
       handleCameraError(error);
+    } finally {
+      setIsInitializing(false);
     }
   };
 
@@ -234,17 +245,27 @@ function CardScannerComponent({ onScanComplete }) {
         <div className="fixed inset-0 bg-black/90 z-50
           flex flex-col items-center justify-center p-4">
           <div className="relative w-full max-w-md">
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              muted
-              className="w-full rounded-xl"
-              style={{ 
-                transform: isMirror ? 'scaleX(-1)' : 'none',
-                maxHeight: '80vh'
-              }}
-            />
+            {isInitializing ? (
+              <div className="w-full aspect-video rounded-xl bg-black/50 
+                flex items-center justify-center">
+                <div className="w-8 h-8 border-2 border-white/20 border-t-white 
+                  rounded-full animate-spin" />
+              </div>
+            ) : (
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                muted
+                className="w-full h-full rounded-xl bg-black"
+                style={{ 
+                  transform: isMirror ? 'scaleX(-1)' : 'none',
+                  maxHeight: '80vh',
+                  objectFit: 'cover'
+                }}
+                onError={(e) => console.error('Video error:', e)}
+              />
+            )}
             <div className="absolute inset-0 border-2 border-white/20 rounded-xl">
               <div className="absolute inset-x-8 top-1/4 bottom-1/4 border-2 border-white/40 rounded-lg" />
             </div>
@@ -293,7 +314,9 @@ function CardScannerComponent({ onScanComplete }) {
           
           <div className="absolute bottom-8 left-0 right-0 text-center">
             <p className="text-white/60 text-sm">
-              {isProcessing ? 'Processing card...' : 'Position your card within the frame'}
+              {isInitializing ? 'Initializing camera...' : 
+               isProcessing ? 'Processing card...' : 
+               'Position your card within the frame'}
             </p>
           </div>
         </div>
