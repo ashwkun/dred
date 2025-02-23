@@ -61,8 +61,8 @@ export default function Auth() {
               },
               {
                 icon: <BiMobile className="w-6 h-6" />,
-                title: "UPI",
-                desc: "Bill-pay"
+                title: "Offline",
+                desc: "Support"
               }
             ].map((feature, i) => (
               <div 
