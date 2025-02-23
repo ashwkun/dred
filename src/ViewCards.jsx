@@ -186,19 +186,36 @@ function ViewCards({ user, masterPassword, setActivePage }) {
           return (
             <div key={card.id} className="group">
               <div className="relative w-full aspect-[1.586/1] rounded-2xl overflow-hidden">
-                {/* Theme Background with reduced opacity */}
+                {/* Enhanced Theme Layers */}
                 <div 
-                  className="absolute inset-0 transition-all duration-500"
+                  className="absolute inset-0"
                   style={{ 
                     background: decryptedTheme,
-                    opacity: 0.15,
+                    opacity: 0.4,  // Increased from 0.15
+                  }}
+                />
+
+                {/* Additional Theme Gradient */}
+                <div 
+                  className="absolute inset-0"
+                  style={{ 
+                    background: `linear-gradient(120deg, ${decryptedTheme}, transparent)`,
+                    opacity: 0.3,
                   }}
                 />
 
                 {/* Glassmorphic Layers */}
-                <div className="absolute inset-0 backdrop-blur-md bg-white/5" />
-                <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent" />
-                <div className="absolute inset-0 shadow-[inset_0_0_100px_rgba(0,0,0,0.1)]" />
+                <div className="absolute inset-0 backdrop-blur-sm bg-black/5" />
+                <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent" />
+                <div className="absolute inset-0 shadow-[inset_0_0_100px_rgba(0,0,0,0.2)]" />
+                
+                {/* Subtle Pattern Overlay */}
+                <div className="absolute inset-0 opacity-10"
+                  style={{
+                    backgroundImage: `radial-gradient(circle at 2px 2px, rgba(255,255,255,0.2) 1px, transparent 0)`,
+                    backgroundSize: '24px 24px',
+                  }}
+                />
 
                 {/* Card Content */}
                 <div className="relative h-full p-6 flex flex-col justify-between">
