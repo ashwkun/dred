@@ -12,7 +12,6 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, LineChart, Line, AreaChart, Area 
 } from 'recharts';
-import { format } from 'date-fns';
 
 // Move formatAccountName to the top, before any components
 const formatAccountName = (account, cards) => {
@@ -234,7 +233,10 @@ const calculateInsights = (transactions) => {
       return daysDiff <= 30;
     })
     .reduce((acc, t) => {
-      const date = format(new Date(t.date), 'MMM dd');
+      const date = new Date(t.date).toLocaleDateString('en-US', {
+        month: 'short',
+        day: '2-digit'
+      });
       acc[date] = (acc[date] || 0) + parseFloat(t.amount);
       return acc;
     }, {});
