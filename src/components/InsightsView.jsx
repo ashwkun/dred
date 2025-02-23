@@ -473,11 +473,14 @@ const SpendingVelocityCard = ({ spendingVelocity, monthlyBudget }) => {
 };
 
 const CategoryTrendsCard = ({ categoryInsights }) => {
+  // Ensure categoryInsights and topCategories are defined and are arrays
+  const topCategories = Array.isArray(categoryInsights?.topCategories) ? categoryInsights.topCategories : [];
+
   return (
     <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 md:p-6 border border-white/20">
       <h3 className="text-lg font-semibold text-white mb-4">Category Analysis</h3>
       <div className="space-y-4">
-        {categoryInsights.topCategories.map((category, index) => (
+        {topCategories.map((category, index) => (
           <div key={category.name} className="bg-white/5 rounded-lg p-3">
             <div className="flex justify-between items-center mb-2">
               <span className="text-white">{category.name}</span>
@@ -495,18 +498,22 @@ const CategoryTrendsCard = ({ categoryInsights }) => {
             </div>
           </div>
         ))}
+        {topCategories.length === 0 && (
+          <p className="text-white/60">No category data available</p>
+        )}
       </div>
     </div>
   );
 };
 
 const MonthlyTrendCard = ({ monthlySpending }) => {
-  const data = Object.entries(monthlySpending)
+  // Ensure monthlySpending is an object
+  const data = Object.entries(monthlySpending || {})
     .reverse()
     .map(([month, amount]) => ({
       month,
       amount,
-      avg: Object.values(monthlySpending).reduce((a, b) => a + b, 0) / 6
+      avg: Object.values(monthlySpending || {}).reduce((a, b) => a + b, 0) / 6
     }));
 
   return (
