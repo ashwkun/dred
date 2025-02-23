@@ -74,30 +74,36 @@ function CardScannerComponent({ onScanComplete }) {
   const startScanner = async () => {
     setIsInitializing(true);
     try {
-      // Try with simpler constraints first
-      const constraints = {
-        video: {
-          facingMode: 'environment', // Try environment first
-          width: { min: 640, ideal: 1280, max: 1920 },
-          height: { min: 480, ideal: 720, max: 1080 },
-          aspectRatio: { ideal: 16/9 }
+      // First try with basic constraints
+      let stream = null;
+      const constraints = [
+        // Try 1: Basic video
+        { video: true },
+        // Try 2: Environment camera
+        { video: { facingMode: 'environment' } },
+        // Try 3: User camera
+        { video: { facingMode: 'user' } },
+        // Try 4: Specific device
+        { 
+          video: {
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          }
         }
-      };
+      ];
 
-      let stream;
-      try {
-        // Try environment camera first
-        stream = await navigator.mediaDevices.getUserMedia(constraints);
-      } catch (err) {
-        console.log('Falling back to basic video constraints:', err);
-        // Fallback to any available camera
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: true
-        });
+      // Try each constraint until one works
+      for (const constraint of constraints) {
+        try {
+          stream = await navigator.mediaDevices.getUserMedia(constraint);
+          if (stream) break;
+        } catch (err) {
+          console.log('Trying next constraint:', err);
+        }
       }
 
-      if (!stream || !stream.getVideoTracks().length) {
-        throw new Error('Failed to get video stream');
+      if (!stream) {
+        throw new Error('Could not initialize any camera');
       }
 
       // Get video track for debugging
@@ -105,21 +111,24 @@ function CardScannerComponent({ onScanComplete }) {
       console.log('Using camera:', videoTrack.label);
       console.log('Camera settings:', videoTrack.getSettings());
 
+      // Set up video element
+      const video = videoRef.current;
+      video.srcObject = stream;
       streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        // Wait for video to be ready
-        await new Promise((resolve) => {
-          videoRef.current.onloadedmetadata = () => {
-            videoRef.current.play()
-              .then(resolve)
-              .catch(e => {
-                console.error('Video play error:', e);
-                resolve();
-              });
-          };
-        });
-      }
+
+      // Wait for video to be ready
+      await new Promise((resolve, reject) => {
+        video.onloadedmetadata = () => {
+          video.play()
+            .then(resolve)
+            .catch(reject);
+        };
+        video.onerror = (e) => reject(new Error('Video error: ' + e.target.error.message));
+        
+        // Timeout after 5 seconds
+        setTimeout(() => reject(new Error('Video initialization timeout')), 5000);
+      });
+
       setIsScanning(true);
     } catch (error) {
       handleCameraError(error);
@@ -209,6 +218,35 @@ function CardScannerComponent({ onScanComplete }) {
     }
   };
 
+  const debugCamera = async () => {
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const cameras = devices.filter(device => device.kind === 'videoinput');
+      console.log('Available cameras:', cameras);
+      
+      if (videoRef.current) {
+        console.log('Video element state:', {
+          readyState: videoRef.current.readyState,
+          videoWidth: videoRef.current.videoWidth,
+          videoHeight: videoRef.current.videoHeight,
+          error: videoRef.current.error
+        });
+      }
+      
+      if (streamRef.current) {
+        const tracks = streamRef.current.getVideoTracks();
+        console.log('Stream tracks:', tracks.map(t => ({
+          label: t.label,
+          enabled: t.enabled,
+          state: t.readyState,
+          settings: t.getSettings()
+        })));
+      }
+    } catch (error) {
+      console.error('Debug error:', error);
+    }
+  };
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -261,7 +299,8 @@ function CardScannerComponent({ onScanComplete }) {
                 style={{ 
                   transform: isMirror ? 'scaleX(-1)' : 'none',
                   maxHeight: '80vh',
-                  objectFit: 'cover'
+                  objectFit: 'cover',
+                  minHeight: '300px'
                 }}
                 onError={(e) => console.error('Video error:', e)}
               />
@@ -320,6 +359,17 @@ function CardScannerComponent({ onScanComplete }) {
             </p>
           </div>
         </div>
+      )}
+
+      {/* Debug button in development */}
+      {process.env.NODE_ENV === 'development' && (
+        <button
+          onClick={debugCamera}
+          className="absolute top-4 left-4 p-2 bg-white/10 rounded-lg text-white/60
+            hover:text-white text-xs"
+        >
+          Debug Camera
+        </button>
       )}
     </div>
   );
