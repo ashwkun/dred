@@ -30,23 +30,18 @@ function CardScannerComponent({ onScanComplete }) {
     }
 
     try {
-      // First check if we have permission
       const permission = await navigator.permissions.query({ name: 'camera' })
-        .catch(() => ({ state: 'prompt' })); // Fallback if permissions API not supported
+        .catch(() => ({ state: 'prompt' }));
 
       if (permission.state === 'denied') {
         alert('Camera access is blocked. Please allow camera access in your browser settings.');
         return false;
       }
 
-      // Try to get camera stream
       const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { 
-          facingMode: 'environment',
-        }
+        video: { facingMode: 'environment' }
       });
       
-      // If successful, stop the test stream
       stream.getTracks().forEach(track => track.stop());
       return true;
     } catch (error) {
@@ -74,7 +69,6 @@ function CardScannerComponent({ onScanComplete }) {
   const startScanner = async () => {
     setIsInitializing(true);
     try {
-      // First try with basic constraints
       let stream = null;
       const constraints = [
         { video: true },
@@ -82,7 +76,6 @@ function CardScannerComponent({ onScanComplete }) {
         { video: { facingMode: 'user' } }
       ];
 
-      // Try each constraint until one works
       for (const constraint of constraints) {
         try {
           stream = await navigator.mediaDevices.getUserMedia(constraint);
@@ -96,24 +89,18 @@ function CardScannerComponent({ onScanComplete }) {
         throw new Error('Could not initialize any camera');
       }
 
-      // Store stream first
       streamRef.current = stream;
-
-      // Set scanning state and wait for next render cycle
       setIsScanning(true);
       await new Promise(resolve => requestAnimationFrame(resolve));
       await new Promise(resolve => requestAnimationFrame(resolve));
 
-      // Now check for video element
       if (!videoRef.current) {
         throw new Error('Video element not available');
       }
 
-      // Set up video element
       const video = videoRef.current;
       video.srcObject = stream;
 
-      // Wait for video to be ready
       await new Promise((resolve, reject) => {
         const timeoutId = setTimeout(() => {
           reject(new Error('Video initialization timeout'));
@@ -140,7 +127,6 @@ function CardScannerComponent({ onScanComplete }) {
       console.error('Camera initialization error:', error);
       handleCameraError(error);
       
-      // Clean up on error
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
         streamRef.current = null;
@@ -187,7 +173,6 @@ function CardScannerComponent({ onScanComplete }) {
     let worker = null;
     
     try {
-      // Capture frame from video
       const video = videoRef.current;
       const canvas = canvasRef.current;
       canvas.width = video.videoWidth;
@@ -195,31 +180,25 @@ function CardScannerComponent({ onScanComplete }) {
       const ctx = canvas.getContext('2d');
       ctx.drawImage(video, 0, 0);
 
-      // Create worker with minimal configuration
       worker = await createWorker();
       
-      // Initialize worker
       await worker.load();
       await worker.loadLanguage('eng');
       await worker.initialize('eng');
       
-      // Set parameters for better card recognition
       await worker.setParameters({
         tessedit_char_whitelist: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ ',
         preserve_interword_spaces: '1',
       });
 
-      // Recognize text
       const { data: { text } } = await worker.recognize(canvas);
-      console.log('Recognized text:', text); // Debug log
+      console.log('Recognized text:', text);
 
-      // Process the text to extract card details
       const cardNumber = text.match(/\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}/)?.[0]?.replace(/[\s-]/g, '');
       const expiry = text.match(/(0[1-9]|1[0-2])[/\s]?(2[3-9]|[3-9][0-9])/)?.[0];
       const name = text.match(/[A-Z]+ [A-Z]+/)?.[0];
 
       if (cardNumber) {
-        // Detect card type based on first digit
         const firstDigit = cardNumber[0];
         let detectedCardType = '';
         if (firstDigit === '4') detectedCardType = 'Visa';
@@ -276,7 +255,6 @@ function CardScannerComponent({ onScanComplete }) {
     }
   };
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (streamRef.current) {
@@ -291,6 +269,7 @@ function CardScannerComponent({ onScanComplete }) {
     <div className="mb-6">
       <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
         <button
+          type="button"
           onClick={handleStartScanner}
           className="w-full bg-white/10 hover:bg-white/20
             rounded-xl py-4 flex items-center justify-center gap-3
@@ -304,7 +283,6 @@ function CardScannerComponent({ onScanComplete }) {
         </p>
       </div>
 
-      {/* Hidden video element - always rendered */}
       <video
         ref={videoRef}
         autoPlay
@@ -319,10 +297,8 @@ function CardScannerComponent({ onScanComplete }) {
         }}
       />
 
-      {/* Hidden canvas for image processing */}
       <canvas ref={canvasRef} className="hidden" />
 
-      {/* Scanner Modal */}
       {isScanning && (
         <div className="fixed inset-0 bg-black/90 z-50
           flex flex-col items-center justify-center p-4">
@@ -335,19 +311,16 @@ function CardScannerComponent({ onScanComplete }) {
               </div>
             ) : (
               <div className="relative">
-                {/* Video container */}
                 <div className="w-full h-full rounded-xl overflow-hidden">
                   {/* Video element is now outside and referenced */}
                 </div>
                 
-                {/* Overlay for scanning area */}
                 <div className="absolute inset-0 border-2 border-white/20 rounded-xl">
                   <div className="absolute inset-x-8 top-1/4 bottom-1/4 border-2 border-white/40 rounded-lg" />
                 </div>
               </div>
             )}
             
-            {/* Controls */}
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-4">
               <button
                 onClick={() => setIsMirror(!isMirror)}
@@ -399,7 +372,6 @@ function CardScannerComponent({ onScanComplete }) {
         </div>
       )}
 
-      {/* Debug button in development */}
       {process.env.NODE_ENV === 'development' && (
         <button
           onClick={debugCamera}
