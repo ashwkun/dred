@@ -266,7 +266,7 @@ function CardScannerComponent({ onScanComplete }) {
 
   return (
     <div className="mb-6">
-      <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
+      <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10 mb-4">
         <button
           type="button"
           onClick={handleStartScanner}
@@ -275,53 +275,31 @@ function CardScannerComponent({ onScanComplete }) {
             text-white font-medium transition-all duration-200"
         >
           <BiCamera className="w-5 h-5" />
-          Scan Card (Alpha)
+          Scan Card
         </button>
         <p className="text-white/40 text-xs text-center mt-3">
-        
-          
+          Quickly add card by scanning with your phone's camera
         </p>
       </div>
 
-      <video
-        ref={videoRef}
-        autoPlay
-        playsInline
-        muted
-        className={`w-full h-full rounded-xl bg-black ${isScanning ? 'block' : 'hidden'}`}
-        style={{ 
-          transform: isMirror ? 'scaleX(-1)' : 'none',
-          maxHeight: '80vh',
-          objectFit: 'cover',
-          minHeight: '300px'
-        }}
-      />
+      <div className="relative">
+        <video
+          ref={videoRef}
+          autoPlay
+          playsInline
+          muted
+          className={`w-full h-full rounded-xl bg-black ${isScanning ? 'block' : 'hidden'}`}
+          style={{ 
+            transform: isMirror ? 'scaleX(-1)' : 'none',
+            maxHeight: '80vh',
+            objectFit: 'cover',
+            minHeight: '300px'
+          }}
+        />
 
-      <canvas ref={canvasRef} className="hidden" />
-
-      {isScanning && (
-        <div className="fixed inset-0 bg-black/90 z-50
-          flex flex-col items-center justify-center p-4">
-          <div className="relative w-full max-w-md">
-            {isInitializing ? (
-              <div className="w-full aspect-video rounded-xl bg-black/50 
-                flex items-center justify-center">
-                <div className="w-8 h-8 border-2 border-white/20 border-t-white 
-                  rounded-full animate-spin" />
-              </div>
-            ) : (
-              <div className="relative">
-                <div className="w-full h-full rounded-xl overflow-hidden">
-                  {/* Video element is now outside and referenced */}
-                </div>
-                
-                <div className="absolute inset-0 border-2 border-white/20 rounded-xl">
-                  <div className="absolute inset-x-8 top-1/4 bottom-1/4 border-2 border-white/40 rounded-lg" />
-                </div>
-              </div>
-            )}
-            
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-4">
+        {isScanning && (
+          <div className="absolute inset-0 flex flex-col justify-between p-4">
+            <div className="flex justify-center gap-4">
               <button
                 onClick={() => setIsMirror(!isMirror)}
                 className="p-3 rounded-full bg-white/10 backdrop-blur-sm
@@ -374,17 +352,18 @@ function CardScannerComponent({ onScanComplete }) {
                 )}
               </button>
             </div>
+            <div className="text-center">
+              <p className="text-white/60 text-sm">
+                {isInitializing ? 'Initializing camera...' : 
+                 isProcessing ? 'Processing card...' : 
+                 'Position your card within the frame'}
+              </p>
+            </div>
           </div>
-          
-          <div className="absolute bottom-8 left-0 right-0 text-center">
-            <p className="text-white/60 text-sm">
-              {isInitializing ? 'Initializing camera...' : 
-               isProcessing ? 'Processing card...' : 
-               'Position your card within the frame'}
-            </p>
-          </div>
-        </div>
-      )}
+        )}
+      </div>
+
+      <canvas ref={canvasRef} className="hidden" />
 
       {process.env.NODE_ENV === 'development' && (
         <button
