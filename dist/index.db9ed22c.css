@@ -410,6 +410,10 @@ body {
   top: 100%;
 }
 
+.left-4 {
+  left: 1rem;
+}
+
 .z-10 {
   z-index: 10;
 }
@@ -891,6 +895,10 @@ body {
   border-color: #fff3;
 }
 
+.border-white\/30 {
+  border-color: #ffffff4d;
+}
+
 .border-t-white {
   --tw-border-opacity: 1;
   border-top-color: rgb(255 255 255 / var(--tw-border-opacity, 1));
@@ -1124,6 +1132,14 @@ body {
 
 .pt-\[72px\] {
   padding-top: 72px;
+}
+
+.pl-8 {
+  padding-left: 2rem;
+}
+
+.pr-4 {
+  padding-right: 1rem;
 }
 
 .text-left {
@@ -1618,6 +1634,10 @@ body {
 
 .focus\:border-transparent:focus {
   border-color: #0000;
+}
+
+.focus\:border-white\/20:focus {
+  border-color: #fff3;
 }
 
 .focus\:outline-none:focus {
