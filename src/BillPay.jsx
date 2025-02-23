@@ -3,7 +3,6 @@ import { collection, query, where, getDocs, doc, setDoc } from "firebase/firesto
 import { db } from "./firebase";
 import MobileNumberDialog from './components/MobileNumberDialog';
 import CryptoJS from 'crypto-js';
-import { BiReceipt, BiCalendar, BiCreditCard } from 'react-icons/bi';
 
 export default function BillPay({ user, masterPassword }) {
   const [cards, setCards] = useState([]);
@@ -11,22 +10,6 @@ export default function BillPay({ user, masterPassword }) {
   const [mobileNumber, setMobileNumber] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedCard, setSelectedCard] = useState(null);
-  const [billDetails, setBillDetails] = useState({
-    amount: '',
-    description: '',
-    dueDate: '',
-    category: 'utility'
-  });
-
-  const categories = [
-    { id: 'utility', name: 'Utility Bills', icon: '⚡' },
-    { id: 'rent', name: 'Rent/Mortgage', icon: '🏠' },
-    { id: 'internet', name: 'Internet/Phone', icon: '📡' },
-    { id: 'insurance', name: 'Insurance', icon: '🛡️' },
-    { id: 'subscription', name: 'Subscriptions', icon: '📺' },
-    { id: 'other', name: 'Other', icon: '📝' }
-  ];
 
   useEffect(() => {
     const loadData = async () => {
@@ -124,118 +107,64 @@ export default function BillPay({ user, masterPassword }) {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="flex items-center gap-3 mb-6">
-        <BiReceipt className="text-2xl text-white" />
-        <h1 className="text-2xl font-bold text-white">Pay Bills</h1>
-      </div>
-
-      <div className="grid md:grid-cols-2 gap-6">
-        {/* Left Column - Bill Details */}
-        <div className="space-y-6">
-          {/* Amount & Description */}
-          <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6">
-            <h2 className="text-lg font-medium text-white mb-4">Bill Details</h2>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-white/70 mb-2">
-                  Amount
-                </label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50">₹</span>
-                  <input
-                    type="number"
-                    className="w-full pl-8 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl
-                      text-white placeholder-white/30 focus:outline-none focus:border-white/20"
-                    placeholder="0.00"
-                    value={billDetails.amount}
-                    onChange={(e) => setBillDetails({ ...billDetails, amount: e.target.value })}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-white/70 mb-2">
-                  Description
-                </label>
-                <input
-                  type="text"
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl
-                    text-white placeholder-white/30 focus:outline-none focus:border-white/20"
-                  placeholder="What's this payment for?"
-                  value={billDetails.description}
-                  onChange={(e) => setBillDetails({ ...billDetails, description: e.target.value })}
-                />
+      {loading ? (
+        <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 p-6">
+          <div className="flex items-center justify-center">
+            <div className="animate-spin w-6 h-6 border-2 border-white/20 border-t-white rounded-full" />
+            <span className="ml-3 text-white/70">Loading...</span>
+          </div>
+        </div>
+      ) : error ? (
+        <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-red-500/20 p-6">
+          <div className="text-center text-red-400">
+            <p>{error}</p>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {cards.length === 0 ? (
+            <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 p-6">
+              <div className="text-center text-white/70">
+                <p>No supported cards found. Add a credit card to pay bills.</p>
               </div>
             </div>
-          </div>
+          ) : (
+            cards.map(card => {
+              const upiId = getUpiId(card);
+              if (!upiId) return null;
 
-          {/* Categories */}
-          <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6">
-            <h2 className="text-lg font-medium text-white mb-4">Category</h2>
-            <div className="grid grid-cols-2 gap-3">
-              {categories.map(category => (
-                <button
-                  key={category.id}
-                  onClick={() => setBillDetails({ ...billDetails, category: category.id })}
-                  className={`p-4 rounded-xl border transition-all text-left flex items-center gap-3
-                    ${billDetails.category === category.id 
-                      ? 'bg-white/20 border-white/30' 
-                      : 'bg-white/5 border-white/10 hover:bg-white/10'
-                    }`}
+              const last4 = card.cardNumber.slice(-4);
+
+              return (
+                <div key={card.id} className="bg-white/10 backdrop-blur-lg rounded-xl 
+                  border border-white/20 p-4 flex items-center justify-between"
                 >
-                  <span className="text-2xl">{category.icon}</span>
-                  <span className="text-sm text-white font-medium">{category.name}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Due Date */}
-          <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6">
-            <h2 className="text-lg font-medium text-white mb-4">Due Date</h2>
-            <div className="flex items-center gap-3">
-              <BiCalendar className="text-xl text-white/70" />
-              <input
-                type="date"
-                className="flex-1 px-4 py-3 bg-white/5 border border-white/10 rounded-xl
-                  text-white focus:outline-none focus:border-white/20"
-                value={billDetails.dueDate}
-                onChange={(e) => setBillDetails({ ...billDetails, dueDate: e.target.value })}
-              />
-            </div>
-          </div>
+                  <div>
+                    <h3 className="text-white font-medium">
+                      {card.bankName} - {card.cardType}
+                    </h3>
+                    <p className="text-white/70 text-sm mt-0.5">
+                      •••• {last4}
+                    </p>
+                    <p className="text-white/50 text-xs mt-1.5">
+                      UPI: {upiId}
+                    </p>
+                  </div>
+                  
+                  <button
+                    onClick={() => handlePayBill(upiId)}
+                    className="px-4 py-2 bg-white/10 hover:bg-white/20 
+                      rounded-xl text-white/80 hover:text-white 
+                      transition-all text-sm font-medium"
+                  >
+                    Pay Bill
+                  </button>
+                </div>
+              );
+            })
+          )}
         </div>
-
-        {/* Right Column - Payment Method */}
-        <div className="space-y-6">
-          <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <BiCreditCard className="text-xl text-white/70" />
-              <h2 className="text-lg font-medium text-white">Select Card</h2>
-            </div>
-
-            <div className="space-y-3">
-              {/* Card selection will go here */}
-              <p className="text-white/50 text-center py-8">
-                Your saved cards will appear here
-              </p>
-            </div>
-          </div>
-
-          {/* Pay Button */}
-          <button
-            className="w-full px-6 py-4 bg-primary hover:bg-primary/90 
-              rounded-xl text-white font-medium transition-all duration-200 
-              focus:outline-none focus:ring-2 focus:ring-primary/50 
-              disabled:opacity-50 disabled:cursor-not-allowed
-              shadow-lg shadow-primary/25"
-            disabled={!selectedCard || !billDetails.amount}
-          >
-            Pay Bill
-          </button>
-        </div>
-      </div>
+      )}
 
       <MobileNumberDialog
         isOpen={showMobileDialog}
