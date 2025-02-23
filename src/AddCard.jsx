@@ -8,6 +8,7 @@ import { securityManager } from './utils/security';
 import { BiAddToQueue } from 'react-icons/bi';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import CardScannerComponent from './components/CardScanner';
+import { retryOperation } from './utils/firestore';
 
 function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
   const [cardHolder, setCardHolder] = useState(user?.displayName || ""); // Editable
@@ -20,6 +21,7 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
   const [theme, setTheme] = useState("#6a3de8"); // Default theme
   const [status, setStatus] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (user?.displayName) {
@@ -67,67 +69,72 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
     detectCardDetails(cardData.number);
   };
 
-  const handleAddCard = async (e) => {
-    e.preventDefault();
+  const handleAddCard = async () => {
     setIsLoading(true);
-    setStatus("");
+    setError(null);
 
     try {
-      // Get current highest priority
-      const q = query(
-        collection(db, "cards"),
-        where("uid", "==", user.uid),
-        orderBy("priority", "desc"),
-        limit(1)
-      );
+      await retryOperation(async () => {
+        // Validate required fields
+        if (!cardNumber || !cardHolder || !bankName || !networkName || !expiry || !cvv) {
+          throw new Error("Please fill in all required fields");
+        }
+
+        // Validate card number format
+        if (!/^\d{16}$/.test(cardNumber.replace(/\s/g, ''))) {
+          throw new Error("Please enter a valid 16-digit card number");
+        }
+
+        // Validate expiry format (MM/YY)
+        if (!/^(0[1-9]|1[0-2])\/([0-9]{2})$/.test(expiry)) {
+          throw new Error("Please enter expiry in MM/YY format");
+        }
+
+        // Validate CVV format
+        if (!/^\d{3,4}$/.test(cvv)) {
+          throw new Error("Please enter a valid CVV");
+        }
+
+        const encryptedCard = {
+          uid: user.uid,
+          cardNumber: CryptoJS.AES.encrypt(cardNumber, masterPassword).toString(),
+          cardHolder: CryptoJS.AES.encrypt(cardHolder, masterPassword).toString(),
+          bankName: CryptoJS.AES.encrypt(bankName, masterPassword).toString(),
+          networkName: CryptoJS.AES.encrypt(networkName, masterPassword).toString(),
+          expiry: CryptoJS.AES.encrypt(expiry, masterPassword).toString(),
+          cvv: CryptoJS.AES.encrypt(cvv, masterPassword).toString(),
+          cardType: cardType,
+          theme: theme,
+          createdAt: serverTimestamp()
+        };
+
+        await addDoc(collection(db, "cards"), encryptedCard);
+      });
       
-      const snapshot = await getDocs(q);
-      const nextPriority = snapshot.empty ? 0 : (snapshot.docs[0].data().priority || 0) + 1;
-
-      // Clean the data BEFORE encrypting
-      const cleanedData = {
-        bankName: bankName.trim(),
-        networkName: networkName.trim(),
-        cardType: cardType.trim(),
-        cardHolder: cardHolder.trim(),
-        cardNumber: cardNumber.trim(),
-        expiry: expiry.trim(),
-        cvv: cvv.trim()
-      };
-
-      const cardData = {
-        uid: user.uid,
-        cardHolder: securityManager.encryptData(cleanedData.cardHolder, masterPassword),
-        cardNumber: securityManager.encryptData(cleanedData.cardNumber, masterPassword),
-        bankName: securityManager.encryptData(cleanedData.bankName, masterPassword),
-        networkName: securityManager.encryptData(cleanedData.networkName, masterPassword),
-        cardType: securityManager.encryptData(cleanedData.cardType, masterPassword),
-        expiry: securityManager.encryptData(cleanedData.expiry, masterPassword),
-        cvv: securityManager.encryptData(cleanedData.cvv, masterPassword),
-        theme: securityManager.encryptData(theme, masterPassword),
-        priority: nextPriority,
-        createdAt: serverTimestamp(),
-      };
-
-      await addDoc(collection(db, "cards"), cardData);
-
-      // Clear sensitive data from memory
-      setCardNumber("");
-      setCvv("");
-      setExpiry("");
-      securityManager.clearSensitiveData();
-
       setShowSuccess(true);
+      
+      // Reset form after delay
       setTimeout(() => {
         setShowSuccess(false);
-        setActivePage("viewCards");
+        resetForm();
       }, 2000);
+
     } catch (error) {
       console.error("Error adding card:", error);
-      setStatus(`❌ ${error.message}`);
+      setError(error.message || "Failed to add card. Please try again.");
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const resetForm = () => {
+    setCardNumber("");
+    setCvv("");
+    setExpiry("");
+    setBankName("");
+    setNetworkName("");
+    setCardType("");
+    setTheme("#6a3de8");
   };
 
   return (
