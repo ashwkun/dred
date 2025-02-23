@@ -9,6 +9,26 @@ import { FaUtensils } from 'react-icons/fa';
 import { defaultCategories, getCategoryIcon, getMerchantSuggestions, iconMap } from './data/categories';
 import AddCategoryDialog from './components/AddCategoryDialog';
 
+// Move formatAccountName to the top, before any components
+const formatAccountName = (account, cards) => {
+  // If it's a card
+  if (account.startsWith('card_')) {
+    const cardId = account.replace('card_', ''); // Remove prefix to match with cards array
+    const card = cards.find(c => c.id === cardId);
+    if (card) {
+      const bankNameFirst = card.bankName.split(' ')[0];
+      const lastFourDigits = card.cardNumber.slice(-4);
+      return `${bankNameFirst}-${lastFourDigits}`;
+    }
+  }
+  
+  // For cash and bank account, keep as is
+  if (account === 'cash') return 'Cash';
+  if (account === 'bank') return 'Bank';
+  
+  return account;
+};
+
 // Add new component for category selector
 const CategorySelector = ({ isOpen, onClose, onSelect, categories, onAddCategory }) => {
   return (
@@ -425,26 +445,6 @@ function ExpenseTracker({ user, masterPassword }) {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-
-  // Update the formatAccountName function
-  const formatAccountName = (account, cards) => {
-    // If it's a card
-    if (account.startsWith('card_')) {
-      const cardId = account.replace('card_', ''); // Remove prefix to match with cards array
-      const card = cards.find(c => c.id === cardId);
-      if (card) {
-        const bankNameFirst = card.bankName.split(' ')[0];
-        const lastFourDigits = card.cardNumber.slice(-4);
-        return `${bankNameFirst}-${lastFourDigits}`;
-      }
-    }
-    
-    // For cash and bank account, keep as is
-    if (account === 'cash') return 'Cash';
-    if (account === 'bank') return 'Bank';
-    
-    return account;
-  };
 
   if (error) {
     return (
