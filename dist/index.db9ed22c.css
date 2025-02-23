@@ -607,6 +607,10 @@ body {
   max-height: 12rem;
 }
 
+.max-h-\[60vh\] {
+  max-height: 60vh;
+}
+
 .min-h-screen {
   min-height: 100vh;
 }
@@ -1031,6 +1035,10 @@ body {
   border-color: #fff3;
 }
 
+.border-white\/5 {
+  border-color: #ffffff0d;
+}
+
 .border-t-white {
   --tw-border-opacity: 1;
   border-top-color: rgb(255 255 255 / var(--tw-border-opacity, 1));
@@ -1331,6 +1339,10 @@ body {
   padding-top: 72px;
 }
 
+.pt-4 {
+  padding-top: 1rem;
+}
+
 .text-left {
   text-align: left;
 }
@@ -1504,6 +1516,10 @@ body {
 
 .opacity-90 {
   opacity: .9;
+}
+
+.opacity-50 {
+  opacity: .5;
 }
 
 .shadow-2xl {
@@ -1720,6 +1736,10 @@ body {
     transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
     opacity: 1;
   }
+}
+
+.last\:border-0:last-child {
+  border-width: 0;
 }
 
 .hover\:scale-105:hover {

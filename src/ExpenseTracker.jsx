@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { db } from "./firebase";
 import { collection, query, where, getDocs, addDoc, deleteDoc, doc, serverTimestamp } from "firebase/firestore";
 import CryptoJS from "crypto-js";
-import { BiReceipt, BiPlus, BiTrash, BiLineChart } from 'react-icons/bi';
+import { BiReceipt, BiPlus, BiTrash, BiLineChart, BiChevronDown } from 'react-icons/bi';
 import { LoadingOverlay } from './components/LoadingOverlay';
 import Dialog from './components/Dialog';
 import { FaUtensils } from 'react-icons/fa';
@@ -10,14 +10,14 @@ import { defaultCategories, getCategoryIcon, getMerchantSuggestions } from './da
 import AddCategoryDialog from './components/AddCategoryDialog';
 
 // Add new component for category selector
-const CategorySelector = ({ isOpen, onClose, onSelect, categories }) => {
+const CategorySelector = ({ isOpen, onClose, onSelect, categories, onAddCategory }) => {
   return (
-    <div className={`fixed inset-0 bg-black/50 flex items-center justify-center ${
+    <div className={`fixed inset-0 bg-black/50 flex items-center justify-center p-4 ${
       isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
     } transition-opacity`}>
       <div className="bg-gray-900 rounded-xl p-6 w-full max-w-md">
         <h2 className="text-xl font-semibold text-white mb-4">Select Category</h2>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3 max-h-[60vh] overflow-y-auto">
           {[...defaultCategories, ...categories].map(cat => (
             <button
               key={cat.name}
@@ -34,7 +34,48 @@ const CategorySelector = ({ isOpen, onClose, onSelect, categories }) => {
             </button>
           ))}
         </div>
-        <div className="flex justify-end mt-4">
+        <div className="flex justify-between mt-4 pt-4 border-t border-white/10">
+          <button
+            onClick={onAddCategory}
+            className="px-4 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20 flex items-center gap-2"
+          >
+            <BiPlus />
+            Add Category
+          </button>
+          <button
+            onClick={onClose}
+            className="px-4 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const AccountSelector = ({ isOpen, onClose, onSelect, accounts }) => {
+  return (
+    <div className={`fixed inset-0 bg-black/50 flex items-center justify-center p-4 ${
+      isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+    } transition-opacity`}>
+      <div className="bg-gray-900 rounded-xl p-6 w-full max-w-md">
+        <h2 className="text-xl font-semibold text-white mb-4">Select Account</h2>
+        <div className="space-y-2 max-h-[60vh] overflow-y-auto">
+          {accounts.map(account => (
+            <button
+              key={account.id}
+              onClick={() => {
+                onSelect(account.id);
+                onClose();
+              }}
+              className="w-full flex items-center gap-3 p-3 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+            >
+              <span className="text-white">{account.name}</span>
+            </button>
+          ))}
+        </div>
+        <div className="flex justify-end mt-4 pt-4 border-t border-white/10">
           <button
             onClick={onClose}
             className="px-4 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20"
@@ -65,6 +106,9 @@ function ExpenseTracker({ user, masterPassword }) {
   const [merchantSuggestions, setMerchantSuggestions] = useState([]);
   const [customCategories, setCustomCategories] = useState([]);
   const [showCategorySelector, setShowCategorySelector] = useState(false);
+  const [showAccountSelector, setShowAccountSelector] = useState(false);
+  const [showMerchantSuggestions, setShowMerchantSuggestions] = useState(false);
+  const merchantInputRef = useRef(null);
 
   const accounts = [
     { id: 'cash', name: 'Cash' },
@@ -268,6 +312,18 @@ function ExpenseTracker({ user, masterPassword }) {
     }
   };
 
+  // Add click outside handler
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (merchantInputRef.current && !merchantInputRef.current.contains(event.target)) {
+        setShowMerchantSuggestions(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   if (loading) {
     return <LoadingOverlay message="Loading transactions" />;
   }
@@ -326,24 +382,13 @@ function ExpenseTracker({ user, masterPassword }) {
                     onChange={(e) => setNewTransaction({ ...newTransaction, amount: e.target.value })}
                     className="w-full bg-white/10 rounded-lg p-3 text-white"
                   />
-                  <select
-                    value={newTransaction.account}
-                    onChange={(e) => setNewTransaction({ ...newTransaction, account: e.target.value })}
-                    className="w-full bg-white/10 rounded-lg p-3 text-white appearance-none hover:bg-white/20 transition-colors cursor-pointer
-                      border border-white/10 focus:outline-none focus:border-white/30"
-                    style={{
-                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='white' opacity='0.5'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E")`,
-                      backgroundRepeat: 'no-repeat',
-                      backgroundPosition: 'right 1rem center'
-                    }}
+                  <button
+                    onClick={() => setShowAccountSelector(true)}
+                    className="w-full bg-white/10 rounded-lg p-3 text-left text-white hover:bg-white/20 transition-colors flex items-center justify-between"
                   >
-                    <option value="" disabled className="bg-gray-800">Select Account</option>
-                    {accounts.map(account => (
-                      <option key={account.id} value={account.id} className="bg-gray-800">
-                        {account.name}
-                      </option>
-                    ))}
-                  </select>
+                    <span>{accounts.find(a => a.id === newTransaction.account)?.name || 'Select Account'}</span>
+                    <BiChevronDown className="text-lg opacity-50" />
+                  </button>
                   <button
                     onClick={() => setShowCategorySelector(true)}
                     className="w-full bg-white/10 rounded-lg p-3 text-left text-white hover:bg-white/20 transition-colors flex items-center justify-between"
@@ -356,23 +401,27 @@ function ExpenseTracker({ user, masterPassword }) {
                     )}
                   </button>
                   {newTransaction.category && (
-                    <div className="relative">
+                    <div className="relative" ref={merchantInputRef}>
                       <input
                         type="text"
                         placeholder="Search Merchant"
                         value={newTransaction.merchant}
                         onChange={(e) => setNewTransaction({ ...newTransaction, merchant: e.target.value })}
+                        onFocus={() => setShowMerchantSuggestions(true)}
                         className="w-full bg-white/10 rounded-lg p-3 text-white"
                       />
-                      {merchantSuggestions.length > 0 && (
+                      {showMerchantSuggestions && merchantSuggestions.length > 0 && (
                         <div className="absolute w-full mt-1 bg-gray-800 rounded-lg border border-white/10 max-h-48 overflow-y-auto z-10">
                           {merchantSuggestions
                             .filter(m => m.toLowerCase().includes(newTransaction.merchant.toLowerCase()))
                             .map((merchant, index) => (
                               <button
                                 key={index}
-                                onClick={() => setNewTransaction({ ...newTransaction, merchant })}
-                                className="w-full text-left px-3 py-2 text-white hover:bg-white/10"
+                                onClick={() => {
+                                  setNewTransaction({ ...newTransaction, merchant });
+                                  setShowMerchantSuggestions(false);
+                                }}
+                                className="w-full text-left px-4 py-3 text-white hover:bg-white/10 border-b border-white/5 last:border-0"
                               >
                                 {merchant}
                               </button>
@@ -459,6 +508,10 @@ function ExpenseTracker({ user, masterPassword }) {
           setNewTransaction({ ...newTransaction, category, merchant: '' });
           setMerchantSuggestions(getMerchantSuggestions(category));
         }}
+        onAddCategory={() => {
+          setShowCategorySelector(false);
+          setShowAddCategory(true);
+        }}
         categories={customCategories}
       />
 
@@ -467,6 +520,14 @@ function ExpenseTracker({ user, masterPassword }) {
         isOpen={showAddCategory}
         onClose={() => setShowAddCategory(false)}
         onSave={handleAddCategory}
+      />
+
+      {/* Add Account Selector */}
+      <AccountSelector
+        isOpen={showAccountSelector}
+        onClose={() => setShowAccountSelector(false)}
+        onSelect={(accountId) => setNewTransaction({ ...newTransaction, account: accountId })}
+        accounts={accounts}
       />
     </div>
   );
