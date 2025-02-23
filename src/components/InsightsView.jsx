@@ -5,6 +5,7 @@ import {
 } from 'recharts';
 import { calculateInsights } from '../utils/insights';
 import InvestmentSection from './InvestmentSection';
+import { firestore } from '../firebase'; // Import Firestore
 
 const C8 = (props) => {
   console.log('C8 is being rendered with props:', props);
@@ -60,6 +61,18 @@ const InsightsView = ({ transactions, cards, monthlyBudget, onSetBudget }) => {
   const spendingVelocity = insights?.spendingVelocity || {};
   const investmentData = insights?.investmentData || {};
 
+  const handleBudgetChange = async () => {
+    try {
+      await firestore.collection('users').doc('user_id').update({
+        monthlyBudget: newBudget
+      });
+      onSetBudget(newBudget);
+      setShowBudgetInput(false);
+    } catch (error) {
+      console.error("Error updating budget: ", error);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Tab Switcher */}
@@ -86,12 +99,46 @@ const InsightsView = ({ transactions, cards, monthlyBudget, onSetBudget }) => {
         </button>
       </div>
 
+      {/* Budget Section */}
+      <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 md:p-6 border border-white/20">
+        <h3 className="text-lg font-semibold text-white mb-4">Monthly Budget</h3>
+        {showBudgetInput ? (
+          <div className="flex items-center space-x-4">
+            <input
+              type="number"
+              value={newBudget}
+              onChange={(e) => setNewBudget(e.target.value)}
+              className="bg-white/20 text-white p-2 rounded-lg"
+            />
+            <button
+              onClick={handleBudgetChange}
+              className="bg-green-500 text-white px-4 py-2 rounded-lg"
+            >
+              Save
+            </button>
+            <button
+              onClick={() => setShowBudgetInput(false)}
+              className="bg-red-500 text-white px-4 py-2 rounded-lg"
+            >
+              Cancel
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center justify-between">
+            <p className="text-white text-2xl">₹{monthlyBudget.toLocaleString()}</p>
+            <button
+              onClick={() => setShowBudgetInput(true)}
+              className="bg-blue-500 text-white px-4 py-2 rounded-lg"
+            >
+              Edit
+            </button>
+          </div>
+        )}
+      </div>
+
       {/* Content */}
       {activeTab === 'expenses' ? (
         <div className="space-y-6">
-          {/* Budget Section */}
-          <BudgetAnalysisCard insights={insights} />
-          
           {/* Weekly and Monthly Analysis */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <WeeklyAnalysisCard weeklyAnalysis={weeklyAnalysis} />
