@@ -1,5 +1,5 @@
 import React from 'react';
-import { BiCreditCard, BiAddToQueue, BiWallet, BiCog } from 'react-icons/bi';
+import { BiCreditCard, BiAddToQueue, BiWallet, BiReceipt, BiCog } from 'react-icons/bi';
 import { hasSupportedBillPayBank } from '../utils/bankUtils';
 
 export default function MobileNav({ activePage, setActivePage, cards }) {
@@ -23,7 +23,7 @@ export default function MobileNav({ activePage, setActivePage, cards }) {
     }] : []),
     {
       id: 'expenses',
-      icon: BiWallet,
+      icon: BiReceipt,
       label: 'Expenses'
     },
     {
