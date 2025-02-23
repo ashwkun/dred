@@ -3,6 +3,8 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, AreaChart, Area 
 } from 'recharts';
+import { calculateInsights } from '../utils/insights';
+import { InvestmentSection } from './InvestmentSection';
 
 const InsightsView = ({ transactions, cards, monthlyBudget, onSetBudget }) => {
   const [activeTab, setActiveTab] = useState('expenses');
