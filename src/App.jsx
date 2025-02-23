@@ -201,7 +201,13 @@ function App() {
       <main className="md:pl-72 pt-[72px] md:pt-4 min-h-screen z-10">
         <div className="h-[calc(100vh-72px)] md:h-full overflow-y-auto overscroll-none">
           <div className="container mx-auto p-4 pb-32 md:pb-4">
-            {activePage === "viewCards" && <ViewCards user={user} masterPassword={masterPassword} />}
+            {activePage === "viewCards" && (
+              <ViewCards 
+                user={user} 
+                masterPassword={masterPassword}
+                setActivePage={setActivePage}
+              />
+            )}
             {activePage === "addCard" && (
               <AddCard 
                 user={user} 

@@ -80,6 +80,11 @@ function ViewCards({ user, masterPassword, setActivePage }) {
     }
   }, [user?.uid]);
 
+  // Add console.log to debug
+  useEffect(() => {
+    console.log('setActivePage:', setActivePage);
+  }, [setActivePage]);
+
   const decryptField = (encryptedValue) => {
     try {
       if (!encryptedValue) return '';
@@ -94,8 +99,20 @@ function ViewCards({ user, masterPassword, setActivePage }) {
     setShowDetails(prev => ({ ...prev, [cardId]: !prev[cardId] }));
   };
 
-  const handleAddCard = () => {
-    setActivePage("addCard");
+  const handleAddCard = (e) => {
+    e.preventDefault(); // Add this to prevent any default behavior
+    console.log('Add Card clicked'); // Debug log
+    
+    try {
+      if (setActivePage) {
+        console.log('Calling setActivePage with:', "addCard");
+        setActivePage("addCard");
+      } else {
+        console.error('setActivePage is undefined');
+      }
+    } catch (error) {
+      console.error('Error in handleAddCard:', error);
+    }
   };
 
   // Timer countdown component
