@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth } from "./firebase";
-import { BiLock, BiCreditCard, BiMobile } from 'react-icons/bi';
+import { BiLock, BiCreditCard, BiMobile, BiLogoGoogle } from 'react-icons/bi';
 import logo from "./assets/logo.png";
 
 export default function Auth() {
@@ -102,8 +102,7 @@ export default function Auth() {
               </div>
             ) : (
               <>
-                <img src="https://authjs.dev/img/providers/google.svg" 
-                  alt="Google" className="w-5 h-5" />
+                <BiLogoGoogle className="w-5 h-5" />
                 Continue with Google
               </>
             )}
