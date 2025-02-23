@@ -5,7 +5,7 @@ import {
 } from 'recharts';
 import { calculateInsights } from '../utils/insights';
 import InvestmentSection from './InvestmentSection';
-import { firestore } from '../firebase'; // Import Firestore
+import { db } from '../firebase'; // Correct import for Firestore
 
 const C8 = (props) => {
   console.log('C8 is being rendered with props:', props);
@@ -63,7 +63,7 @@ const InsightsView = ({ transactions, cards, monthlyBudget, onSetBudget }) => {
 
   const handleBudgetChange = async () => {
     try {
-      await firestore.collection('users').doc('user_id').update({
+      await db.collection('users').doc('user_id').update({
         monthlyBudget: newBudget
       });
       onSetBudget(newBudget);
