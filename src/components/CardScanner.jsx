@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { BiCamera } from 'react-icons/bi';
-import { createWorker, createScheduler } from 'tesseract.js';
+import { createWorker } from 'tesseract.js';
 
 function CardScannerComponent({ onScanComplete }) {
   const [isScanning, setIsScanning] = useState(false);
