@@ -6,7 +6,7 @@
     "build": "parcel build public/index.html --public-url ./",
     "test": "echo \"Error: no test specified\" && exit 1",
     "deploy": "npm run build && firebase deploy",
-    "d": "sh scripts/deploy.sh"
+    "c": "sh scripts/deploy.sh"
   },
   "keywords": [],
   "author": "",
