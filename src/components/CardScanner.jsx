@@ -29,11 +29,12 @@ function CardScannerComponent({ onScanComplete }) {
     }
 
     try {
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      const cameras = devices.filter(device => device.kind === 'videoinput');
-      
-      if (cameras.length === 0) {
-        alert('No camera found on your device');
+      // First check if we have permission
+      const permission = await navigator.permissions.query({ name: 'camera' })
+        .catch(() => ({ state: 'prompt' })); // Fallback if permissions API not supported
+
+      if (permission.state === 'denied') {
+        alert('Camera access is blocked. Please allow camera access in your browser settings.');
         return false;
       }
 
@@ -41,9 +42,7 @@ function CardScannerComponent({ onScanComplete }) {
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: { 
           facingMode: 'environment',
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
-        } 
+        }
       });
       
       // If successful, stop the test stream
@@ -82,8 +81,18 @@ function CardScannerComponent({ onScanComplete }) {
         audio: false
       };
 
-      const stream = await navigator.mediaDevices.getUserMedia(constraints);
-      
+      const stream = await navigator.mediaDevices.getUserMedia(constraints)
+        .catch(error => {
+          // If environment camera fails, try user camera
+          if (error.name === 'OverconstrainedError') {
+            return navigator.mediaDevices.getUserMedia({
+              video: true,
+              audio: false
+            });
+          }
+          throw error;
+        });
+
       if (!stream || !stream.getVideoTracks().length) {
         throw new Error('Failed to get video stream');
       }
@@ -91,10 +100,16 @@ function CardScannerComponent({ onScanComplete }) {
       streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        videoRef.current.onloadedmetadata = () => {
-          videoRef.current.play()
-            .catch(e => console.error('Video play error:', e));
-        };
+        await new Promise((resolve) => {
+          videoRef.current.onloadedmetadata = () => {
+            videoRef.current.play()
+              .then(resolve)
+              .catch(e => {
+                console.error('Video play error:', e);
+                resolve();
+              });
+          };
+        });
       }
       setIsScanning(true);
     } catch (error) {

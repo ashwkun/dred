@@ -14,14 +14,14 @@
       default-src 'self';
       connect-src 'self' https://*.firebaseapp.com https://*.googleapis.com wss://*.firebaseio.com https://*.google.com https://www.recaptcha.net https://*.gstatic.com https://www.google-analytics.com https://fonts.gstatic.com https://lh3.googleusercontent.com https://www.googletagmanager.com;
       img-src 'self' data: blob: https://*.googleusercontent.com https://*.google.com https://*.googleapis.com https://lh3.googleusercontent.com https://lh3.google.com https://www.gstatic.com;
-      media-src 'self' blob:;
+      media-src 'self' mediastream: blob:;
       script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.firebaseapp.com https://*.googleapis.com;
       style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
       font-src 'self' https://fonts.gstatic.com;
       frame-src 'self' https://*.firebaseapp.com https://*.googleapis.com;
       worker-src 'self' blob:;
-      camera 'self';
     ">
+    <meta http-equiv="Permissions-Policy" content="camera=*, microphone=()">
   </head>
   <body>
     <div id="root"></div>
@@ -2517,14 +2517,14 @@ process.umask = function() {
     return 0;
 };
 
-},{}],"dXjOA":[function(require,module,exports,__globalThis) {
+},{}],"irJNJ":[function(require,module,exports,__globalThis) {
 var global = arguments[3];
 var HMR_HOST = null;
 var HMR_PORT = null;
 var HMR_SECURE = false;
 var HMR_ENV_HASH = "d6ea1d42532a7575";
 var HMR_USE_SSE = false;
-module.bundle.HMR_BUNDLE_ID = "b82afaeb606feab7";
+module.bundle.HMR_BUNDLE_ID = "9a3c3bc5be543882";
 "use strict";
 /* global HMR_HOST, HMR_PORT, HMR_ENV_HASH, HMR_SECURE, HMR_USE_SSE, chrome, browser, __parcel__import__, __parcel__importScripts__, ServiceWorkerGlobalScope */ /*::
 import type {
@@ -2970,7 +2970,7 @@ function hmrAccept(bundle /*: ParcelRequire */ , id /*: string */ ) {
     }
 }
 
-},{}],"lywVn":[function(require,module,exports,__globalThis) {
+},{}],"e2x3t":[function(require,module,exports,__globalThis) {
 if ('serviceWorker' in navigator) window.addEventListener('load', async ()=>{
     try {
         const registration = await navigator.serviceWorker.register(require("703924bd7fff2908"), {
@@ -2992,10 +2992,10 @@ if ('serviceWorker' in navigator) window.addEventListener('load', async ()=>{
     }
 });
 
-},{"703924bd7fff2908":"6zXXQ"}],"6zXXQ":[function(require,module,exports,__globalThis) {
-module.exports = require("e5013c6f4ebf4cd").getBundleURL('fOjVj') + "serviceWorker.js" + "?" + Date.now();
+},{"703924bd7fff2908":"85q2C"}],"85q2C":[function(require,module,exports,__globalThis) {
+module.exports = require("6f32294adfe3b156").getBundleURL('deZqG') + "serviceWorker.js" + "?" + Date.now();
 
-},{"e5013c6f4ebf4cd":"lgJ39"}],"lgJ39":[function(require,module,exports,__globalThis) {
+},{"6f32294adfe3b156":"lgJ39"}],"lgJ39":[function(require,module,exports,__globalThis) {
 "use strict";
 var bundleURL = {};
 function getBundleURLCached(id) {
@@ -3030,7 +3030,7 @@ exports.getBundleURL = getBundleURLCached;
 exports.getBaseURL = getBaseURL;
 exports.getOrigin = getOrigin;
 
-},{}]},["aQL8O","dXjOA","lywVn"], "lywVn", "parcelRequire94c2")
+},{}]},["aQL8O","irJNJ","e2x3t"], "e2x3t", "parcelRequire94c2")
 
 </script>
   </body>
