@@ -21,24 +21,77 @@ function CardScannerComponent({ onScanComplete }) {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  const checkCameraPermission = async () => {
+    try {
+      const result = await navigator.permissions.query({ name: 'camera' });
+      if (result.state === 'denied') {
+        alert('Camera permission is denied. Please enable it in your browser settings.');
+        return false;
+      }
+      return true;
+    } catch (error) {
+      console.error('Permission check error:', error);
+      return true; // Proceed anyway if permission API is not supported
+    }
+  };
+
+  const handleStartScanner = async () => {
+    const hasPermission = await checkCameraPermission();
+    if (hasPermission) {
+      startScanner();
+    }
+  };
+
   const startScanner = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { 
-          facingMode: 'environment',
+      // First check if camera is available
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('Camera API is not supported in your browser');
+      }
+
+      // Try to get camera permissions with more specific constraints
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: { ideal: 'environment' },
           width: { ideal: 1280 },
-          height: { ideal: 720 }
-        } 
+          height: { ideal: 720 },
+          aspectRatio: { ideal: 1.777778 }
+        }
       });
+
+      // Check if we actually got a video track
+      const videoTrack = stream.getVideoTracks()[0];
+      if (!videoTrack) {
+        throw new Error('No camera found');
+      }
+
+      console.log('Camera capabilities:', videoTrack.getCapabilities()); // Debug info
       
       streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
+        // Add loadedmetadata event listener
+        videoRef.current.onloadedmetadata = () => {
+          videoRef.current.play().catch(e => console.error('Video play error:', e));
+        };
       }
       setIsScanning(true);
     } catch (error) {
-      console.error('Error accessing camera:', error);
-      alert('Unable to access camera. Please ensure camera permissions are granted.');
+      console.error('Camera access error:', error);
+      let errorMessage = 'Unable to access camera. ';
+      
+      // More specific error messages
+      if (error.name === 'NotAllowedError') {
+        errorMessage += 'Camera permission was denied. Please check your browser settings.';
+      } else if (error.name === 'NotFoundError') {
+        errorMessage += 'No camera device found.';
+      } else if (error.name === 'NotReadableError') {
+        errorMessage += 'Camera is already in use by another application.';
+      } else {
+        errorMessage += error.message || 'Please ensure camera permissions are granted.';
+      }
+      
+      alert(errorMessage);
     }
   };
 
@@ -116,7 +169,7 @@ function CardScannerComponent({ onScanComplete }) {
     <div className="mb-6">
       <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
         <button
-          onClick={startScanner}
+          onClick={handleStartScanner}
           className="w-full bg-white/10 hover:bg-white/20
             rounded-xl py-4 flex items-center justify-center gap-3
             text-white font-medium transition-all duration-200"
@@ -141,7 +194,10 @@ function CardScannerComponent({ onScanComplete }) {
               ref={videoRef}
               autoPlay
               playsInline
+              muted
               className="w-full rounded-xl"
+              style={{ transform: 'scaleX(-1)' }}
+              onError={(e) => console.error('Video error:', e)}
             />
             <div className="absolute inset-0 border-2 border-white/20 rounded-xl">
               <div className="absolute inset-x-8 top-1/4 bottom-1/4 border-2 border-white/40 rounded-lg" />
