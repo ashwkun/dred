@@ -10,7 +10,7 @@ export default function Sidebar({ activePage, setActivePage, cards, user, onSign
     { id: 'viewCards', icon: BiCreditCard, label: 'Cards' },
     { id: 'addCard', icon: BiAddToQueue, label: 'Add Card' },
     ...(showBillPay ? [{ id: 'billPay', icon: BiWallet, label: 'Bill Pay' }] : []),
-    { id: 'dashboard', icon: BiWallet, label: 'Expenses' },
+    { id: 'expenses', icon: BiWallet, label: 'Expenses' },
     { id: 'settings', icon: BiCog, label: 'Controls' }
   ];
 

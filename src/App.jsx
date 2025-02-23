@@ -216,7 +216,7 @@ function App() {
                 setShowSuccess={setShowSuccess}
               />
             )}
-            {activePage === "dashboard" && (
+            {activePage === "expenses" && (
               <ExpenseTracker 
                 user={user} 
                 masterPassword={masterPassword}
