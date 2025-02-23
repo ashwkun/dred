@@ -82,14 +82,7 @@ function CardScannerComponent({ onScanComplete }) {
         // Try 2: Environment camera
         { video: { facingMode: 'environment' } },
         // Try 3: User camera
-        { video: { facingMode: 'user' } },
-        // Try 4: Specific device
-        { 
-          video: {
-            width: { ideal: 1280 },
-            height: { ideal: 720 }
-          }
-        }
+        { video: { facingMode: 'user' } }
       ];
 
       // Try each constraint until one works
@@ -111,27 +104,53 @@ function CardScannerComponent({ onScanComplete }) {
       console.log('Using camera:', videoTrack.label);
       console.log('Camera settings:', videoTrack.getSettings());
 
-      // Set up video element
-      const video = videoRef.current;
-      video.srcObject = stream;
+      // Store stream first
       streamRef.current = stream;
+      setIsScanning(true);
+
+      // Wait for next render when video element is available
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      // Now set up video element
+      if (!videoRef.current) {
+        throw new Error('Video element not found');
+      }
+
+      videoRef.current.srcObject = stream;
 
       // Wait for video to be ready
       await new Promise((resolve, reject) => {
+        const video = videoRef.current;
+        if (!video) return reject(new Error('Video element not found'));
+
+        const timeoutId = setTimeout(() => {
+          reject(new Error('Video initialization timeout'));
+        }, 5000);
+
         video.onloadedmetadata = () => {
+          clearTimeout(timeoutId);
           video.play()
             .then(resolve)
-            .catch(reject);
+            .catch(error => {
+              console.error('Play error:', error);
+              reject(error);
+            });
         };
-        video.onerror = (e) => reject(new Error('Video error: ' + e.target.error.message));
-        
-        // Timeout after 5 seconds
-        setTimeout(() => reject(new Error('Video initialization timeout')), 5000);
+
+        video.onerror = (e) => {
+          clearTimeout(timeoutId);
+          reject(new Error('Video error: ' + (e.target.error?.message || 'Unknown error')));
+        };
       });
 
-      setIsScanning(true);
     } catch (error) {
       handleCameraError(error);
+      // Clean up on error
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+        streamRef.current = null;
+      }
+      setIsScanning(false);
     } finally {
       setIsInitializing(false);
     }
@@ -290,24 +309,26 @@ function CardScannerComponent({ onScanComplete }) {
                   rounded-full animate-spin" />
               </div>
             ) : (
-              <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                muted
-                className="w-full h-full rounded-xl bg-black"
-                style={{ 
-                  transform: isMirror ? 'scaleX(-1)' : 'none',
-                  maxHeight: '80vh',
-                  objectFit: 'cover',
-                  minHeight: '300px'
-                }}
-                onError={(e) => console.error('Video error:', e)}
-              />
+              <>
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className="w-full h-full rounded-xl bg-black"
+                  style={{ 
+                    transform: isMirror ? 'scaleX(-1)' : 'none',
+                    maxHeight: '80vh',
+                    objectFit: 'cover',
+                    minHeight: '300px'
+                  }}
+                />
+                {/* Overlay for scanning area */}
+                <div className="absolute inset-0 border-2 border-white/20 rounded-xl">
+                  <div className="absolute inset-x-8 top-1/4 bottom-1/4 border-2 border-white/40 rounded-lg" />
+                </div>
+              </>
             )}
-            <div className="absolute inset-0 border-2 border-white/20 rounded-xl">
-              <div className="absolute inset-x-8 top-1/4 bottom-1/4 border-2 border-white/40 rounded-lg" />
-            </div>
             
             {/* Controls */}
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-4">
