@@ -120,7 +120,15 @@ export const getCategoryIcon = (categoryName) => {
   return FaUtensils;
 };
 
-export const getMerchantSuggestions = (categoryName) => {
-  const category = defaultCategories.find(c => c.name === categoryName);
-  return category?.merchants || [];
+export const getMerchantSuggestions = (categoryName, customCategories = []) => {
+  // First check default categories
+  const defaultCategory = defaultCategories.find(c => c.name === categoryName);
+  const defaultMerchants = defaultCategory?.merchants || [];
+
+  // Then check custom categories
+  const customCategory = customCategories.find(c => c.name === categoryName);
+  const customMerchants = customCategory?.merchants || [];
+
+  // Combine both arrays and remove duplicates
+  return [...new Set([...defaultMerchants, ...customMerchants])];
 };

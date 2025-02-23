@@ -296,7 +296,7 @@ function ExpenseTracker({ user, masterPassword }) {
   const handleCategoryChange = (e) => {
     const category = e.target.value;
     setNewTransaction({ ...newTransaction, category });
-    setMerchantSuggestions(getMerchantSuggestions(category));
+    setMerchantSuggestions(getMerchantSuggestions(category, customCategories));
   };
 
   // Update handleAddCategory to save to Firestore
@@ -352,14 +352,16 @@ function ExpenseTracker({ user, masterPassword }) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Add this helper function at the top of your component
+  // Update the formatAccountName function
   const formatAccountName = (account, cards) => {
     // If it's a card
     if (account.startsWith('card_')) {
       const card = cards.find(c => c.id === account);
       if (card) {
-        const bankNameFirst = card.bankName.split(' ')[0];
-        const lastFourDigits = card.cardNumber.slice(-4);
+        // Decrypt the bank name
+        const bankName = CryptoJS.AES.decrypt(card.bankName, masterPassword).toString(CryptoJS.enc.Utf8);
+        const lastFourDigits = CryptoJS.AES.decrypt(card.cardNumber, masterPassword).toString(CryptoJS.enc.Utf8).slice(-4);
+        const bankNameFirst = bankName.split(' ')[0];
         return `${bankNameFirst}-${lastFourDigits}`;
       }
     }
@@ -587,7 +589,7 @@ function ExpenseTracker({ user, masterPassword }) {
             categoryIcon: category.iconName,
             merchant: '' 
           });
-          setMerchantSuggestions(getMerchantSuggestions(category.name));
+          setMerchantSuggestions(getMerchantSuggestions(category.name, customCategories));
         }}
         onAddCategory={() => {
           setShowCategorySelector(false);
