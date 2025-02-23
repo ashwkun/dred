@@ -250,14 +250,9 @@ function ViewCards({ user, masterPassword, setActivePage }) {
 
                   {/* Bottom Section */}
                   <div className="flex items-end justify-between">
-                    <div>
-                      <p className="text-white/50 text-xs uppercase tracking-wider mb-1">
-                        Card Holder
-                      </p>
-                      <p className="text-white text-sm font-medium tracking-wide">
-                        {decryptedCardHolder}
-                      </p>
-                    </div>
+                    <p className="text-white text-sm font-medium tracking-wide">
+                      {decryptedCardHolder}
+                    </p>
                     <div className="h-10 w-16">
                       <LogoWithFallback
                         logoName={decryptedNetworkName}
