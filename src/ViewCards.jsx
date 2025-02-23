@@ -136,7 +136,7 @@ function ViewCards({ user, masterPassword, setActivePage }) {
                   {/* Top Section */}
                   <div className="flex justify-between items-start">
                     {/* Bank Logo */}
-                    <div className="h-8 w-32 opacity-90 transform transition-all duration-300">
+                    <div className="h-8 w-32 opacity-90">
                       <LogoWithFallback
                         logoName={decryptedBankName}
                         logoType="bank"
@@ -150,30 +150,29 @@ function ViewCards({ user, masterPassword, setActivePage }) {
                   </div>
 
                   {/* Middle Section - Card Number/Details */}
-                  <div className="relative flex items-center justify-center py-4">
-                    <div className={`transition-all duration-300 ${
-                      isShowingDetails ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
+                  <div className="relative flex items-center justify-center h-16">
+                    <div className={`absolute inset-0 flex items-center justify-center
+                      transition-all duration-300 ${
+                      isShowingDetails ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'
                     }`}>
-                      <div className="text-xl md:text-2xl text-white font-light tracking-wider 
-                        font-mono"
-                      >
+                      <div className="text-xl md:text-2xl text-white font-light tracking-wider font-mono">
                         {decryptedCardNumber.replace(/(.{4})/g, "$1 ").trim()}
                       </div>
                     </div>
                     
                     {/* CVV/Expiry with Fade Animation */}
-                    <div className={`absolute inset-0 flex flex-col items-center justify-center
+                    <div className={`absolute inset-0 flex items-center justify-center
                       transition-all duration-300 ${
-                      isShowingDetails ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+                      isShowingDetails ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
                     }`}>
-                      <div className="space-y-2 text-center">
-                        <div className="text-white/90 font-medium">
-                          <span className="text-white/50 text-sm uppercase tracking-wider block mb-1">CVV</span>
-                          <span className="font-mono text-lg">{decryptedCVV}</span>
+                      <div className="flex gap-8">
+                        <div className="text-center">
+                          <span className="text-white/50 text-xs uppercase tracking-wider block mb-1">CVV</span>
+                          <span className="font-mono text-lg text-white/90">{decryptedCVV}</span>
                         </div>
-                        <div className="text-white/90 font-medium">
-                          <span className="text-white/50 text-sm uppercase tracking-wider block mb-1">Expires</span>
-                          <span className="font-mono text-lg">{decryptedExpiry}</span>
+                        <div className="text-center">
+                          <span className="text-white/50 text-xs uppercase tracking-wider block mb-1">Expires</span>
+                          <span className="font-mono text-lg text-white/90">{decryptedExpiry}</span>
                         </div>
                       </div>
                     </div>
@@ -198,30 +197,26 @@ function ViewCards({ user, masterPassword, setActivePage }) {
                     </div>
                   </div>
 
-                  {/* Hover Overlay with Button */}
-                  <div className="absolute inset-0 flex items-center justify-center 
-                    bg-black/0 hover:bg-black/20 transition-all duration-300
-                    opacity-0 group-hover:opacity-100">
-                    <button
-                      onClick={() => setShowDetails(prev => ({ ...prev, [card.id]: !prev[card.id] }))}
-                      className="px-4 py-2 rounded-lg bg-white/10 backdrop-blur-md 
-                        border border-white/20 text-white text-sm font-medium
-                        hover:bg-white/20 transition-all duration-200
-                        transform hover:scale-105"
-                    >
-                      {isShowingDetails ? 'Hide Details' : 'Show Details'}
-                    </button>
-                  </div>
+                  {/* Toggle Details Button - Always visible on mobile */}
+                  <button
+                    onClick={() => setShowDetails(prev => ({ ...prev, [card.id]: !prev[card.id] }))}
+                    className="absolute right-4 top-4 md:opacity-0 md:group-hover:opacity-100
+                      transition-all duration-200 px-3 py-1.5 rounded-lg 
+                      bg-white/10 backdrop-blur-md border border-white/20 
+                      text-white text-sm font-medium hover:bg-white/20"
+                  >
+                    {isShowingDetails ? 'Hide' : 'Show'}
+                  </button>
                 </div>
               </div>
             </div>
           );
         })}
 
-        {/* Add New Card Button */}
-        <button
+        {/* Add New Card Link */}
+        <div 
           onClick={() => setActivePage("addCard")}
-          className="w-full aspect-[1.586/1] rounded-2xl 
+          className="w-full aspect-[1.586/1] rounded-2xl cursor-pointer
             bg-white/5 backdrop-blur-sm border border-white/10
             hover:bg-white/10 transition-all duration-300
             flex flex-col items-center justify-center gap-4
@@ -237,7 +232,7 @@ function ViewCards({ user, masterPassword, setActivePage }) {
             <p className="text-white font-medium">Add New Card</p>
             <p className="text-sm text-white/50">Securely store your card details</p>
           </div>
-        </button>
+        </div>
       </div>
     </div>
   );
