@@ -23,17 +23,43 @@ function CardScannerComponent({ onScanComplete }) {
   }, []);
 
   const checkCameraPermission = async () => {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      alert('Camera API is not supported in your browser');
+      return false;
+    }
+
     try {
-      // Try to get camera stream directly instead of checking permissions
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const cameras = devices.filter(device => device.kind === 'videoinput');
+      
+      if (cameras.length === 0) {
+        alert('No camera found on your device');
+        return false;
+      }
+
+      // Try to get camera stream
       const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'user' } // Try user-facing camera first
+        video: { 
+          facingMode: 'environment',
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        } 
       });
       
-      // If we got the stream, stop it and return true
+      // If successful, stop the test stream
       stream.getTracks().forEach(track => track.stop());
       return true;
     } catch (error) {
-      console.error('Initial camera check error:', error);
+      console.error('Camera permission check error:', error);
+      
+      if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+        alert(`Camera access was denied. Please follow these steps:
+1. Click the camera icon in your browser's address bar
+2. Select "Allow" for camera access
+3. Refresh the page and try again`);
+      } else {
+        alert('Error accessing camera: ' + error.message);
+      }
       return false;
     }
   };
@@ -47,60 +73,55 @@ function CardScannerComponent({ onScanComplete }) {
 
   const startScanner = async () => {
     try {
-      // Try different camera configurations
-      let stream;
-      try {
-        // First try environment-facing camera (back camera)
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            facingMode: 'environment',
-            width: { ideal: 1280 },
-            height: { ideal: 720 }
-          }
-        });
-      } catch (err) {
-        console.log('Fallback to user-facing camera:', err);
-        // If that fails, try user-facing camera
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            facingMode: 'user',
-            width: { ideal: 1280 },
-            height: { ideal: 720 }
-          }
-        });
-      }
+      const constraints = {
+        video: {
+          facingMode: { ideal: 'environment' },
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        },
+        audio: false
+      };
 
-      if (!stream) {
-        throw new Error('Could not initialize camera stream');
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      
+      if (!stream || !stream.getVideoTracks().length) {
+        throw new Error('Failed to get video stream');
       }
 
       streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        await videoRef.current.play().catch(e => {
-          console.error('Video play error:', e);
-          throw new Error('Failed to play video stream');
-        });
+        videoRef.current.onloadedmetadata = () => {
+          videoRef.current.play()
+            .catch(e => console.error('Video play error:', e));
+        };
       }
       setIsScanning(true);
-
     } catch (error) {
-      console.error('Camera access error:', error);
-      let errorMessage = 'Camera access failed. ';
-      
-      if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-        errorMessage = 'Please allow camera access in your browser settings:\n\n' +
-          '1. Click the camera icon in your address bar\n' +
-          '2. Select "Allow" for camera access\n' +
-          '3. Refresh the page and try again';
-      } else if (error.name === 'NotFoundError') {
-        errorMessage = 'No camera found on your device';
-      } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
-        errorMessage = 'Your camera might be in use by another application';
-      }
-      
-      alert(errorMessage);
+      handleCameraError(error);
     }
+  };
+
+  const handleCameraError = (error) => {
+    console.error('Camera error:', error);
+    let message = 'Failed to access camera. ';
+    
+    switch (error.name) {
+      case 'NotAllowedError':
+      case 'PermissionDeniedError':
+        message = 'Camera permission denied. Please enable camera access and refresh the page.';
+        break;
+      case 'NotFoundError':
+        message = 'No camera found on your device.';
+        break;
+      case 'NotReadableError':
+        message = 'Camera is in use by another application.';
+        break;
+      default:
+        message += error.message;
+    }
+    
+    alert(message);
   };
 
   const stopScanner = () => {
