@@ -370,14 +370,6 @@ body {
   inset: 1rem;
 }
 
-.inset-\[15\%\] {
-  inset: 15%;
-}
-
-.-bottom-1 {
-  bottom: -.25rem;
-}
-
 .bottom-0 {
   bottom: 0;
 }
@@ -412,10 +404,6 @@ body {
 
 .top-4 {
   top: 1rem;
-}
-
-.top-\[5\%\] {
-  top: 5%;
 }
 
 .top-full {
@@ -515,6 +503,10 @@ body {
   height: .25rem;
 }
 
+.h-1\.5 {
+  height: .375rem;
+}
+
 .h-10 {
   height: 2.5rem;
 }
@@ -527,16 +519,20 @@ body {
   height: 4rem;
 }
 
+.h-2 {
+  height: .5rem;
+}
+
+.h-2\.5 {
+  height: .625rem;
+}
+
 .h-20 {
   height: 5rem;
 }
 
 .h-24 {
   height: 6rem;
-}
-
-.h-3 {
-  height: .75rem;
 }
 
 .h-4 {
@@ -579,6 +575,10 @@ body {
   width: .25rem;
 }
 
+.w-1\.5 {
+  width: .375rem;
+}
+
 .w-10 {
   width: 2.5rem;
 }
@@ -591,12 +591,16 @@ body {
   width: 4rem;
 }
 
-.w-24 {
-  width: 6rem;
+.w-2 {
+  width: .5rem;
 }
 
-.w-3 {
-  width: .75rem;
+.w-2\.5 {
+  width: .625rem;
+}
+
+.w-24 {
+  width: 6rem;
 }
 
 .w-32 {
@@ -707,18 +711,20 @@ body {
 
 @keyframes bounce {
   0%, 100% {
+    opacity: .5;
     animation-timing-function: cubic-bezier(.8, 0, 1, 1);
     transform: translateY(0);
   }
 
   50% {
+    opacity: 1;
     animation-timing-function: cubic-bezier(0, 0, .2, 1);
-    transform: translateY(-25%);
+    transform: translateY(-8px);
   }
 }
 
 .animate-bounce-delayed {
-  animation: .6s infinite bounce;
+  animation: .8s infinite bounce;
 }
 
 @keyframes fadeIn {
@@ -749,20 +755,6 @@ body {
 
 .animate-fade-up {
   animation: .3s ease-out fadeUp;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: .5;
-  }
-}
-
-.animate-pulse {
-  animation: 2s cubic-bezier(.4, 0, .6, 1) infinite pulse;
 }
 
 @keyframes spin {
@@ -1021,12 +1013,12 @@ body {
   background-color: #fff3;
 }
 
-.bg-white\/40 {
-  background-color: #fff6;
-}
-
 .bg-white\/5 {
   background-color: #ffffff0d;
+}
+
+.bg-white\/50 {
+  background-color: #ffffff80;
 }
 
 .bg-white\/70 {
@@ -1073,12 +1065,6 @@ body {
   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
 }
 
-.from-primary {
-  --tw-gradient-from: #6a3de8 var(--tw-gradient-from-position);
-  --tw-gradient-to: #6a3de800 var(--tw-gradient-to-position);
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
-}
-
 .from-white\/20 {
   --tw-gradient-from: #fff3 var(--tw-gradient-from-position);
   --tw-gradient-to: #fff0 var(--tw-gradient-to-position);
@@ -1107,10 +1093,6 @@ body {
 
 .to-black {
   --tw-gradient-to: #000 var(--tw-gradient-to-position);
-}
-
-.to-purple-500 {
-  --tw-gradient-to: #a855f7 var(--tw-gradient-to-position);
 }
 
 .to-transparent {
@@ -1447,11 +1429,6 @@ body {
   filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
 }
 
-.blur-sm {
-  --tw-blur: blur(4px);
-  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
-}
-
 .filter {
   filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
 }
@@ -1569,6 +1546,16 @@ body {
 
 .animate-flicker {
   animation: 1.2s infinite flicker;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: .5;
+  }
 }
 
 @media (width <= 640px) {

@@ -66,11 +66,11 @@ module.exports = {
         bounce: {
           '0%, 100%': {
             transform: 'translateY(0)',
-            animationTimingFunction: 'cubic-bezier(0.8, 0, 1, 1)',
+            opacity: '0.5',
           },
           '50%': {
-            transform: 'translateY(-25%)',
-            animationTimingFunction: 'cubic-bezier(0, 0, 0.2, 1)',
+            transform: 'translateY(-8px)',
+            opacity: '1',
           },
         },
         'shadow-bounce': {
@@ -91,7 +91,7 @@ module.exports = {
         'fade-up': 'fadeUp 0.3s ease-out',
         'success-pop': 'successPop 0.4s cubic-bezier(0.19, 1, 0.22, 1)',
         'fade-in': 'fadeIn 0.2s ease-out',
-        'bounce-delayed': 'bounce 0.6s infinite',
+        'bounce-delayed': 'bounce 0.8s infinite',
       }
     },
   },
