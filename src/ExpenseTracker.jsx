@@ -272,8 +272,8 @@ function ExpenseTracker({ user, masterPassword }) {
         const snapshot = await getDocs(q);
         const categoriesData = snapshot.docs.map(doc => ({
           id: doc.id,
-          ...doc.data(),
           name: CryptoJS.AES.decrypt(doc.data().name, masterPassword).toString(CryptoJS.enc.Utf8),
+          iconName: doc.data().iconName,
           icon: iconMap[doc.data().iconName] || FaUtensils,
           merchants: doc.data().merchants.map(m => 
             CryptoJS.AES.decrypt(m, masterPassword).toString(CryptoJS.enc.Utf8)
@@ -315,8 +315,8 @@ function ExpenseTracker({ user, masterPassword }) {
       const newCategory = {
         id: docRef.id,
         name: category.name,
-        iconName: category.iconName,
         icon: iconMap[category.iconName],
+        iconName: category.iconName,
         merchants: category.merchants
       };
       
