@@ -118,7 +118,7 @@ function ExpenseTracker({ user, masterPassword }) {
     { id: 'cash', name: 'Cash' },
     { id: 'bank', name: 'Bank Account' },
     ...cards.map(card => ({
-      id: card.id,
+      id: `card_${card.id}`,
       name: `${card.bankName} Card (${card.cardNumber.slice(-4)})`
     }))
   ];
@@ -179,7 +179,6 @@ function ExpenseTracker({ user, masterPassword }) {
   const handleAddTransaction = async () => {
     try {
       await retryOperation(async () => {
-        // Validate required fields
         if (!newTransaction.amount || !newTransaction.account || !newTransaction.category || !newTransaction.merchant) {
           console.error("Please fill in all required fields");
           return;
@@ -188,7 +187,7 @@ function ExpenseTracker({ user, masterPassword }) {
         const encryptedTransaction = {
           uid: user.uid,
           amount: CryptoJS.AES.encrypt(newTransaction.amount.toString(), masterPassword).toString(),
-          account: CryptoJS.AES.encrypt(newTransaction.account, masterPassword).toString(),
+          account: CryptoJS.AES.encrypt(newTransaction.account, masterPassword).toString(), // Store with prefix
           category: newTransaction.category,
           categoryIcon: newTransaction.categoryIcon || 'FaUtensils',
           merchant: CryptoJS.AES.encrypt(newTransaction.merchant, masterPassword).toString(),
@@ -199,7 +198,6 @@ function ExpenseTracker({ user, masterPassword }) {
 
         await addDoc(collection(db, "transactions"), encryptedTransaction);
         
-        // Reset form
         setNewTransaction({
           amount: '',
           account: '',
@@ -210,7 +208,6 @@ function ExpenseTracker({ user, masterPassword }) {
           date: new Date().toISOString().split('T')[0]
         });
         
-        // Refresh transactions list
         await fetchTransactions();
       });
     } catch (error) {
@@ -235,18 +232,25 @@ function ExpenseTracker({ user, masterPassword }) {
   // Fetch saved cards
   useEffect(() => {
     const fetchCards = async () => {
+      if (!user || !masterPassword) return;
+      
       try {
-        const q = query(collection(db, "cards"), where("uid", "==", user.uid));
+        const q = query(
+          collection(db, "cards"),
+          where("uid", "==", user.uid)
+        );
+        
         const querySnapshot = await getDocs(q);
         const fetchedCards = querySnapshot.docs.map(doc => ({
-          id: doc.id,
+          id: doc.id, // Store the raw ID
+          ...doc.data(),
           bankName: CryptoJS.AES.decrypt(doc.data().bankName, masterPassword).toString(CryptoJS.enc.Utf8),
-          cardNumber: CryptoJS.AES.decrypt(doc.data().cardNumber, masterPassword).toString(CryptoJS.enc.Utf8),
-          // ... other card fields ...
+          cardNumber: CryptoJS.AES.decrypt(doc.data().cardNumber, masterPassword).toString(CryptoJS.enc.Utf8)
         }));
+        
         setCards(fetchedCards);
       } catch (error) {
-        console.error("Error fetching cards:", error);
+        console.error('Error fetching cards:', error);
       }
     };
 
@@ -349,15 +353,11 @@ function ExpenseTracker({ user, masterPassword }) {
   const formatAccountName = (account, cards) => {
     // If it's a card
     if (account.startsWith('card_')) {
-      const card = cards.find(c => c.id === account);
+      const cardId = account.replace('card_', ''); // Remove prefix to match with cards array
+      const card = cards.find(c => c.id === cardId);
       if (card) {
-        // Decrypt the bank name and card number
-        const bankName = CryptoJS.AES.decrypt(card.bankName, masterPassword).toString(CryptoJS.enc.Utf8);
-        const cardNumber = CryptoJS.AES.decrypt(card.cardNumber, masterPassword).toString(CryptoJS.enc.Utf8);
-        
-        const bankNameFirst = bankName.split(' ')[0];
-        const lastFourDigits = cardNumber.slice(-4);
-        
+        const bankNameFirst = card.bankName.split(' ')[0];
+        const lastFourDigits = card.cardNumber.slice(-4);
         return `${bankNameFirst}-${lastFourDigits}`;
       }
     }
