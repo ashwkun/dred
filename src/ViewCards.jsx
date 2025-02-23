@@ -12,6 +12,23 @@ function ViewCards({ user, masterPassword, setActivePage }) {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Auto-hide details after 5 seconds
+  useEffect(() => {
+    const timers = {};
+    
+    Object.keys(showDetails).forEach(cardId => {
+      if (showDetails[cardId]) {
+        timers[cardId] = setTimeout(() => {
+          setShowDetails(prev => ({ ...prev, [cardId]: false }));
+        }, 5000);
+      }
+    });
+
+    return () => {
+      Object.values(timers).forEach(timer => clearTimeout(timer));
+    };
+  }, [showDetails]);
+
   useEffect(() => {
     if (!user) return;
     
@@ -78,9 +95,56 @@ function ViewCards({ user, masterPassword, setActivePage }) {
   };
 
   const handleAddCard = () => {
-    if (typeof setActivePage === 'function') {
+    if (setActivePage) {
       setActivePage("addCard");
     }
+  };
+
+  // Timer countdown component
+  const CountdownTimer = ({ duration = 5000 }) => {
+    const [progress, setProgress] = useState(100);
+    
+    useEffect(() => {
+      const startTime = Date.now();
+      const interval = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        const remaining = Math.max(0, 100 * (1 - elapsed / duration));
+        setProgress(remaining);
+        
+        if (elapsed >= duration) {
+          clearInterval(interval);
+        }
+      }, 50);
+
+      return () => clearInterval(interval);
+    }, [duration]);
+
+    return (
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 w-6 h-6">
+        <svg className="w-6 h-6 transform -rotate-90">
+          <circle
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="2"
+            fill="none"
+            className="text-white/10"
+          />
+          <circle
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="2"
+            fill="none"
+            className="text-white/60"
+            strokeDasharray={`${progress * 0.628} 100`}
+            strokeLinecap="round"
+          />
+        </svg>
+      </div>
+    );
   };
 
   if (loading) {
@@ -121,7 +185,6 @@ function ViewCards({ user, masterPassword, setActivePage }) {
 
           return (
             <div key={card.id} className="group">
-              {/* Card Container */}
               <div className="relative w-full aspect-[1.586/1] rounded-2xl overflow-hidden">
                 {/* Theme Background with reduced opacity */}
                 <div 
@@ -139,9 +202,11 @@ function ViewCards({ user, masterPassword, setActivePage }) {
 
                 {/* Card Content */}
                 <div className="relative h-full p-6 flex flex-col justify-between">
+                  {/* Timer when showing details */}
+                  {isShowingDetails && <CountdownTimer />}
+
                   {/* Top Section */}
                   <div className="flex justify-between items-start">
-                    {/* Bank Logo */}
                     <div className="h-8 w-32 opacity-90">
                       <LogoWithFallback
                         logoName={decryptedBankName}
@@ -149,7 +214,6 @@ function ViewCards({ user, masterPassword, setActivePage }) {
                         className="h-full w-full object-contain object-left"
                       />
                     </div>
-                    {/* Card Type */}
                     <div className="text-white/80 text-sm font-medium">
                       {decryptedCardType}
                     </div>
@@ -203,16 +267,16 @@ function ViewCards({ user, masterPassword, setActivePage }) {
                     </div>
                   </div>
 
-                  {/* Toggle Details Button - Centered at bottom */}
+                  {/* Smaller Toggle Button */}
                   <button
                     onClick={() => setShowDetails(prev => ({ ...prev, [card.id]: !prev[card.id] }))}
                     className="absolute bottom-4 left-1/2 -translate-x-1/2
-                      transition-all duration-200 px-4 py-2 rounded-lg 
+                      transition-all duration-200 px-3 py-1.5 rounded-lg 
                       bg-white/10 backdrop-blur-md border border-white/20 
-                      text-white text-sm font-medium hover:bg-white/20
+                      text-white text-xs font-medium hover:bg-white/20
                       md:opacity-0 md:group-hover:opacity-100"
                   >
-                    {isShowingDetails ? 'Hide Details' : 'Show Details'}
+                    {isShowingDetails ? 'Hide' : 'Show Details'}
                   </button>
                 </div>
               </div>
@@ -222,8 +286,9 @@ function ViewCards({ user, masterPassword, setActivePage }) {
 
         {/* Add New Card Button */}
         <button
+          type="button"
           onClick={handleAddCard}
-          className="w-full aspect-[1.586/1] rounded-2xl cursor-pointer
+          className="w-full aspect-[1.586/1] rounded-2xl 
             bg-white/5 backdrop-blur-sm border border-white/10
             hover:bg-white/10 transition-all duration-300
             flex flex-col items-center justify-center gap-4
