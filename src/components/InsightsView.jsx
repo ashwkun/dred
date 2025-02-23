@@ -6,6 +6,44 @@ import {
 import { calculateInsights } from '../utils/insights';
 import { InvestmentSection } from './InvestmentSection';
 
+const C8 = (props) => {
+  console.log('C8 is being rendered with props:', props);
+  return <MerchantSummary merchantInsights={props.insights?.merchantInsights} />;
+};
+
+export const MerchantSummary = ({ merchantInsights }) => {
+  if (!merchantInsights || !Array.isArray(merchantInsights.topByFrequency)) {
+    return (
+      <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 border border-white/20">
+        <h3 className="text-white/60 text-sm mb-2">Most Frequent Merchants</h3>
+        <p className="text-white/50 text-sm">No merchant data available</p>
+      </div>
+    );
+  }
+
+  const topMerchant = merchantInsights.topByFrequency[0];
+  if (!topMerchant) {
+    return (
+      <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 border border-white/20">
+        <h3 className="text-white/60 text-sm mb-2">Most Frequent Merchants</h3>
+        <p className="text-white/50 text-sm">No transactions yet</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 border border-white/20">
+      <h3 className="text-white/60 text-sm mb-2">Most Frequent Merchants</h3>
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <span className="text-white">{topMerchant[0]}</span>
+          <span className="text-white/60">{topMerchant[1]} times</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const InsightsView = ({ transactions, cards, monthlyBudget, onSetBudget }) => {
   const [activeTab, setActiveTab] = useState('expenses');
   const [showBudgetInput, setShowBudgetInput] = useState(false);
@@ -55,7 +93,7 @@ const InsightsView = ({ transactions, cards, monthlyBudget, onSetBudget }) => {
           {/* Category and Merchant Analysis */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <CategoryTrendsCard categoryInsights={insights.categoryInsights} />
-            <MerchantAnalysisCard merchantInsights={insights.merchantInsights} />
+            <MerchantSummary merchantInsights={insights.merchantInsights} />
           </div>
           
           {/* Spending Velocity */}
@@ -495,64 +533,6 @@ const CategoryTrendsCard = ({ categoryInsights }) => {
   );
 };
 
-const MerchantAnalysisCard = ({ merchantInsights }) => {
-  if (!merchantInsights || !Array.isArray(merchantInsights.topByFrequency)) {
-    return (
-      <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 border border-white/20">
-        <h3 className="text-lg font-semibold text-white mb-4">Merchant Analysis</h3>
-        <p className="text-white/50">No merchant data available</p>
-      </div>
-    );
-  }
-
-  const recentTransactions = Array.isArray(merchantInsights.recentTransactions) 
-    ? merchantInsights.recentTransactions 
-    : [];
-
-  return (
-    <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 md:p-6 border border-white/20">
-      <h3 className="text-lg font-semibold text-white mb-4">Merchant Analysis</h3>
-      <div className="space-y-4">
-        <div>
-          <p className="text-white/60 text-sm mb-2">Most Frequent Merchants</p>
-          <div className="space-y-2">
-            {merchantInsights.topByFrequency.map(([merchant, frequency], index) => (
-              <div key={`${merchant}-${index}`} className="flex justify-between items-center p-2 bg-white/5 rounded-lg">
-                <span className="text-white">{merchant}</span>
-                <span className="text-white/60">{frequency}x</span>
-              </div>
-            ))}
-          </div>
-        </div>
-        {recentTransactions.length > 0 && (
-          <div>
-            <p className="text-white/60 text-sm mb-2">Recent Transactions</p>
-            <div className="space-y-2 max-h-48 overflow-y-auto">
-              {recentTransactions.map((t, idx) => (
-                <div key={`transaction-${idx}`} className="p-2 bg-white/5 rounded-lg">
-                  <div className="flex justify-between items-center">
-                    <span className="text-white">{t.merchant}</span>
-                    <span className="text-white">₹{Math.round(t.amount).toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-white/60">{t.category}</span>
-                    <span className="text-white/60">
-                      {new Date(t.date).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric'
-                      })}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
 const MonthlyTrendCard = ({ monthlySpending }) => {
   const data = Object.entries(monthlySpending)
     .reverse()
@@ -894,39 +874,6 @@ const SpendingRecommendationsCard = ({ insights }) => {
             </div>
           </div>
         ))}
-      </div>
-    </div>
-  );
-};
-
-const MerchantSummary = ({ merchantInsights }) => {
-  if (!merchantInsights || !Array.isArray(merchantInsights.topByFrequency)) {
-    return (
-      <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 border border-white/20">
-        <h3 className="text-white/60 text-sm mb-2">Most Frequent Merchants</h3>
-        <p className="text-white/50 text-sm">No merchant data available</p>
-      </div>
-    );
-  }
-
-  const topMerchant = merchantInsights.topByFrequency[0];
-  if (!topMerchant) {
-    return (
-      <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 border border-white/20">
-        <h3 className="text-white/60 text-sm mb-2">Most Frequent Merchants</h3>
-        <p className="text-white/50 text-sm">No transactions yet</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 border border-white/20">
-      <h3 className="text-white/60 text-sm mb-2">Most Frequent Merchants</h3>
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <span className="text-white">{topMerchant[0]}</span>
-          <span className="text-white/60">{topMerchant[1]} times</span>
-        </div>
       </div>
     </div>
   );
