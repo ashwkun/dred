@@ -5,7 +5,7 @@ import { collection, query, where, orderBy, onSnapshot, deleteDoc, doc } from "f
 import CryptoJS from "crypto-js";
 import LogoWithFallback from "./LogoWithFallback";
 import { securityManager } from "./utils/security";
-import { BiCreditCard } from 'react-icons/bi';
+import { BiCreditCard, BiCopy } from 'react-icons/bi';
 import { LoadingOverlay } from './components/LoadingOverlay';
 
 function ViewCards({ user, masterPassword, setActivePage }) {
@@ -13,6 +13,7 @@ function ViewCards({ user, masterPassword, setActivePage }) {
   const [showDetails, setShowDetails] = useState({});
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [copyFeedback, setCopyFeedback] = useState({});
 
   // Auto-hide details after 5 seconds
   useEffect(() => {
@@ -115,6 +116,18 @@ function ViewCards({ user, masterPassword, setActivePage }) {
     } catch (error) {
       console.error('Error in handleAddCard:', error);
     }
+  };
+
+  const handleCopy = (e, cardNumber, cardId) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigator.clipboard.writeText(cardNumber.replace(/\s/g, ''))
+      .then(() => {
+        setCopyFeedback(prev => ({ ...prev, [cardId]: true }));
+        setTimeout(() => {
+          setCopyFeedback(prev => ({ ...prev, [cardId]: false }));
+        }, 1500);
+      });
   };
 
   // Timer countdown component
@@ -261,20 +274,38 @@ function ViewCards({ user, masterPassword, setActivePage }) {
                   </div>
 
                   {/* Middle Section - Card Number/Details */}
-                  <div className="relative flex items-center justify-center h-16">
-                    <div className={`absolute inset-0 flex items-center justify-center
+                  <div className="relative flex flex-col items-center justify-center h-20">
+                    {/* Card Number with Copy */}
+                    <div className={`absolute inset-0 flex flex-col items-center justify-center gap-2
                       transition-all duration-300 ${
-                      isShowingDetails ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'
+                      isShowingDetails ? 'opacity-0 translate-y-4 pointer-events-none' : 'opacity-100 translate-y-0'
                     }`}>
-                      <div className="text-xl md:text-2xl text-white font-light tracking-wider font-mono">
+                      <div className="text-xl md:text-2xl text-white font-light tracking-wider font-mono text-center">
                         {decryptedCardNumber.replace(/(.{4})/g, "$1 ").trim()}
                       </div>
+                      <button
+                        onClick={(e) => handleCopy(e, decryptedCardNumber, card.id)}
+                        className="bg-white/5 hover:bg-white/10 p-2 rounded-lg
+                          transition-colors relative z-20 cursor-pointer
+                          md:opacity-0 md:group-hover:opacity-100"
+                        style={{ pointerEvents: 'auto' }}
+                      >
+                        <BiCopy className="w-4 h-4 text-white/70 hover:text-white" />
+                        {copyFeedback[card.id] && (
+                          <div className="absolute -top-8 left-1/2 -translate-x-1/2 
+                            bg-white/10 backdrop-blur-sm px-2 py-1 rounded-lg text-xs text-white/90
+                            border border-white/10 whitespace-nowrap z-30"
+                          >
+                            Copied!
+                          </div>
+                        )}
+                      </button>
                     </div>
                     
-                    {/* CVV/Expiry with Fade Animation */}
+                    {/* CVV/Expiry Section */}
                     <div className={`absolute inset-0 flex items-center justify-center
                       transition-all duration-300 ${
-                      isShowingDetails ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                      isShowingDetails ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
                     }`}>
                       <div className="flex gap-8">
                         <div className="text-center">

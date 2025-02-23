@@ -22,6 +22,36 @@ const hints = [
     message: "Your data is only decrypted on your device"
   },
   {
+    icon: "💳",
+    title: "Quick Copy",
+    message: "Click the copy icon next to card number to copy"
+  },
+  {
+    icon: "👆",
+    title: "View Details",
+    message: "Tap any card to view CVV and expiry date"
+  },
+  {
+    icon: "📱",
+    title: "UPI Payments",
+    message: "Use Bill Pay feature to make quick UPI payments"
+  },
+  {
+    icon: "🔄",
+    title: "Auto Hide",
+    message: "Card details auto-hide after 5 seconds for safety"
+  },
+  {
+    icon: "📋",
+    title: "Easy Add",
+    message: "Click the + button to add a new card securely"
+  },
+  {
+    icon: "🎨",
+    title: "Card Design",
+    message: "Your card color matches the bank's theme"
+  },
+  {
     icon: "⚡",
     title: "Stay Safe",
     message: "Remember to log out on shared devices"

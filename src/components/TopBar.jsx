@@ -63,7 +63,7 @@ export default function TopBar({ user, onSignOut, onInstall, isAppInstalled, def
                   <div className="absolute right-0 top-full mt-2 w-48 
                     bg-white/20 backdrop-blur-xl rounded-xl border border-white/20
                     shadow-lg overflow-hidden z-50">
-                    <div className="bg-black/40 backdrop-blur-xl">
+                    <div className="bg-black/80 backdrop-blur-xl">
                       <div className="px-4 py-3 border-b border-white/10">
                         <p className="text-sm font-medium text-white">{user.displayName}</p>
                         <p className="text-xs text-white/70 truncate">{user.email}</p>

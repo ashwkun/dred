@@ -6,6 +6,7 @@ import CryptoJS from 'crypto-js';
 import { BiCreditCard, BiMobile } from 'react-icons/bi';
 import { LoadingOverlay } from './components/LoadingOverlay';
 import { SuccessAnimation } from './components/SuccessAnimation';
+import { securityManager } from './utils/security';
 
 export default function BillPay({ user, masterPassword }) {
   const [cards, setCards] = useState([]);
@@ -47,7 +48,8 @@ export default function BillPay({ user, masterPassword }) {
           id: doc.id,
           cardNumber: CryptoJS.AES.decrypt(doc.data().cardNumber, masterPassword).toString(CryptoJS.enc.Utf8),
           bankName: CryptoJS.AES.decrypt(doc.data().bankName, masterPassword).toString(CryptoJS.enc.Utf8),
-          cardType: CryptoJS.AES.decrypt(doc.data().cardType, masterPassword).toString(CryptoJS.enc.Utf8)
+          cardType: CryptoJS.AES.decrypt(doc.data().cardType, masterPassword).toString(CryptoJS.enc.Utf8),
+          theme: doc.data().theme
         }));
         
         setCards(cardsData);
@@ -175,46 +177,74 @@ export default function BillPay({ user, masterPassword }) {
             </div>
           </div>
         ) : (
-          <div className="grid gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {cards.map(card => {
               const upiId = getUpiId(card);
               if (!upiId) return null;
 
               const last4 = card.cardNumber.slice(-4);
+              const decryptedTheme = securityManager.decryptData(card.theme, masterPassword);
 
               return (
                 <div 
                   key={card.id} 
-                  className="bg-white/10 backdrop-blur-lg rounded-2xl 
-                    border border-white/20 p-4 md:p-6"
+                  className="relative overflow-hidden rounded-2xl border border-white/20"
                 >
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="space-y-2">
-                      <h3 className="text-white font-medium text-lg">
-                        {card.bankName}
-                        <span className="text-white/40 text-sm ml-2">•••• {last4}</span>
-                      </h3>
-                      <p className="text-white/60 text-sm">{card.cardType}</p>
-                      <div className="flex items-center gap-2 mt-2">
-                        <div className="px-3 py-1.5 bg-white/10 rounded-lg">
-                          <p className="text-white/50 text-xs font-mono">{upiId}</p>
+                  {/* Theme Layers */}
+                  <div 
+                    className="absolute inset-0"
+                    style={{ 
+                      background: decryptedTheme,
+                      opacity: 0.4,
+                    }}
+                  />
+                  <div 
+                    className="absolute inset-0"
+                    style={{ 
+                      background: `linear-gradient(120deg, ${decryptedTheme}, transparent)`,
+                      opacity: 0.3,
+                    }}
+                  />
+                  <div className="absolute inset-0 backdrop-blur-sm bg-black/5" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent" />
+                  <div className="absolute inset-0 shadow-[inset_0_0_100px_rgba(0,0,0,0.2)]" />
+
+                  {/* Card Content */}
+                  <div className="relative p-4">
+                    <div className="flex flex-col gap-3">
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-white font-medium">
+                            {card.bankName}
+                          </h3>
+                          <span className="text-white/40 text-sm">•••• {last4}</span>
+                        </div>
+                        
+                        <p className="text-white/60 text-sm">{card.cardType}</p>
+                        
+                        {/* UPI ID */}
+                        <div className="flex items-center gap-2">
+                          <div className="px-3 py-1.5 bg-black/20 backdrop-blur-sm rounded-lg">
+                            <p className="text-white/70 text-xs font-mono">{upiId}</p>
+                          </div>
                         </div>
                       </div>
+                      
+                      {/* Pay Button */}
+                      <button
+                        onClick={() => handlePayBill(upiId)}
+                        className="w-full px-4 py-2.5 bg-white/10 hover:bg-white/20 
+                          rounded-xl text-white font-medium
+                          transition-all duration-200 flex items-center justify-center gap-2
+                          border border-white/10 backdrop-blur-sm"
+                      >
+                        Pay Bill
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                            d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                      </button>
                     </div>
-                    
-                    <button
-                      onClick={() => handlePayBill(upiId)}
-                      className="w-full md:w-auto px-6 py-3 bg-primary/20 hover:bg-primary/30 
-                        rounded-xl text-white font-medium
-                        transition-all duration-200 flex items-center justify-center gap-2
-                        border border-primary/30"
-                    >
-                      Pay Bill
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                          d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                      </svg>
-                    </button>
                   </div>
                 </div>
               );

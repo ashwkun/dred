@@ -6,6 +6,8 @@ import { BiCreditCard, BiTrendingUp, BiMoney, BiInfoCircle, BiBarChartAlt } from
 import { LoadingOverlay } from './components/LoadingOverlay';
 
 function Dashboard({ user, masterPassword }) {
+  // Add loading state
+  const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     totalCards: 0,
     banks: [],
@@ -35,12 +37,14 @@ function Dashboard({ user, masterPassword }) {
     const fetchStats = async () => {
       if (!user || !masterPassword) return;
 
-      const q = query(
-        collection(db, "cards"),
-        where("uid", "==", user.uid)
-      );
-
+      setLoading(true); // Set loading to true when fetching starts
+      
       try {
+        const q = query(
+          collection(db, "cards"),
+          where("uid", "==", user.uid)
+        );
+
         const querySnapshot = await getDocs(q);
         const cards = querySnapshot.docs.map(doc => {
           const data = doc.data();
@@ -104,6 +108,8 @@ function Dashboard({ user, masterPassword }) {
 
       } catch (error) {
         console.error("Error fetching stats:", error);
+      } finally {
+        setLoading(false); // Set loading to false when done
       }
     };
 
