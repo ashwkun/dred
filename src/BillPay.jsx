@@ -3,6 +3,7 @@ import { collection, query, where, getDocs, doc, setDoc } from "firebase/firesto
 import { db } from "./firebase";
 import MobileNumberDialog from './components/MobileNumberDialog';
 import CryptoJS from 'crypto-js';
+import { BiCreditCard, BiMobile } from 'react-icons/bi';
 
 export default function BillPay({ user, masterPassword }) {
   const [cards, setCards] = useState([]);
@@ -106,62 +107,126 @@ export default function BillPay({ user, masterPassword }) {
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto space-y-6">
+      {/* Header Section */}
+      <div className="flex items-center gap-3 mb-6">
+        <div className="h-12 w-12 rounded-xl bg-white/10 flex items-center justify-center">
+          <BiCreditCard className="text-2xl text-white" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold text-white">Pay Credit Card Bills</h1>
+          <p className="text-white/60">Pay your credit card bills instantly using UPI</p>
+        </div>
+      </div>
+
       {loading ? (
-        <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 p-6">
+        <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-8">
           <div className="flex items-center justify-center">
-            <div className="animate-spin w-6 h-6 border-2 border-white/20 border-t-white rounded-full" />
-            <span className="ml-3 text-white/70">Loading...</span>
+            <div className="animate-spin w-8 h-8 border-3 border-white/20 border-t-white rounded-full" />
+            <span className="ml-3 text-white/70 text-lg">Loading your cards...</span>
           </div>
         </div>
       ) : error ? (
-        <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-red-500/20 p-6">
+        <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-red-500/20 p-8">
           <div className="text-center text-red-400">
-            <p>{error}</p>
+            <p className="text-lg">{error}</p>
+            <button 
+              onClick={() => window.location.reload()}
+              className="mt-4 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-white"
+            >
+              Try Again
+            </button>
           </div>
         </div>
       ) : (
         <div className="space-y-4">
+          {/* Mobile Number Status */}
+          <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center">
+                  <BiMobile className="text-xl text-white" />
+                </div>
+                <div>
+                  <h3 className="text-white font-medium">Registered Mobile</h3>
+                  <p className="text-white/60 text-sm">
+                    {mobileNumber ? 
+                      `+91 ${mobileNumber}` : 
+                      'No mobile number registered'
+                    }
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowMobileDialog(true)}
+                className="px-4 py-2 bg-white/10 hover:bg-white/20 
+                  rounded-xl text-white text-sm font-medium
+                  transition-all duration-200"
+              >
+                {mobileNumber ? 'Update' : 'Add Mobile'}
+              </button>
+            </div>
+          </div>
+
+          {/* Cards Section */}
           {cards.length === 0 ? (
-            <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 p-6">
-              <div className="text-center text-white/70">
-                <p>No supported cards found. Add a credit card to pay bills.</p>
+            <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-8">
+              <div className="text-center">
+                <div className="w-16 h-16 rounded-full bg-white/10 mx-auto mb-4 
+                  flex items-center justify-center">
+                  <BiCreditCard className="text-3xl text-white/70" />
+                </div>
+                <p className="text-white/70 text-lg">No supported cards found</p>
+                <p className="text-white/50 mt-2">Add a credit card to pay bills</p>
               </div>
             </div>
           ) : (
-            cards.map(card => {
-              const upiId = getUpiId(card);
-              if (!upiId) return null;
+            <div className="grid gap-4">
+              {cards.map(card => {
+                const upiId = getUpiId(card);
+                if (!upiId) return null;
 
-              const last4 = card.cardNumber.slice(-4);
+                const last4 = card.cardNumber.slice(-4);
 
-              return (
-                <div key={card.id} className="bg-white/10 backdrop-blur-lg rounded-xl 
-                  border border-white/20 p-4 flex items-center justify-between"
-                >
-                  <div>
-                    <h3 className="text-white font-medium">
-                      {card.bankName} - {card.cardType}
-                    </h3>
-                    <p className="text-white/70 text-sm mt-0.5">
-                      •••• {last4}
-                    </p>
-                    <p className="text-white/50 text-xs mt-1.5">
-                      UPI: {upiId}
-                    </p>
-                  </div>
-                  
-                  <button
-                    onClick={() => handlePayBill(upiId)}
-                    className="px-4 py-2 bg-white/10 hover:bg-white/20 
-                      rounded-xl text-white/80 hover:text-white 
-                      transition-all text-sm font-medium"
+                return (
+                  <div 
+                    key={card.id} 
+                    className="bg-white/10 backdrop-blur-lg rounded-2xl 
+                      border border-white/20 p-6 hover:bg-white/[0.15] 
+                      transition-all duration-200"
                   >
-                    Pay Bill
-                  </button>
-                </div>
-              );
-            })
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-2">
+                        <h3 className="text-white font-medium text-lg flex items-center gap-2">
+                          {card.bankName}
+                          <span className="text-white/40 text-sm">•••• {last4}</span>
+                        </h3>
+                        <p className="text-white/60 text-sm">{card.cardType}</p>
+                        <div className="flex items-center gap-2 mt-4">
+                          <div className="px-3 py-1.5 bg-white/10 rounded-lg">
+                            <p className="text-white/50 text-xs font-mono">{upiId}</p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <button
+                        onClick={() => handlePayBill(upiId)}
+                        className="px-6 py-3 bg-primary/20 hover:bg-primary/30 
+                          rounded-xl text-white font-medium
+                          transition-all duration-200 flex items-center gap-2
+                          border border-primary/30"
+                      >
+                        Pay Bill
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                            d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           )}
         </div>
       )}
