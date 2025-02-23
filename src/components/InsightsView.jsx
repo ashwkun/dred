@@ -105,22 +105,22 @@ const InsightsView = ({ transactions, cards, monthlyBudget, onSetBudget }) => {
       <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 md:p-6 border border-white/20">
         <h3 className="text-lg font-semibold text-white mb-4">Monthly Budget</h3>
         {showBudgetInput ? (
-          <div className="flex items-center space-x-4">
+          <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-4">
             <input
               type="number"
               value={newBudget}
               onChange={(e) => setNewBudget(e.target.value)}
-              className="bg-white/20 text-white p-2 rounded-lg"
+              className="bg-white/20 text-white p-2 rounded-lg w-full md:w-auto"
             />
             <button
               onClick={handleBudgetChange}
-              className="bg-green-500 text-white px-4 py-2 rounded-lg"
+              className="btn-primary w-full md:w-auto"
             >
               Save
             </button>
             <button
               onClick={() => setShowBudgetInput(false)}
-              className="bg-red-500 text-white px-4 py-2 rounded-lg"
+              className="btn-secondary w-full md:w-auto"
             >
               Cancel
             </button>
@@ -130,7 +130,7 @@ const InsightsView = ({ transactions, cards, monthlyBudget, onSetBudget }) => {
             <p className="text-white text-2xl">₹{monthlyBudget.toLocaleString()}</p>
             <button
               onClick={() => setShowBudgetInput(true)}
-              className="bg-blue-500 text-white px-4 py-2 rounded-lg"
+              className="btn-primary"
             >
               Edit
             </button>
