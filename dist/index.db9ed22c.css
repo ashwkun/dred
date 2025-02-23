@@ -1144,6 +1144,10 @@ body {
   background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
 }
 
+.bg-gradient-to-r {
+  background-image: linear-gradient(to right, var(--tw-gradient-stops));
+}
+
 .from-\[\#064e3b\] {
   --tw-gradient-from: #064e3b var(--tw-gradient-from-position);
   --tw-gradient-to: #064e3b00 var(--tw-gradient-to-position);
@@ -1198,6 +1202,12 @@ body {
   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
 }
 
+.from-green-400 {
+  --tw-gradient-from: #4ade80 var(--tw-gradient-from-position);
+  --tw-gradient-to: #4ade8000 var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+
 .via-transparent {
   --tw-gradient-to: #0000 var(--tw-gradient-to-position);
   --tw-gradient-stops: var(--tw-gradient-from), transparent var(--tw-gradient-via-position), var(--tw-gradient-to);
@@ -1233,6 +1243,10 @@ body {
 
 .to-transparent {
   --tw-gradient-to: transparent var(--tw-gradient-to-position);
+}
+
+.to-red-400 {
+  --tw-gradient-to: #f87171 var(--tw-gradient-to-position);
 }
 
 .object-contain {
@@ -1904,6 +1918,10 @@ body {
 }
 
 @media (width >= 768px) {
+  .md\:col-span-1 {
+    grid-column: span 1 / span 1;
+  }
+
   .md\:mb-6 {
     margin-bottom: 1.5rem;
   }
@@ -1964,6 +1982,10 @@ body {
     padding: 2rem;
   }
 
+  .md\:p-6 {
+    padding: 1.5rem;
+  }
+
   .md\:pb-4 {
     padding-bottom: 1rem;
   }
@@ -1984,6 +2006,11 @@ body {
   .md\:text-base {
     font-size: 1rem;
     line-height: 1.5rem;
+  }
+
+  .md\:text-sm {
+    font-size: .875rem;
+    line-height: 1.25rem;
   }
 
   .md\:opacity-0 {
