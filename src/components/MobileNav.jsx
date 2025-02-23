@@ -22,7 +22,7 @@ export default function MobileNav({ activePage, setActivePage, cards }) {
       label: 'Bill Pay'
     }] : []),
     {
-      id: 'dashboard',
+      id: 'expenses',
       icon: BiWallet,
       label: 'Expenses'
     },

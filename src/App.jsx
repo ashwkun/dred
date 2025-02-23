@@ -9,7 +9,7 @@ import AddCard from "./AddCard";
 import ExpenseTracker from './ExpenseTracker';
 import Settings from "./features/settings/Settings";
 import logo from "./assets/logo.png";
-import { RiDashboardLine, RiAddCircleLine, RiCreditCardLine } from 'react-icons/ri';
+import { RiAddCircleLine, RiCreditCardLine } from 'react-icons/ri';
 import { BiCreditCard, BiAddToQueue, BiBarChartAlt, BiLogOut, BiCog } from 'react-icons/bi';
 import { useTheme } from './contexts/ThemeContext';
 import Sidebar from "./components/Sidebar";
