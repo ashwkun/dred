@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { BiCamera } from 'react-icons/bi';
 import { FaSyncAlt, FaCamera, FaTimes, FaVideo } from 'react-icons/fa';
 import { createWorker } from 'tesseract.js';
+import Dialog from './Dialog';
 
 function CardScannerComponent({ onScanComplete }) {
   const [isScanning, setIsScanning] = useState(false);
@@ -10,6 +11,8 @@ function CardScannerComponent({ onScanComplete }) {
   const [isMirror, setIsMirror] = useState(false);
   const [isInitializing, setIsInitializing] = useState(false);
   const [useFrontCamera, setUseFrontCamera] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogContent, setDialogContent] = useState({ title: '', message: '' });
   const videoRef = useRef(null);
   const streamRef = useRef(null);
   const canvasRef = useRef(null);
@@ -25,9 +28,14 @@ function CardScannerComponent({ onScanComplete }) {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  const showDialog = (title, message) => {
+    setDialogContent({ title, message });
+    setDialogOpen(true);
+  };
+
   const checkCameraPermission = async () => {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      alert('Camera API is not supported in your browser');
+      showDialog('Error', 'Camera API is not supported in your browser');
       return false;
     }
 
@@ -36,7 +44,7 @@ function CardScannerComponent({ onScanComplete }) {
         .catch(() => ({ state: 'prompt' }));
 
       if (permission.state === 'denied') {
-        alert('Camera access is blocked. Please allow camera access in your browser settings.');
+        showDialog('Permission Denied', 'Camera access is blocked. Please allow camera access in your browser settings.');
         return false;
       }
 
@@ -50,12 +58,12 @@ function CardScannerComponent({ onScanComplete }) {
       console.error('Camera permission check error:', error);
       
       if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-        alert(`Camera access was denied. Please follow these steps:
+        showDialog('Permission Denied', `Camera access was denied. Please follow these steps:
 1. Click the camera icon in your browser's address bar
 2. Select "Allow" for camera access
 3. Refresh the page and try again`);
       } else {
-        alert('Error accessing camera: ' + error.message);
+        showDialog('Error', 'Error accessing camera: ' + error.message);
       }
       return false;
     }
@@ -156,7 +164,7 @@ function CardScannerComponent({ onScanComplete }) {
         message += error.message;
     }
     
-    alert(message);
+    showDialog('Camera Error', message);
   };
 
   const stopScanner = () => {
@@ -213,11 +221,11 @@ function CardScannerComponent({ onScanComplete }) {
         });
         stopScanner();
       } else {
-        alert('Could not detect card details clearly. Please try again.');
+        showDialog('Scan Error', 'Could not detect card details clearly. Please try again.');
       }
     } catch (error) {
       console.error('Error processing card:', error);
-      alert('Error processing card. Please try again.');
+      showDialog('Processing Error', 'Error processing card. Please try again.');
     } finally {
       if (worker) {
         await worker.terminate();
@@ -359,6 +367,13 @@ function CardScannerComponent({ onScanComplete }) {
           Debug Camera
         </button>
       )}
+
+      <Dialog
+        isOpen={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        title={dialogContent.title}
+        message={dialogContent.message}
+      />
     </div>
   );
 }
