@@ -8,6 +8,11 @@ import Dialog from './components/Dialog';
 import { FaUtensils } from 'react-icons/fa';
 import { defaultCategories, getCategoryIcon, getMerchantSuggestions, iconMap } from './data/categories';
 import AddCategoryDialog from './components/AddCategoryDialog';
+import { 
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  PieChart, Pie, Cell, LineChart, Line, AreaChart, Area 
+} from 'recharts';
+import { format } from 'date-fns';
 
 // Move formatAccountName to the top, before any components
 const formatAccountName = (account, cards) => {
@@ -182,6 +187,226 @@ const TransactionItem = ({ transaction, cards, onDelete }) => {
               )}
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Add this helper function to calculate insights
+const calculateInsights = (transactions) => {
+  const now = new Date();
+  const thisMonth = now.getMonth();
+  const thisYear = now.getFullYear();
+  
+  // Filter transactions for current and last month
+  const thisMonthTransactions = transactions.filter(t => {
+    const date = new Date(t.date);
+    return date.getMonth() === thisMonth && date.getFullYear() === thisYear;
+  });
+  
+  const lastMonthTransactions = transactions.filter(t => {
+    const date = new Date(t.date);
+    return date.getMonth() === (thisMonth - 1) && date.getFullYear() === thisYear;
+  });
+
+  // Calculate totals
+  const thisMonthTotal = thisMonthTransactions.reduce((sum, t) => sum + parseFloat(t.amount), 0);
+  const lastMonthTotal = lastMonthTransactions.reduce((sum, t) => sum + parseFloat(t.amount), 0);
+
+  // Category-wise spending
+  const categorySpending = transactions.reduce((acc, t) => {
+    acc[t.category] = (acc[t.category] || 0) + parseFloat(t.amount);
+    return acc;
+  }, {});
+
+  // Account-wise spending
+  const accountSpending = transactions.reduce((acc, t) => {
+    acc[t.account] = (acc[t.account] || 0) + parseFloat(t.amount);
+    return acc;
+  }, {});
+
+  // Daily spending trend (last 30 days)
+  const dailySpending = transactions
+    .filter(t => {
+      const date = new Date(t.date);
+      const daysDiff = (now - date) / (1000 * 60 * 60 * 24);
+      return daysDiff <= 30;
+    })
+    .reduce((acc, t) => {
+      const date = format(new Date(t.date), 'MMM dd');
+      acc[date] = (acc[date] || 0) + parseFloat(t.amount);
+      return acc;
+    }, {});
+
+  // Merchant-wise spending
+  const merchantSpending = transactions.reduce((acc, t) => {
+    acc[t.merchant] = (acc[t.merchant] || 0) + parseFloat(t.amount);
+    return acc;
+  }, {});
+
+  return {
+    thisMonthTotal,
+    lastMonthTotal,
+    categorySpending,
+    accountSpending,
+    dailySpending,
+    merchantSpending
+  };
+};
+
+// Add this new component for the Insights view
+const InsightsView = ({ transactions, cards }) => {
+  const insights = calculateInsights(transactions);
+  const COLORS = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEEAD', '#D4A5A5'];
+
+  return (
+    <div className="space-y-6">
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 border border-white/20">
+          <h3 className="text-white/60 text-sm">This Month</h3>
+          <p className="text-2xl font-bold text-white">₹{insights.thisMonthTotal.toFixed(2)}</p>
+          <p className="text-white/60 text-sm">
+            {insights.thisMonthTotal > insights.lastMonthTotal ? '↑' : '↓'}
+            {Math.abs(insights.thisMonthTotal - insights.lastMonthTotal).toFixed(2)} vs last month
+          </p>
+        </div>
+
+        <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 border border-white/20">
+          <h3 className="text-white/60 text-sm">Last Month</h3>
+          <p className="text-2xl font-bold text-white">₹{insights.lastMonthTotal.toFixed(2)}</p>
+        </div>
+
+        <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 border border-white/20">
+          <h3 className="text-white/60 text-sm">Average Daily Spend</h3>
+          <p className="text-2xl font-bold text-white">
+            ₹{(insights.thisMonthTotal / new Date().getDate()).toFixed(2)}
+          </p>
+        </div>
+      </div>
+
+      {/* Spending Trend */}
+      <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
+        <h3 className="text-lg font-semibold text-white mb-4">Daily Spending Trend</h3>
+        <div className="h-64">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart
+              data={Object.entries(insights.dailySpending).map(([date, amount]) => ({
+                date,
+                amount
+              }))}
+              margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+            >
+              <defs>
+                <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#4ECDC4" stopOpacity={0.8}/>
+                  <stop offset="95%" stopColor="#4ECDC4" stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <XAxis dataKey="date" stroke="#ffffff40" />
+              <YAxis stroke="#ffffff40" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#ffffff20" />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  borderRadius: '8px'
+                }}
+              />
+              <Area
+                type="monotone"
+                dataKey="amount"
+                stroke="#4ECDC4"
+                fillOpacity={1}
+                fill="url(#colorAmount)"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Category and Account Distribution */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Category-wise Spending */}
+        <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
+          <h3 className="text-lg font-semibold text-white mb-4">Category Distribution</h3>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={Object.entries(insights.categorySpending).map(([name, value], index) => ({
+                    name,
+                    value
+                  }))}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  paddingAngle={5}
+                  dataKey="value"
+                >
+                  {Object.entries(insights.categorySpending).map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    borderRadius: '8px'
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Account-wise Spending */}
+        <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
+          <h3 className="text-lg font-semibold text-white mb-4">Account Distribution</h3>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={Object.entries(insights.accountSpending).map(([account, amount]) => ({
+                  account: formatAccountName(account, cards),
+                  amount
+                }))}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff20" />
+                <XAxis dataKey="account" stroke="#ffffff40" />
+                <YAxis stroke="#ffffff40" />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    borderRadius: '8px'
+                  }}
+                />
+                <Bar dataKey="amount" fill="#4ECDC4" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      {/* Top Merchants */}
+      <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
+        <h3 className="text-lg font-semibold text-white mb-4">Top Merchants</h3>
+        <div className="space-y-2">
+          {Object.entries(insights.merchantSpending)
+            .sort(([, a], [, b]) => b - a)
+            .slice(0, 5)
+            .map(([merchant, amount], index) => (
+              <div
+                key={merchant}
+                className="flex items-center justify-between p-3 bg-white/5 rounded-lg"
+              >
+                <span className="text-white">{merchant}</span>
+                <span className="text-white font-medium">₹{amount.toFixed(2)}</span>
+              </div>
+            ))}
         </div>
       </div>
     </div>
@@ -627,8 +852,8 @@ function ExpenseTracker({ user, masterPassword }) {
         ) : (
           // Insights View
           <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 p-6">
-            <h2 className="text-xl font-semibold text-white mb-4">Spending Insights</h2>
-            {/* Add your insights components here */}
+            <h2 className="text-xl font-semibold text-white mb-6">Spending Insights</h2>
+            <InsightsView transactions={transactions} cards={cards} />
           </div>
         )}
       </div>
