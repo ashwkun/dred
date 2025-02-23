@@ -855,6 +855,10 @@ body {
   align-items: center;
 }
 
+.justify-end {
+  justify-content: flex-end;
+}
+
 .justify-center {
   justify-content: center;
 }
@@ -1019,6 +1023,10 @@ body {
 
 .bg-black\/5 {
   background-color: #0000000d;
+}
+
+.bg-black\/50 {
+  background-color: #00000080;
 }
 
 .bg-black\/80 {
@@ -1699,6 +1707,11 @@ body {
 
 .hover\:border-white\/40:hover {
   border-color: #fff6;
+}
+
+.hover\:bg-gray-700:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(55 65 81 / var(--tw-bg-opacity, 1));
 }
 
 .hover\:bg-green-400\/30:hover {

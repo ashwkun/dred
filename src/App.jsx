@@ -6,7 +6,7 @@ import Auth from "./Auth";
 import MasterPasswordPrompt from "./MasterPasswordPrompt";
 import ViewCards from "./ViewCards";
 import AddCard from "./AddCard";
-import Dashboard from "./Dashboard";
+import ExpenseTracker from './ExpenseTracker';
 import Settings from "./features/settings/Settings";
 import logo from "./assets/logo.png";
 import { RiDashboardLine, RiAddCircleLine, RiCreditCardLine } from 'react-icons/ri';
@@ -217,7 +217,7 @@ function App() {
               />
             )}
             {activePage === "dashboard" && (
-              <Dashboard 
+              <ExpenseTracker 
                 user={user} 
                 masterPassword={masterPassword}
               />

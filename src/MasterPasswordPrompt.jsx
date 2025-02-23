@@ -8,6 +8,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import ValidationAnimation from "./components/ValidationAnimation";
 import { securityManager } from "./utils/security";
 import LockoutTimer from "./components/LockoutTimer";
+import ExpenseTracker from './ExpenseTracker';
 
 function MasterPasswordPrompt({ setMasterPassword, user }) {
   const [inputValue, setInputValue] = useState("");

@@ -1,5 +1,5 @@
 import React from 'react';
-import { BiCreditCard, BiAddToQueue, BiBarChartAlt, BiCog, BiWallet, BiLogOut, BiDownload } from 'react-icons/bi';
+import { BiCreditCard, BiAddToQueue, BiWallet, BiCog, BiLogOut, BiDownload } from 'react-icons/bi';
 import { hasSupportedBillPayBank } from '../utils/bankUtils';
 import logo from "../assets/logo.png";
 
@@ -10,7 +10,7 @@ export default function Sidebar({ activePage, setActivePage, cards, user, onSign
     { id: 'viewCards', icon: BiCreditCard, label: 'Cards' },
     { id: 'addCard', icon: BiAddToQueue, label: 'Add Card' },
     ...(showBillPay ? [{ id: 'billPay', icon: BiWallet, label: 'Bill Pay' }] : []),
-    { id: 'dashboard', icon: BiBarChartAlt, label: 'Statistics' },
+    { id: 'dashboard', icon: BiWallet, label: 'Expenses' },
     { id: 'settings', icon: BiCog, label: 'Controls' }
   ];
 
