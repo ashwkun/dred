@@ -2,25 +2,33 @@ import { useState, useEffect } from 'react';
 import { db } from "./firebase";
 import { collection, query, where, getDocs, addDoc, deleteDoc, doc } from "firebase/firestore";
 import CryptoJS from "crypto-js";
-import { BiReceipt, BiPlus, BiTrash } from 'react-icons/bi';
+import { BiReceipt, BiPlus, BiTrash, BiLineChart } from 'react-icons/bi';
 import { LoadingOverlay } from './components/LoadingOverlay';
 import Dialog from './components/Dialog';
 
 function ExpenseTracker({ user, masterPassword }) {
+  const [activeView, setActiveView] = useState('transactions');
   const [loading, setLoading] = useState(true);
-  const [expenses, setExpenses] = useState([]);
-  const [showAddExpense, setShowAddExpense] = useState(false);
-  const [newExpense, setNewExpense] = useState({
+  const [transactions, setTransactions] = useState([]);
+  const [showAddTransaction, setShowAddTransaction] = useState(false);
+  const [cards, setCards] = useState([]);
+  const [newTransaction, setNewTransaction] = useState({
     amount: '',
+    account: '',
     category: '',
+    merchant: '',
     description: '',
     date: new Date().toISOString().split('T')[0]
   });
-  const [stats, setStats] = useState({
-    totalExpenses: 0,
-    thisMonth: 0,
-    byCategory: {}
-  });
+
+  const accounts = [
+    { id: 'cash', name: 'Cash' },
+    { id: 'bank', name: 'Bank Account' },
+    ...cards.map(card => ({
+      id: card.id,
+      name: `${card.bankName} Card (${card.cardNumber.slice(-4)})`
+    }))
+  ];
 
   const categories = [
     'Food & Dining',
@@ -31,92 +39,97 @@ function ExpenseTracker({ user, masterPassword }) {
     'Others'
   ];
 
+  // Fetch saved cards
   useEffect(() => {
-    fetchExpenses();
+    const fetchCards = async () => {
+      if (!user || !masterPassword) return;
+      
+      try {
+        const q = query(
+          collection(db, "cards"),
+          where("uid", "==", user.uid)
+        );
+        
+        const snapshot = await getDocs(q);
+        const cardsData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          bankName: CryptoJS.AES.decrypt(doc.data().bankName, masterPassword).toString(CryptoJS.enc.Utf8),
+          cardNumber: CryptoJS.AES.decrypt(doc.data().cardNumber, masterPassword).toString(CryptoJS.enc.Utf8)
+        }));
+        
+        setCards(cardsData);
+      } catch (error) {
+        console.error('Error loading cards:', error);
+      }
+    };
+
+    fetchCards();
   }, [user, masterPassword]);
 
-  const fetchExpenses = async () => {
-    if (!user || !masterPassword) return;
-    setLoading(true);
+  // Fetch transactions
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      if (!user || !masterPassword) return;
+      setLoading(true);
 
+      try {
+        const q = query(
+          collection(db, "transactions"),
+          where("uid", "==", user.uid)
+        );
+
+        const querySnapshot = await getDocs(q);
+        const fetchedTransactions = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          amount: CryptoJS.AES.decrypt(doc.data().amount, masterPassword).toString(CryptoJS.enc.Utf8),
+          merchant: CryptoJS.AES.decrypt(doc.data().merchant, masterPassword).toString(CryptoJS.enc.Utf8),
+          description: CryptoJS.AES.decrypt(doc.data().description, masterPassword).toString(CryptoJS.enc.Utf8)
+        }));
+
+        setTransactions(fetchedTransactions);
+      } catch (error) {
+        console.error("Error fetching transactions:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTransactions();
+  }, [user, masterPassword]);
+
+  const handleAddTransaction = async () => {
     try {
-      const q = query(
-        collection(db, "expenses"),
-        where("uid", "==", user.uid)
-      );
-
-      const querySnapshot = await getDocs(q);
-      const fetchedExpenses = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        amount: CryptoJS.AES.decrypt(doc.data().amount, masterPassword).toString(CryptoJS.enc.Utf8),
-        description: CryptoJS.AES.decrypt(doc.data().description, masterPassword).toString(CryptoJS.enc.Utf8)
-      }));
-
-      setExpenses(fetchedExpenses);
-      calculateStats(fetchedExpenses);
-    } catch (error) {
-      console.error("Error fetching expenses:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const calculateStats = (expenseList) => {
-    const total = expenseList.reduce((sum, exp) => sum + parseFloat(exp.amount), 0);
-    const currentMonth = new Date().getMonth();
-    const thisMonthExpenses = expenseList
-      .filter(exp => new Date(exp.date).getMonth() === currentMonth)
-      .reduce((sum, exp) => sum + parseFloat(exp.amount), 0);
-
-    const categoryTotals = expenseList.reduce((acc, exp) => {
-      acc[exp.category] = (acc[exp.category] || 0) + parseFloat(exp.amount);
-      return acc;
-    }, {});
-
-    setStats({
-      totalExpenses: total,
-      thisMonth: thisMonthExpenses,
-      byCategory: categoryTotals
-    });
-  };
-
-  const handleAddExpense = async () => {
-    try {
-      const encryptedExpense = {
+      const encryptedTransaction = {
         uid: user.uid,
-        amount: CryptoJS.AES.encrypt(newExpense.amount.toString(), masterPassword).toString(),
-        category: newExpense.category,
-        description: CryptoJS.AES.encrypt(newExpense.description, masterPassword).toString(),
-        date: newExpense.date,
+        amount: CryptoJS.AES.encrypt(newTransaction.amount.toString(), masterPassword).toString(),
+        account: newTransaction.account,
+        category: newTransaction.category,
+        merchant: CryptoJS.AES.encrypt(newTransaction.merchant, masterPassword).toString(),
+        description: CryptoJS.AES.encrypt(newTransaction.description, masterPassword).toString(),
+        date: newTransaction.date,
         createdAt: new Date()
       };
 
-      await addDoc(collection(db, "expenses"), encryptedExpense);
-      setShowAddExpense(false);
-      setNewExpense({
+      await addDoc(collection(db, "transactions"), encryptedTransaction);
+      setShowAddTransaction(false);
+      setNewTransaction({
         amount: '',
+        account: '',
         category: '',
+        merchant: '',
         description: '',
         date: new Date().toISOString().split('T')[0]
       });
-      fetchExpenses();
+      fetchTransactions();
     } catch (error) {
-      console.error("Error adding expense:", error);
-    }
-  };
-
-  const handleDeleteExpense = async (id) => {
-    try {
-      await deleteDoc(doc(db, "expenses", id));
-      fetchExpenses();
-    } catch (error) {
-      console.error("Error deleting expense:", error);
+      console.error("Error adding transaction:", error);
     }
   };
 
   if (loading) {
-    return <LoadingOverlay message="Loading expenses" />;
+    return <LoadingOverlay message="Loading transactions" />;
   }
 
   return (
@@ -132,81 +145,116 @@ function ExpenseTracker({ user, masterPassword }) {
             <p className="text-white/60">Track your spending</p>
           </div>
         </div>
-        <button
-          onClick={() => setShowAddExpense(true)}
-          className="bg-white/10 hover:bg-white/20 rounded-xl p-3 text-white transition-colors"
-        >
-          <BiPlus className="text-xl" />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setActiveView('transactions')}
+            className={`px-4 py-2 rounded-lg transition-colors ${
+              activeView === 'transactions' 
+                ? 'bg-white/20 text-white' 
+                : 'text-white/70 hover:bg-white/10'
+            }`}
+          >
+            Transactions
+          </button>
+          <button
+            onClick={() => setActiveView('insights')}
+            className={`px-4 py-2 rounded-lg transition-colors ${
+              activeView === 'insights' 
+                ? 'bg-white/20 text-white' 
+                : 'text-white/70 hover:bg-white/10'
+            }`}
+          >
+            <BiLineChart className="inline mr-1" />
+            Insights
+          </button>
+        </div>
       </div>
 
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
-          <h3 className="text-lg font-semibold text-white mb-2">Total Expenses</h3>
-          <p className="text-3xl font-bold text-white">₹{stats.totalExpenses.toFixed(2)}</p>
-        </div>
-        <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
-          <h3 className="text-lg font-semibold text-white mb-2">This Month</h3>
-          <p className="text-3xl font-bold text-white">₹{stats.thisMonth.toFixed(2)}</p>
-        </div>
-        <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
-          <h3 className="text-lg font-semibold text-white mb-2">Categories</h3>
-          <p className="text-3xl font-bold text-white">{Object.keys(stats.byCategory).length}</p>
-        </div>
-      </div>
+      {activeView === 'transactions' ? (
+        <>
+          {/* Add Transaction Button */}
+          <button
+            onClick={() => setShowAddTransaction(true)}
+            className="w-full mb-4 bg-white/10 hover:bg-white/20 rounded-xl p-4 text-white transition-colors flex items-center justify-center gap-2"
+          >
+            <BiPlus className="text-xl" />
+            Add Transaction
+          </button>
 
-      {/* Expenses List */}
-      <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20">
-        <div className="p-6">
-          <h2 className="text-xl font-semibold text-white mb-4">Recent Expenses</h2>
-          <div className="space-y-4">
-            {expenses.map((expense) => (
-              <div 
-                key={expense.id}
-                className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10"
-              >
-                <div className="flex-1">
-                  <p className="text-white font-medium">{expense.description}</p>
-                  <p className="text-white/60 text-sm">{expense.category} • {expense.date}</p>
-                </div>
-                <div className="flex items-center gap-4">
-                  <p className="text-white font-medium">₹{parseFloat(expense.amount).toFixed(2)}</p>
-                  <button
-                    onClick={() => handleDeleteExpense(expense.id)}
-                    className="text-white/60 hover:text-white transition-colors"
+          {/* Transactions List */}
+          <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20">
+            <div className="p-6">
+              <h2 className="text-xl font-semibold text-white mb-4">Recent Transactions</h2>
+              <div className="space-y-4">
+                {transactions.map((transaction) => (
+                  <div 
+                    key={transaction.id}
+                    className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10"
                   >
-                    <BiTrash />
-                  </button>
-                </div>
+                    <div className="flex-1">
+                      <p className="text-white font-medium">{transaction.merchant}</p>
+                      <p className="text-white/60 text-sm">
+                        {transaction.category} • {transaction.account} • {transaction.date}
+                      </p>
+                      {transaction.description && (
+                        <p className="text-white/40 text-sm mt-1">{transaction.description}</p>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <p className="text-white font-medium">₹{parseFloat(transaction.amount).toFixed(2)}</p>
+                      <button
+                        onClick={() => handleDeleteTransaction(transaction.id)}
+                        className="text-white/60 hover:text-white transition-colors"
+                      >
+                        <BiTrash />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                {transactions.length === 0 && (
+                  <p className="text-white/60 text-center py-4">
+                    No transactions recorded yet. Add your first transaction!
+                  </p>
+                )}
               </div>
-            ))}
-            {expenses.length === 0 && (
-              <p className="text-white/60 text-center py-4">
-                No expenses recorded yet. Add your first expense!
-              </p>
-            )}
+            </div>
           </div>
+        </>
+      ) : (
+        // Insights View (to be implemented)
+        <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 p-6">
+          <h2 className="text-xl font-semibold text-white mb-4">Spending Insights</h2>
+          {/* Add your insights components here */}
         </div>
-      </div>
+      )}
 
-      {/* Add Expense Dialog */}
+      {/* Add Transaction Dialog */}
       <Dialog
-        isOpen={showAddExpense}
-        onClose={() => setShowAddExpense(false)}
-        title="Add Expense"
+        isOpen={showAddTransaction}
+        onClose={() => setShowAddTransaction(false)}
+        title="Add Transaction"
         message={
           <div className="space-y-4">
             <input
               type="number"
               placeholder="Amount"
-              value={newExpense.amount}
-              onChange={(e) => setNewExpense({ ...newExpense, amount: e.target.value })}
+              value={newTransaction.amount}
+              onChange={(e) => setNewTransaction({ ...newTransaction, amount: e.target.value })}
               className="w-full bg-white/10 rounded-lg p-3 text-white"
             />
             <select
-              value={newExpense.category}
-              onChange={(e) => setNewExpense({ ...newExpense, category: e.target.value })}
+              value={newTransaction.account}
+              onChange={(e) => setNewTransaction({ ...newTransaction, account: e.target.value })}
+              className="w-full bg-white/10 rounded-lg p-3 text-white"
+            >
+              <option value="">Select Account</option>
+              {accounts.map(account => (
+                <option key={account.id} value={account.id}>{account.name}</option>
+              ))}
+            </select>
+            <select
+              value={newTransaction.category}
+              onChange={(e) => setNewTransaction({ ...newTransaction, category: e.target.value })}
               className="w-full bg-white/10 rounded-lg p-3 text-white"
             >
               <option value="">Select Category</option>
@@ -216,21 +264,28 @@ function ExpenseTracker({ user, masterPassword }) {
             </select>
             <input
               type="text"
-              placeholder="Description"
-              value={newExpense.description}
-              onChange={(e) => setNewExpense({ ...newExpense, description: e.target.value })}
+              placeholder="Merchant"
+              value={newTransaction.merchant}
+              onChange={(e) => setNewTransaction({ ...newTransaction, merchant: e.target.value })}
+              className="w-full bg-white/10 rounded-lg p-3 text-white"
+            />
+            <input
+              type="text"
+              placeholder="Description (optional)"
+              value={newTransaction.description}
+              onChange={(e) => setNewTransaction({ ...newTransaction, description: e.target.value })}
               className="w-full bg-white/10 rounded-lg p-3 text-white"
             />
             <input
               type="date"
-              value={newExpense.date}
-              onChange={(e) => setNewExpense({ ...newExpense, date: e.target.value })}
+              value={newTransaction.date}
+              onChange={(e) => setNewTransaction({ ...newTransaction, date: e.target.value })}
               className="w-full bg-white/10 rounded-lg p-3 text-white"
             />
           </div>
         }
         confirmText="Add"
-        onConfirm={handleAddExpense}
+        onConfirm={handleAddTransaction}
       />
     </div>
   );
