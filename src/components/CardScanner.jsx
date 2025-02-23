@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { BiCamera } from 'react-icons/bi';
+import { FaSyncAlt, FaCamera, FaTimes, FaVideo } from 'react-icons/fa';
 import { createWorker } from 'tesseract.js';
 
 function CardScannerComponent({ onScanComplete }) {
@@ -298,17 +299,13 @@ function CardScannerComponent({ onScanComplete }) {
         />
 
         {isScanning && (
-          <div className="absolute inset-0 flex flex-col justify-between p-4">
-            <div className="flex justify-center gap-4">
+          <div className="absolute inset-0 flex flex-col justify-end p-4">
+            <div className="flex justify-center gap-4 bg-black/50 p-2 rounded-lg">
               <button
                 onClick={() => setIsMirror(!isMirror)}
-                className="p-3 rounded-full bg-white/10 backdrop-blur-sm
-                  text-white/60 hover:text-white transition-colors"
+                className="p-3 rounded-full bg-black text-white hover:bg-gray-700 transition-colors"
               >
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                    d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                </svg>
+                <FaSyncAlt className="w-6 h-6" />
               </button>
               <button
                 onClick={() => {
@@ -316,43 +313,31 @@ function CardScannerComponent({ onScanComplete }) {
                   stopScanner();
                   handleStartScanner();
                 }}
-                className="p-3 rounded-full bg-white/10 backdrop-blur-sm
-                  text-white/60 hover:text-white transition-colors"
+                className="p-3 rounded-full bg-black text-white hover:bg-gray-700 transition-colors"
               >
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                    d="M15 10l4.553-4.553a1 1 0 00-1.414-1.414L15 8.586V3a1 1 0 00-2 0v6a1 1 0 001 1h6a1 1 0 000-2h-4.586zM9 14l-4.553 4.553a1 1 0 001.414 1.414L9 15.414V21a1 1 0 002 0v-6a1 1 0 00-1-1H3a1 1 0 000 2h4.586z" />
-                </svg>
+                <FaVideo className="w-6 h-6" />
               </button>
               <button
                 onClick={stopScanner}
-                className="p-3 rounded-full bg-white/10 backdrop-blur-sm
-                  text-white/60 hover:text-white transition-colors"
+                className="p-3 rounded-full bg-black text-white hover:bg-gray-700 transition-colors"
               >
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <FaTimes className="w-6 h-6" />
               </button>
               
               <button
                 onClick={captureImage}
                 disabled={isProcessing}
-                className="p-3 rounded-full bg-white/10 backdrop-blur-sm
-                  text-white/60 hover:text-white transition-colors
+                className="p-3 rounded-full bg-black text-white hover:bg-gray-700 transition-colors
                   disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isProcessing ? (
                   <div className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin" />
                 ) : (
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                      d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
+                  <FaCamera className="w-6 h-6" />
                 )}
               </button>
             </div>
-            <div className="text-center">
+            <div className="text-center mt-2">
               <p className="text-white/60 text-sm">
                 {isInitializing ? 'Initializing camera...' : 
                  isProcessing ? 'Processing card...' : 
