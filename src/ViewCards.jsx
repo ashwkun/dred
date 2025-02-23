@@ -6,111 +6,7 @@ import CryptoJS from "crypto-js";
 import LogoWithFallback from "./LogoWithFallback";
 import { securityManager } from "./utils/security";
 
-const styleConfig = {
-  // Container for each card - add position relative for hover context
-  cardWrapper: {
-    position: 'relative',
-    width: 'fit-content',
-    margin: '16px',
-    zIndex: 10, // Lower than the header/footer
-  },
-  cardContainer: {
-    width: '100%',
-    maxWidth: '384px',
-    height: '224px',
-    margin: '0 auto',
-    borderRadius: '16px',
-    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
-    overflow: 'hidden',
-    color: 'white',
-    background: 'rgba(255, 255, 255, 0.1)',
-    backdropFilter: 'blur(8px)',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
-    position: 'relative',
-  },
-  // Bank logo position & size
-  bankLogoStyle: {
-    position: 'absolute',
-    top: '16px',
-    left: '16px',
-    width: '84px',
-    height: '36px',
-  },
-  // Card name (top right)
-  cardNameStyle: {
-    position: 'absolute',
-    top: '10px',
-    right: '16px',
-    fontSize: '18px',
-    fontWeight: '600',
-    textAlign: 'right',
-    letterSpacing: '0.025em',
-  },
-  // Middle container for card number or CVV/expiry
-  middleContainerStyle: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: '100%',
-    padding: '0 16px',
-  },
-  cardNumberTextStyle: {
-    fontSize: '22px',
-    letterSpacing: '0.1em',
-    textAlign: 'center',
-    fontWeight: '500',
-  },
-  cvvExpiryTextStyle: {
-    fontSize: '18px',
-    letterSpacing: '0.05em',
-    textAlign: 'center',
-    lineHeight: '1.5',
-    fontWeight: '500',
-  },
-  cardHolderStyle: {
-    position: 'absolute',
-    bottom: '16px',
-    left: '16px',
-    fontSize: '14px',
-    fontWeight: '500',
-    textAlign: 'left',
-    letterSpacing: '0.025em',
-  },
-  buttonStyle: {
-    position: 'absolute',
-    bottom: '16px',
-    left: '50%',
-    transform: 'translateX(-50%)',
-    padding: '4px 12px',
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    border: 'none',
-    borderRadius: '8px',
-    fontSize: '12px',
-    color: 'white',
-    cursor: 'pointer',
-    textAlign: 'center',
-  },
-  networkLogoStyle: {
-    position: 'absolute',
-    bottom: '5px',
-    right: '16px',
-    width: '70px',
-    height: '50px',
-  },
-};
-
-// Grid container for the cards
-const gridContainerStyle = {
-  display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-  gap: '24px',
-  width: '100%',
-  maxWidth: '1200px',
-  margin: '24px auto',
-  padding: '0 8px',
-};
-
-function ViewCards({ user, masterPassword }) {
+function ViewCards({ user, masterPassword, setActivePage }) {
   const [cards, setCards] = useState([]);
   const [showDetails, setShowDetails] = useState({});
   const [error, setError] = useState(null);
@@ -177,6 +73,10 @@ function ViewCards({ user, masterPassword }) {
     }
   };
 
+  const handleViewDetails = (cardId) => {
+    setShowDetails(prev => ({ ...prev, [cardId]: !prev[cardId] }));
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[200px]">
@@ -200,111 +100,144 @@ function ViewCards({ user, masterPassword }) {
   }
 
   return (
-    <div className="md:pb-0 mb-16 md:mb-0">
-      <div style={gridContainerStyle}>
-        {cards.length === 0 ? (
-          <p style={{ textAlign: 'center', color: 'gray' }}>No saved cards yet.</p>
-        ) : (
-          cards.map((card) => {
-            const decryptedTheme = decryptField(card.theme);
-            const decryptedBankName = decryptField(card.bankName);
-            const decryptedNetworkName = decryptField(card.networkName);
-            const decryptedCardType = decryptField(card.cardType);
-            const decryptedCardNumber = decryptField(card.cardNumber);
-            const decryptedCardHolder = decryptField(card.cardHolder);
-            const decryptedCVV = decryptField(card.cvv);
-            const decryptedExpiry = decryptField(card.expiry);
-            const isShowingDetails = showDetails[card.id];
+    <div className="container mx-auto px-4 py-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        {cards.map((card) => {
+          const decryptedTheme = decryptField(card.theme);
+          const decryptedBankName = decryptField(card.bankName);
+          const decryptedNetworkName = decryptField(card.networkName);
+          const decryptedCardType = decryptField(card.cardType);
+          const decryptedCardNumber = decryptField(card.cardNumber);
+          const decryptedCardHolder = decryptField(card.cardHolder);
+          const decryptedCVV = decryptField(card.cvv);
+          const decryptedExpiry = decryptField(card.expiry);
+          const isShowingDetails = showDetails[card.id];
 
-            return (
-              <div 
-                key={card.id} 
-                className="card-wrapper"
-              >
-                <div style={{ ...styleConfig.cardContainer }}>
-                  {/* Base theme color with reduced opacity */}
-                  <div 
-                    style={{ 
-                      position: 'absolute',
-                      inset: 0,
-                      background: decryptedTheme,
-                      opacity: 0.3,
-                    }} 
-                  />
+          return (
+            <div key={card.id} className="group">
+              {/* Card Container */}
+              <div className="relative w-full aspect-[1.586/1] rounded-2xl overflow-hidden">
+                {/* Theme Background with reduced opacity */}
+                <div 
+                  className="absolute inset-0 transition-all duration-500"
+                  style={{ 
+                    background: decryptedTheme,
+                    opacity: 0.15,
+                  }}
+                />
 
-                  {/* Glass overlay */}
-                  <div 
-                    style={{ 
-                      position: 'absolute',
-                      inset: 0,
-                      backdropFilter: 'blur(8px)',
-                      background: 'rgba(255, 255, 255, 0.05)',
-                      borderRadius: '12px',
-                    }} 
-                  />
+                {/* Glassmorphic Layers */}
+                <div className="absolute inset-0 backdrop-blur-md bg-white/5" />
+                <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent" />
+                <div className="absolute inset-0 shadow-[inset_0_0_100px_rgba(0,0,0,0.1)]" />
 
-                  {/* Card content */}
-                  <div style={{ 
-                    position: 'relative', 
-                    height: '100%',
-                  }}>
-                    <div style={styleConfig.bankLogoStyle}>
+                {/* Card Content */}
+                <div className="relative h-full p-6 flex flex-col justify-between">
+                  {/* Top Section */}
+                  <div className="flex justify-between items-start">
+                    {/* Bank Logo */}
+                    <div className="h-8 w-32 opacity-90 transform transition-all duration-300">
                       <LogoWithFallback
                         logoName={decryptedBankName}
                         logoType="bank"
-                        style={{
-                          width: styleConfig.bankLogoStyle.width,
-                          height: styleConfig.bankLogoStyle.height,
-                          objectFit: 'contain',
-                        }}
+                        className="h-full w-full object-contain object-left"
                       />
                     </div>
-
-                    <div style={styleConfig.cardNameStyle}>{decryptedCardType}</div>
-
-                    <div style={styleConfig.middleContainerStyle}>
-                      {isShowingDetails ? (
-                        <div style={styleConfig.cvvExpiryTextStyle}>
-                          <p>CVV: {decryptedCVV}</p>
-                          <p>Expiry: {decryptedExpiry}</p>
-                        </div>
-                      ) : (
-                        <div style={styleConfig.cardNumberTextStyle}>
-                          {decryptedCardNumber.replace(/(.{4})/g, "$1 ").trim()}
-                        </div>
-                      )}
+                    {/* Card Type */}
+                    <div className="text-white/80 text-sm font-medium">
+                      {decryptedCardType}
                     </div>
+                  </div>
 
-                    <div style={{ position: 'relative' }}>
-                      <div style={styleConfig.cardHolderStyle}>
-                        <span style={{ fontSize: '14px' }}>{decryptedCardHolder}</span>
-                      </div>
-
-                      <button
-                        onClick={() => setShowDetails((prev) => ({ ...prev, [card.id]: !prev[card.id] }))}
-                        style={styleConfig.buttonStyle}
+                  {/* Middle Section - Card Number/Details */}
+                  <div className="relative flex items-center justify-center py-4">
+                    <div className={`transition-all duration-300 ${
+                      isShowingDetails ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
+                    }`}>
+                      <div className="text-xl md:text-2xl text-white font-light tracking-wider 
+                        font-mono"
                       >
-                        {isShowingDetails ? "Hide Details" : "Show CVV/Expiry"}
-                      </button>
-
-                      <div style={styleConfig.networkLogoStyle}>
-                        <LogoWithFallback
-                          logoName={decryptedNetworkName}
-                          logoType="network"
-                          style={{
-                            width: styleConfig.networkLogoStyle.width,
-                            height: styleConfig.networkLogoStyle.height,
-                            objectFit: 'contain',
-                          }}
-                        />
+                        {decryptedCardNumber.replace(/(.{4})/g, "$1 ").trim()}
+                      </div>
+                    </div>
+                    
+                    {/* CVV/Expiry with Fade Animation */}
+                    <div className={`absolute inset-0 flex flex-col items-center justify-center
+                      transition-all duration-300 ${
+                      isShowingDetails ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+                    }`}>
+                      <div className="space-y-2 text-center">
+                        <div className="text-white/90 font-medium">
+                          <span className="text-white/50 text-sm uppercase tracking-wider block mb-1">CVV</span>
+                          <span className="font-mono text-lg">{decryptedCVV}</span>
+                        </div>
+                        <div className="text-white/90 font-medium">
+                          <span className="text-white/50 text-sm uppercase tracking-wider block mb-1">Expires</span>
+                          <span className="font-mono text-lg">{decryptedExpiry}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
+
+                  {/* Bottom Section */}
+                  <div className="flex items-end justify-between">
+                    <div>
+                      <p className="text-white/50 text-xs uppercase tracking-wider mb-1">
+                        Card Holder
+                      </p>
+                      <p className="text-white text-sm font-medium tracking-wide">
+                        {decryptedCardHolder}
+                      </p>
+                    </div>
+                    <div className="h-10 w-16">
+                      <LogoWithFallback
+                        logoName={decryptedNetworkName}
+                        logoType="network"
+                        className="h-full w-full object-contain object-right"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Hover Overlay with Button */}
+                  <div className="absolute inset-0 flex items-center justify-center 
+                    bg-black/0 hover:bg-black/20 transition-all duration-300
+                    opacity-0 group-hover:opacity-100">
+                    <button
+                      onClick={() => setShowDetails(prev => ({ ...prev, [card.id]: !prev[card.id] }))}
+                      className="px-4 py-2 rounded-lg bg-white/10 backdrop-blur-md 
+                        border border-white/20 text-white text-sm font-medium
+                        hover:bg-white/20 transition-all duration-200
+                        transform hover:scale-105"
+                    >
+                      {isShowingDetails ? 'Hide Details' : 'Show Details'}
+                    </button>
+                  </div>
                 </div>
               </div>
-            );
-          })
-        )}
+            </div>
+          );
+        })}
+
+        {/* Add New Card Button */}
+        <button
+          onClick={() => setActivePage("addCard")}
+          className="w-full aspect-[1.586/1] rounded-2xl 
+            bg-white/5 backdrop-blur-sm border border-white/10
+            hover:bg-white/10 transition-all duration-300
+            flex flex-col items-center justify-center gap-4
+            group"
+        >
+          <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center
+            group-hover:scale-110 transition-transform duration-300">
+            <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+          </div>
+          <div>
+            <p className="text-white font-medium">Add New Card</p>
+            <p className="text-sm text-white/50">Securely store your card details</p>
+          </div>
+        </button>
       </div>
     </div>
   );
