@@ -95,9 +95,7 @@ function ViewCards({ user, masterPassword, setActivePage }) {
   };
 
   const handleAddCard = () => {
-    if (setActivePage) {
-      setActivePage("addCard");
-    }
+    setActivePage("addCard");
   };
 
   // Timer countdown component
@@ -304,7 +302,7 @@ function ViewCards({ user, masterPassword, setActivePage }) {
             bg-white/5 backdrop-blur-sm border border-white/10
             hover:bg-white/10 transition-all duration-300
             flex flex-col items-center justify-center gap-4
-            group"
+            group cursor-pointer"
         >
           <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center
             group-hover:scale-110 transition-transform duration-300">
