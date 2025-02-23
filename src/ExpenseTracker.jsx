@@ -235,25 +235,18 @@ function ExpenseTracker({ user, masterPassword }) {
   // Fetch saved cards
   useEffect(() => {
     const fetchCards = async () => {
-      if (!user || !masterPassword) return;
-      
       try {
-        const q = query(
-          collection(db, "cards"),
-          where("uid", "==", user.uid)
-        );
-        
-        const snapshot = await getDocs(q);
-        const cardsData = snapshot.docs.map(doc => ({
+        const q = query(collection(db, "cards"), where("uid", "==", user.uid));
+        const querySnapshot = await getDocs(q);
+        const fetchedCards = querySnapshot.docs.map(doc => ({
           id: doc.id,
-          ...doc.data(),
           bankName: CryptoJS.AES.decrypt(doc.data().bankName, masterPassword).toString(CryptoJS.enc.Utf8),
-          cardNumber: CryptoJS.AES.decrypt(doc.data().cardNumber, masterPassword).toString(CryptoJS.enc.Utf8)
+          cardNumber: CryptoJS.AES.decrypt(doc.data().cardNumber, masterPassword).toString(CryptoJS.enc.Utf8),
+          // ... other card fields ...
         }));
-        
-        setCards(cardsData);
+        setCards(fetchedCards);
       } catch (error) {
-        console.error('Error loading cards:', error);
+        console.error("Error fetching cards:", error);
       }
     };
 
@@ -358,10 +351,13 @@ function ExpenseTracker({ user, masterPassword }) {
     if (account.startsWith('card_')) {
       const card = cards.find(c => c.id === account);
       if (card) {
-        // Decrypt the bank name
+        // Decrypt the bank name and card number
         const bankName = CryptoJS.AES.decrypt(card.bankName, masterPassword).toString(CryptoJS.enc.Utf8);
-        const lastFourDigits = CryptoJS.AES.decrypt(card.cardNumber, masterPassword).toString(CryptoJS.enc.Utf8).slice(-4);
+        const cardNumber = CryptoJS.AES.decrypt(card.cardNumber, masterPassword).toString(CryptoJS.enc.Utf8);
+        
         const bankNameFirst = bankName.split(' ')[0];
+        const lastFourDigits = cardNumber.slice(-4);
+        
         return `${bankNameFirst}-${lastFourDigits}`;
       }
     }
