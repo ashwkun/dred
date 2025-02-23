@@ -59,13 +59,18 @@ module.exports = {
           '0%': { opacity: '0' },
           '100%': { opacity: '1' },
         },
+        pulse: {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '.5' },
+        },
       },
       animation: {
+        'spin-slow': 'spin 3s linear infinite',
+        'spin-fast': 'spin 1.5s linear infinite',
+        'pulse': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'fade-up': 'fadeUp 0.3s ease-out',
         'success-pop': 'successPop 0.4s cubic-bezier(0.19, 1, 0.22, 1)',
         'fade-in': 'fadeIn 0.2s ease-out',
-        'spin-fast': 'spin 0.7s linear infinite',
-        'spin-slow': 'spin 1.5s linear infinite',
       }
     },
   },
