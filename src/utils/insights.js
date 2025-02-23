@@ -287,6 +287,13 @@ export const calculateInsights = (transactions, monthlyBudget) => {
     categoryWise: {}
   });
 
+  // Example calculation logic
+  const investmentData = {
+    totalInvested: 10000, // Example value
+    totalReturns: 12000,  // Example value
+    investmentGrowth: 20  // Example value
+  };
+
   // Add to the return object
   return {
     thisMonthTotal,
@@ -353,6 +360,10 @@ export const calculateInsights = (transactions, monthlyBudget) => {
           return [];
         }
       })()
-    }
+    },
+    investmentData,
+    highestSpendingDay: Object.entries(dailySpending).sort(([, a], [, b]) => b - a)[0],
+    mostFrequentCategory: Object.entries(categorySpending).sort(([, a], [, b]) => b - a)[0]?.[0],
+    largestExpense: Math.max(...transactions.map(t => parseFloat(t.amount)))
   };
 }; 

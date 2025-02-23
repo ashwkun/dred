@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, AreaChart, Area 
+  PieChart, Pie, Cell, AreaChart, Area, Line
 } from 'recharts';
 import { calculateInsights } from '../utils/insights';
-import { InvestmentSection } from './InvestmentSection';
+import InvestmentSection from './InvestmentSection';
 
 const C8 = (props) => {
   console.log('C8 is being rendered with props:', props);
@@ -52,6 +52,14 @@ const InsightsView = ({ transactions, cards, monthlyBudget, onSetBudget }) => {
 
   const insights = calculateInsights(transactions, monthlyBudget);
 
+  // Ensure insights and its properties are defined
+  const merchantSpending = insights?.merchantSpending || {};
+  const categoryInsights = insights?.categoryInsights || {};
+  const weeklyAnalysis = insights?.weeklyAnalysis || {};
+  const monthlySpending = insights?.monthlySpending || {};
+  const spendingVelocity = insights?.spendingVelocity || {};
+  const investmentData = insights?.investmentData || {};
+
   return (
     <div className="space-y-6">
       {/* Tab Switcher */}
@@ -86,187 +94,24 @@ const InsightsView = ({ transactions, cards, monthlyBudget, onSetBudget }) => {
           
           {/* Weekly and Monthly Analysis */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <WeeklyAnalysisCard weeklyAnalysis={insights.weeklyAnalysis} />
-            <MonthlyTrendCard monthlySpending={insights.monthlySpending} />
+            <WeeklyAnalysisCard weeklyAnalysis={weeklyAnalysis} />
+            <MonthlyTrendCard monthlySpending={monthlySpending} />
           </div>
           
           {/* Category and Merchant Analysis */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <CategoryTrendsCard categoryInsights={insights.categoryInsights} />
+            <CategoryTrendsCard categoryInsights={categoryInsights} />
             <MerchantSummary merchantInsights={insights.merchantInsights} />
           </div>
           
           {/* Spending Velocity */}
           <SpendingVelocityCard 
-            spendingVelocity={insights.spendingVelocity} 
+            spendingVelocity={spendingVelocity} 
             monthlyBudget={monthlyBudget}
           />
           
           {/* Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 border border-white/20">
-              <h3 className="text-white/60 text-sm">This Month</h3>
-              <p className="text-2xl font-bold text-white">₹{insights.thisMonthTotal.toFixed(2)}</p>
-              <p className="text-white/60 text-sm">
-                {insights.thisMonthTotal > insights.lastMonthTotal ? '↑' : '↓'}
-                ₹{Math.abs(insights.thisMonthTotal - insights.lastMonthTotal).toFixed(2)} vs last month
-              </p>
-            </div>
-
-            <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 border border-white/20">
-              <h3 className="text-white/60 text-sm">Daily Average</h3>
-              <p className="text-2xl font-bold text-white">
-                ₹{(insights.thisMonthTotal / new Date().getDate()).toFixed(2)}
-              </p>
-            </div>
-
-            <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 border border-white/20">
-              <h3 className="text-white/60 text-sm">Avg Transaction</h3>
-              <p className="text-2xl font-bold text-white">
-                ₹{insights.avgTransactionSize.toFixed(2)}
-              </p>
-            </div>
-          </div>
-
-          {/* Spending Trends */}
-          <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 md:p-6 border border-white/20">
-            <h3 className="text-lg font-semibold text-white mb-4">Spending Trends</h3>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart
-                  data={Object.entries(insights.dailySpending).map(([date, amount]) => ({
-                    date,
-                    amount
-                  }))}
-                  margin={{ top: 10, right: 10, left: 0, bottom: 20 }}
-                >
-                  <defs>
-                    <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#4ECDC4" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="#4ECDC4" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#ffffff20" />
-                  <XAxis 
-                    dataKey="date" 
-                    stroke="#ffffff90"
-                    tick={{ fill: '#ffffff90', fontSize: 12 }}
-                  />
-                  <YAxis 
-                    stroke="#ffffff90"
-                    tick={{ fill: '#ffffff90', fontSize: 12 }}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: 'rgba(20, 20, 20, 0.95)',
-                      border: '1px solid rgba(255, 255, 255, 0.2)',
-                      borderRadius: '8px',
-                      padding: '8px 12px'
-                    }}
-                    formatter={(value, name) => [
-                      `₹${Math.round(value).toLocaleString()}`,
-                      name
-                    ]}
-                    labelFormatter={(label) => `Date: ${label}`}
-                    wrapperStyle={{ outline: 'none' }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="amount"
-                    stroke="#4ECDC4"
-                    fillOpacity={1}
-                    fill="url(#colorAmount)"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Category and Account Distribution */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 md:p-6 border border-white/20">
-              <h3 className="text-lg font-semibold text-white mb-4">Category Split</h3>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={Object.entries(insights.categorySpending)
-                        .filter(([category]) => category !== 'Investment')
-                        .map(([name, value]) => ({
-                          name,
-                          value
-                        }))}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      paddingAngle={5}
-                      dataKey="value"
-                      label={({
-                        cx, cy, midAngle, innerRadius, outerRadius, value, name, percent
-                      }) => {
-                        const RADIAN = Math.PI / 180;
-                        const radius = outerRadius * 1.2;
-                        const x = cx + radius * Math.cos(-midAngle * RADIAN);
-                        const y = cy + radius * Math.sin(-midAngle * RADIAN);
-                        return (
-                          <text
-                            x={x}
-                            y={y}
-                            fill="#ffffff"
-                            textAnchor={x > cx ? 'start' : 'end'}
-                            dominantBaseline="central"
-                            fontSize="12"
-                          >
-                            {`${name} (₹${Math.round(value).toLocaleString()}, ${(percent * 100).toFixed(0)}%)`}
-                          </text>
-                        );
-                      }}
-                    >
-                      {Object.entries(insights.categorySpending)
-                        .filter(([category]) => category !== 'Investment')
-                        .map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: 'rgba(20, 20, 20, 0.95)',
-                        border: '1px solid rgba(255, 255, 255, 0.2)',
-                        borderRadius: '8px',
-                        padding: '8px 12px'
-                      }}
-                      formatter={(value, name) => [
-                        `₹${Math.round(value).toLocaleString()}`,
-                        name
-                      ]}
-                      labelFormatter={(label) => `Date: ${label}`}
-                      wrapperStyle={{ outline: 'none' }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 md:p-6 border border-white/20">
-              <h3 className="text-lg font-semibold text-white mb-4">Top Merchants</h3>
-              <div className="space-y-2">
-                {Object.entries(insights.merchantSpending)
-                  .sort(([, a], [, b]) => b - a)
-                  .slice(0, 5)
-                  .map(([merchant, amount]) => (
-                    <div
-                      key={merchant}
-                      className="flex items-center justify-between p-3 bg-white/5 rounded-lg"
-                    >
-                      <span className="text-white">{merchant}</span>
-                      <span className="text-white font-medium">₹{amount.toFixed(2)}</span>
-                    </div>
-                  ))}
-              </div>
-            </div>
-          </div>
+          <TopMerchantsCard merchantSpending={merchantSpending} />
 
           {/* Spending Patterns */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -275,104 +120,31 @@ const InsightsView = ({ transactions, cards, monthlyBudget, onSetBudget }) => {
           </div>
 
           {/* Spending Analysis */}
-          <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 md:p-6 border border-white/20">
-            <h3 className="text-lg font-semibold text-white mb-4">Spending Analysis</h3>
-            <div className="space-y-3">
-              <div>
-                <p className="text-white/60 text-sm">Monthly Trend</p>
-                <p className="text-white">
-                  {insights.thisMonthTotal > insights.lastMonthTotal ? 'Increased' : 'Decreased'} by
-                  <span className="text-white/60 ml-2">
-                    {Math.abs(Math.round(((insights.thisMonthTotal / insights.lastMonthTotal) - 1) * 100))}%
-                  </span>
-                </p>
-              </div>
-              <div>
-                <p className="text-white/60 text-sm">Top 3 Categories</p>
-                <div className="space-y-1">
-                  {insights.topCategories.map((cat, idx) => (
-                    <p key={cat.name} className="text-white flex justify-between">
-                      <span>{cat.name}</span>
-                      <span className="text-white/60">₹{Math.round(cat.amount).toLocaleString()}</span>
-                    </p>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <p className="text-white/60 text-sm">Budget Utilization</p>
-                <p className="text-white">
-                  {Math.round(insights.budgetStatus)}% used
-                  <span className="text-white/60 ml-2">
-                    (₹{Math.round(insights.remainingBudget).toLocaleString()} remaining)
-                  </span>
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Spending Forecast */}
-          <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 md:p-6 border border-white/20">
-            <h3 className="text-lg font-semibold text-white mb-4">Spending Forecast</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <p className="text-white/60 text-sm">Projected Monthly</p>
-                <p className="text-white text-xl">₹{Math.round(insights.projectedMonthly).toLocaleString()}</p>
-                <p className="text-white/60 text-sm">based on current trend</p>
-              </div>
-              <div>
-                <p className="text-white/60 text-sm">Daily Budget</p>
-                <p className="text-white text-xl">₹{Math.round(insights.dailyBudget).toLocaleString()}</p>
-                <p className="text-white/60 text-sm">to stay within budget</p>
-              </div>
-              <div>
-                <p className="text-white/60 text-sm">Savings Potential</p>
-                <p className="text-white text-xl">₹{Math.round(insights.savingsPotential).toLocaleString()}</p>
-                <p className="text-white/60 text-sm">if following budget</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Savings Analysis */}
-          <SavingsAnalysisCard insights={insights} />
-
-          {/* New Analysis Section */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <SavingsAnalysisCard insights={insights} />
-            <SpendingHeatmapCard insights={insights} />
-          </div>
-
-          {/* Spending Goals */}
-          <SpendingGoalsCard insights={insights} monthlyBudget={monthlyBudget} />
-
-          {/* Spending Recommendations */}
           <SpendingRecommendationsCard insights={insights} />
         </div>
       ) : (
-        <InvestmentSection investments={insights.investments} />
+        <InvestmentSection insights={investmentData} />
       )}
     </div>
   );
 };
 
 const WeeklyAnalysisCard = ({ weeklyAnalysis }) => {
-  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const data = dayNames.map((day, index) => ({
-    name: day,
-    amount: weeklyAnalysis.dayWiseSpending[index] || 0
+  // Ensure weeklyAnalysis is an object
+  const data = Object.entries(weeklyAnalysis || {}).map(([day, amount]) => ({
+    day,
+    amount
   }));
-
-  const mostExpensiveDay = weeklyAnalysis.mostExpensiveDay || [];
-  const hasMostExpensiveDay = mostExpensiveDay.length === 2;
 
   return (
     <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 md:p-6 border border-white/20">
-      <h3 className="text-lg font-semibold text-white mb-4">Weekly Spending Pattern</h3>
+      <h3 className="text-lg font-semibold text-white mb-4">Weekly Analysis</h3>
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data}>
             <CartesianGrid strokeDasharray="3 3" stroke="#ffffff20" />
             <XAxis 
-              dataKey="name" 
+              dataKey="day" 
               stroke="#ffffff90"
               tick={{ fill: '#ffffff90', fontSize: 12 }}
             />
@@ -392,32 +164,6 @@ const WeeklyAnalysisCard = ({ weeklyAnalysis }) => {
             <Bar dataKey="amount" fill="#4ECDC4" />
           </BarChart>
         </ResponsiveContainer>
-      </div>
-      <div className="grid grid-cols-2 gap-4 mt-4">
-        <div>
-          <p className="text-white/60 text-sm">Weekend vs Weekday</p>
-          <p className="text-white">
-            {Math.round(weeklyAnalysis.weekendAvg || 0) > Math.round(weeklyAnalysis.weekdayAvg || 0) 
-              ? '↑ Higher weekend spending' 
-              : '↓ Lower weekend spending'}
-          </p>
-          <p className="text-white/60 text-sm">
-            ₹{Math.round(Math.abs((weeklyAnalysis.weekendAvg || 0) - (weeklyAnalysis.weekdayAvg || 0))).toLocaleString()} difference
-          </p>
-        </div>
-        <div>
-          <p className="text-white/60 text-sm">Most Expensive Day</p>
-          {hasMostExpensiveDay ? (
-            <>
-              <p className="text-white">{dayNames[mostExpensiveDay[0]]}</p>
-              <p className="text-white/60 text-sm">
-                ₹{Math.round(mostExpensiveDay[1]).toLocaleString()}
-              </p>
-            </>
-          ) : (
-            <p className="text-white/60">No data available</p>
-          )}
-        </div>
       </div>
     </div>
   );
@@ -676,53 +422,32 @@ const SavingsAnalysisCard = ({ insights }) => {
 };
 
 const SpendingHeatmapCard = ({ insights }) => {
-  // Group transactions by week and day
-  const weeklyData = Array(4).fill().map(() => Array(7).fill(0));
-  const now = new Date();
-  const thisMonth = now.getMonth();
-  const thisYear = now.getFullYear();
+  // Ensure insights and its properties are defined
+  const heatmapData = insights?.heatmapData || [];
 
-  insights.transactions.forEach(t => {
-    const date = new Date(t.date);
-    if (date.getMonth() === thisMonth && date.getFullYear() === thisYear) {
-      const week = Math.floor(date.getDate() / 7);
-      const day = date.getDay();
-      weeklyData[week][day] += parseFloat(t.amount);
-    }
+  // Process the heatmap data
+  const processedData = heatmapData.map((entry) => {
+    // Ensure each entry is an object with expected properties
+    const { date, amount } = entry || {};
+    return {
+      date: date || 'Unknown',
+      amount: amount || 0
+    };
   });
-
-  const maxAmount = Math.max(...weeklyData.flat());
 
   return (
     <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 md:p-6 border border-white/20">
-      <h3 className="text-lg font-semibold text-white mb-4">Monthly Spending Pattern</h3>
-      <div className="grid grid-cols-7 gap-2">
-        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-          <div key={day} className="text-white/60 text-xs text-center">{day}</div>
-        ))}
-        {weeklyData.flat().map((amount, idx) => (
-          <div
-            key={idx}
-            className="aspect-square rounded-lg relative group"
-            style={{
-              backgroundColor: `rgba(78, 205, 196, ${amount / maxAmount})`
-            }}
-          >
-            <div className="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 -translate-x-1/2 bg-black/90 text-white text-xs rounded px-2 py-1 whitespace-nowrap transition-opacity">
-              ₹{Math.round(amount).toLocaleString()}
-            </div>
+      <h3 className="text-lg font-semibold text-white mb-4">Spending Heatmap</h3>
+      <div className="space-y-2">
+        {processedData.map((entry, index) => (
+          <div key={index} className="flex justify-between items-center p-2 bg-white/5 rounded-lg">
+            <span className="text-white">{entry.date}</span>
+            <span className="text-white/60">₹{entry.amount.toLocaleString()}</span>
           </div>
         ))}
-      </div>
-      <div className="mt-4 flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded bg-[#4ECDC4] opacity-20"></div>
-          <span className="text-white/60 text-xs">Less</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded bg-[#4ECDC4]"></div>
-          <span className="text-white/60 text-xs">More</span>
-        </div>
+        {processedData.length === 0 && (
+          <p className="text-white/60">No heatmap data available</p>
+        )}
       </div>
     </div>
   );
@@ -797,16 +522,16 @@ const SpendingRecommendationsCard = ({ insights }) => {
     }
 
     // Category-based recommendations
-    const topCategory = insights.categoryInsights.topCategories[0];
+    const topCategory = insights.categoryInsights?.topCategories?.[0];
     if (topCategory && (topCategory.amount / insights.thisMonthTotal) > 0.4) {
       recs.push({
         type: 'info',
-        message: `${topCategory.name} makes up ${Math.round(topCategory.amount / insights.thisMonthTotal * 100)}% of your spending. Consider diversifying expenses.`
+        message: `${topCategory.name} makes up ${Math.round(topCategory.amount / insights.thisMonthTotal * 100)}% of your spending. Dyamn brother, too much.`
       });
     }
 
     // Merchant-based recommendations
-    const frequentMerchant = insights.merchantInsights.topByFrequency[0];
+    const frequentMerchant = insights.merchantInsights?.topByFrequency?.[0];
     if (frequentMerchant && frequentMerchant[1] > 5) {
       recs.push({
         type: 'tip',
@@ -815,7 +540,7 @@ const SpendingRecommendationsCard = ({ insights }) => {
     }
 
     // Weekend spending recommendations
-    if (insights.weeklyAnalysis.weekendAvg > insights.weeklyAnalysis.weekdayAvg * 1.5) {
+    if (insights.weeklyAnalysis?.weekendAvg > insights.weeklyAnalysis?.weekdayAvg * 1.5) {
       recs.push({
         type: 'warning',
         message: 'Weekend spending is significantly higher. Plan weekend activities in advance to control costs.'
@@ -848,6 +573,9 @@ const SpendingRecommendationsCard = ({ insights }) => {
             </div>
           </div>
         ))}
+        {recommendations.length === 0 && (
+          <p className="text-white/60">No recommendations available</p>
+        )}
       </div>
     </div>
   );
@@ -953,6 +681,33 @@ const SpendingPatternsCard = ({ insights }) => {
               {formatCurrency(insights.averageDailySpending)}
             </p>
           </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const TopMerchantsCard = ({ merchantSpending }) => {
+  // Ensure merchantSpending is an object
+  const topMerchants = Object.entries(merchantSpending || {})
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 5);
+
+  return (
+    <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 md:p-6 border border-white/20">
+      <h3 className="text-lg font-semibold text-white mb-4">Top Merchants</h3>
+      <div className="space-y-2">
+        {topMerchants.map(([merchant, amount]) => (
+          <div
+            key={merchant}
+            className="flex items-center justify-between p-3 bg-white/5 rounded-lg"
+          >
+            <span className="text-white">{merchant}</span>
+            <span className="text-white font-medium">₹{amount.toFixed(2)}</span>
+          </div>
+        ))}
+        {topMerchants.length === 0 && (
+          <p className="text-white/60">No merchant data available</p>
         )}
       </div>
     </div>
