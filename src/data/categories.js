@@ -110,10 +110,10 @@ export const getCategoryIcon = (categoryName) => {
   const defaultCategory = defaultCategories.find(c => c.name === categoryName);
   if (defaultCategory) return defaultCategory.icon;
 
-  // If not found in default categories, check custom categories
-  const customCategory = customCategories?.find(c => c.name === categoryName);
-  if (customCategory && customCategory.iconName) {
-    return iconMap[customCategory.iconName] || FaUtensils;
+  // For custom categories, try to get icon from iconName directly
+  if (typeof categoryName === 'string') {
+    // Try to get icon from iconMap
+    return iconMap[categoryName] || FaUtensils;
   }
 
   // Fallback to default icon

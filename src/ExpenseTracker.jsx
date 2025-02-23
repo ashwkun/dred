@@ -190,6 +190,7 @@ function ExpenseTracker({ user, masterPassword }) {
           amount: CryptoJS.AES.encrypt(newTransaction.amount.toString(), masterPassword).toString(),
           account: CryptoJS.AES.encrypt(newTransaction.account, masterPassword).toString(),
           category: newTransaction.category,
+          categoryIcon: newTransaction.categoryIcon || 'FaUtensils',
           merchant: CryptoJS.AES.encrypt(newTransaction.merchant, masterPassword).toString(),
           description: CryptoJS.AES.encrypt(newTransaction.description || '', masterPassword).toString(),
           date: newTransaction.date,
@@ -203,6 +204,7 @@ function ExpenseTracker({ user, masterPassword }) {
           amount: '',
           account: '',
           category: '',
+          categoryIcon: '',
           merchant: '',
           description: '',
           date: new Date().toISOString().split('T')[0]
@@ -465,7 +467,7 @@ function ExpenseTracker({ user, masterPassword }) {
                     className="w-full bg-white/10 rounded-lg p-3 text-left text-white hover:bg-white/20 transition-colors flex items-center justify-between"
                   >
                     <div className="flex items-center gap-2">
-                      {newTransaction.category && React.createElement(getCategoryIcon(newTransaction.category), {
+                      {newTransaction.category && React.createElement(getCategoryIcon(newTransaction.categoryIcon || 'FaUtensils'), {
                         className: "text-lg"
                       })}
                       <span>{newTransaction.category || 'Select Category'}</span>
@@ -537,7 +539,7 @@ function ExpenseTracker({ user, masterPassword }) {
                     >
                       <div className="flex items-center gap-3">
                         <div className="text-white/70">
-                          {React.createElement(getCategoryIcon(transaction.category), {
+                          {React.createElement(getCategoryIcon(transaction.categoryIcon || 'FaUtensils'), {
                             className: "text-lg"
                           })}
                         </div>
@@ -579,8 +581,13 @@ function ExpenseTracker({ user, masterPassword }) {
         isOpen={showCategorySelector}
         onClose={() => setShowCategorySelector(false)}
         onSelect={(category) => {
-          setNewTransaction({ ...newTransaction, category, merchant: '' });
-          setMerchantSuggestions(getMerchantSuggestions(category));
+          setNewTransaction({ 
+            ...newTransaction, 
+            category: category.name,
+            categoryIcon: category.iconName,
+            merchant: '' 
+          });
+          setMerchantSuggestions(getMerchantSuggestions(category.name));
         }}
         onAddCategory={() => {
           setShowCategorySelector(false);
