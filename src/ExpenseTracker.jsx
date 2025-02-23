@@ -109,6 +109,7 @@ function ExpenseTracker({ user, masterPassword }) {
   const [showAccountSelector, setShowAccountSelector] = useState(false);
   const [showMerchantSuggestions, setShowMerchantSuggestions] = useState(false);
   const merchantInputRef = useRef(null);
+  const [error, setError] = useState(null);
 
   const accounts = [
     { id: 'cash', name: 'Cash' },
@@ -128,10 +129,22 @@ function ExpenseTracker({ user, masterPassword }) {
     'Others'
   ];
 
+  const retryOperation = async (operation, maxRetries = 3) => {
+    for (let i = 0; i < maxRetries; i++) {
+      try {
+        return await operation();
+      } catch (error) {
+        if (i === maxRetries - 1) throw error;
+        await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
+      }
+    }
+  };
+
   // Define fetchTransactions first
   const fetchTransactions = async () => {
     if (!user || !masterPassword) return;
     setLoading(true);
+    setError(null);
 
     try {
       const q = query(
@@ -151,6 +164,7 @@ function ExpenseTracker({ user, masterPassword }) {
       setTransactions(fetchedTransactions);
     } catch (error) {
       console.error("Error fetching transactions:", error);
+      setError("Failed to load transactions. Please check your internet connection or disable ad-blockers.");
     } finally {
       setLoading(false);
     }
@@ -158,42 +172,43 @@ function ExpenseTracker({ user, masterPassword }) {
 
   // Then define other functions that use fetchTransactions
   const handleAddTransaction = async () => {
-    // Validate required fields
-    if (!newTransaction.amount || !newTransaction.account || !newTransaction.category || !newTransaction.merchant) {
-      // You might want to show an error message to the user
-      console.error("Please fill in all required fields");
-      return;
-    }
-
     try {
-      const encryptedTransaction = {
-        uid: user.uid,
-        amount: CryptoJS.AES.encrypt(newTransaction.amount.toString(), masterPassword).toString(),
-        account: newTransaction.account,
-        category: newTransaction.category,
-        merchant: CryptoJS.AES.encrypt(newTransaction.merchant, masterPassword).toString(),
-        description: CryptoJS.AES.encrypt(newTransaction.description || '', masterPassword).toString(),
-        date: newTransaction.date,
-        createdAt: new Date()
-      };
+      await retryOperation(async () => {
+        // Validate required fields
+        if (!newTransaction.amount || !newTransaction.account || !newTransaction.category || !newTransaction.merchant) {
+          // You might want to show an error message to the user
+          console.error("Please fill in all required fields");
+          return;
+        }
 
-      await addDoc(collection(db, "transactions"), encryptedTransaction);
-      
-      // Reset form
-      setNewTransaction({
-        amount: '',
-        account: '',
-        category: '',
-        merchant: '',
-        description: '',
-        date: new Date().toISOString().split('T')[0]
+        const encryptedTransaction = {
+          uid: user.uid,
+          amount: CryptoJS.AES.encrypt(newTransaction.amount.toString(), masterPassword).toString(),
+          account: newTransaction.account,
+          category: newTransaction.category,
+          merchant: CryptoJS.AES.encrypt(newTransaction.merchant, masterPassword).toString(),
+          description: CryptoJS.AES.encrypt(newTransaction.description || '', masterPassword).toString(),
+          date: newTransaction.date,
+          createdAt: new Date()
+        };
+
+        await addDoc(collection(db, "transactions"), encryptedTransaction);
+        
+        // Reset form
+        setNewTransaction({
+          amount: '',
+          account: '',
+          category: '',
+          merchant: '',
+          description: '',
+          date: new Date().toISOString().split('T')[0]
+        });
+        
+        // Refresh transactions list
+        await fetchTransactions();
       });
-      
-      // Refresh transactions list
-      await fetchTransactions();
     } catch (error) {
-      console.error("Error adding transaction:", error);
-      // You might want to show an error message to the user
+      setError("Failed to add transaction. Please check your connection.");
     }
   };
 
@@ -282,7 +297,7 @@ function ExpenseTracker({ user, masterPassword }) {
       const encryptedCategory = {
         uid: user.uid,
         name: CryptoJS.AES.encrypt(category.name, masterPassword).toString(),
-        icon: category.icon.name, // Store icon component name
+        icon: category.iconName, // Store the icon name instead of the component
         merchants: category.merchants.map(m => 
           CryptoJS.AES.encrypt(m, masterPassword).toString()
         ),
@@ -293,7 +308,9 @@ function ExpenseTracker({ user, masterPassword }) {
       
       setCustomCategories([...customCategories, {
         id: docRef.id,
-        ...category
+        name: category.name,
+        icon: category.icon,
+        merchants: category.merchants
       }]);
       
       setShowAddCategory(false);
@@ -324,12 +341,38 @@ function ExpenseTracker({ user, masterPassword }) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-6">
+        <div className="bg-red-500/10 text-red-500 p-4 rounded-lg mb-6">
+          <p>{error}</p>
+          <button 
+            onClick={() => {
+              setError(null);
+              fetchTransactions();
+            }}
+            className="mt-2 px-4 py-2 bg-red-500/20 rounded-lg hover:bg-red-500/30 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (loading) {
     return <LoadingOverlay message="Loading transactions" />;
   }
 
   return (
     <div className="container mx-auto px-4 py-6">
+      {/* Add warning if needed */}
+      {error && (
+        <div className="bg-yellow-500/10 text-yellow-500 p-4 rounded-lg mb-6">
+          <p>Having trouble? Try disabling your ad-blocker for this site.</p>
+        </div>
+      )}
+      
       {/* Header Section */}
       <div className="flex items-center gap-3 mb-6">
         <div className="h-12 w-12 rounded-xl bg-white/10 flex items-center justify-center">
@@ -472,7 +515,9 @@ function ExpenseTracker({ user, masterPassword }) {
                         <p className="text-white font-medium">₹{parseFloat(transaction.amount).toFixed(2)}</p>
                       </div>
                       <div className="flex items-center gap-4">
-                        <p className="text-white/60 text-sm">{transaction.account}</p>
+                        <p className="text-white/60 text-sm">
+                          {accounts.find(a => a.id === transaction.account)?.name || transaction.account}
+                        </p>
                         <button
                           onClick={() => handleDeleteTransaction(transaction.id)}
                           className="text-white/40 hover:text-white/60 transition-colors"
