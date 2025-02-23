@@ -100,6 +100,13 @@ function ExpenseTracker({ user, masterPassword }) {
   }, [user, masterPassword]);
 
   const handleAddTransaction = async () => {
+    // Validate required fields
+    if (!newTransaction.amount || !newTransaction.account || !newTransaction.category || !newTransaction.merchant) {
+      // You might want to show an error message to the user
+      console.error("Please fill in all required fields");
+      return;
+    }
+
     try {
       const encryptedTransaction = {
         uid: user.uid,
@@ -107,13 +114,14 @@ function ExpenseTracker({ user, masterPassword }) {
         account: newTransaction.account,
         category: newTransaction.category,
         merchant: CryptoJS.AES.encrypt(newTransaction.merchant, masterPassword).toString(),
-        description: CryptoJS.AES.encrypt(newTransaction.description, masterPassword).toString(),
+        description: CryptoJS.AES.encrypt(newTransaction.description || '', masterPassword).toString(),
         date: newTransaction.date,
         createdAt: new Date()
       };
 
       await addDoc(collection(db, "transactions"), encryptedTransaction);
-      setShowAddTransaction(false);
+      
+      // Reset form
       setNewTransaction({
         amount: '',
         account: '',
@@ -122,9 +130,21 @@ function ExpenseTracker({ user, masterPassword }) {
         description: '',
         date: new Date().toISOString().split('T')[0]
       });
+      
+      // Refresh transactions list
       fetchTransactions();
     } catch (error) {
       console.error("Error adding transaction:", error);
+      // You might want to show an error message to the user
+    }
+  };
+
+  const handleDeleteTransaction = async (transactionId) => {
+    try {
+      await deleteDoc(doc(db, "transactions", transactionId));
+      fetchTransactions(); // Refresh the list after deletion
+    } catch (error) {
+      console.error("Error deleting transaction:", error);
     }
   };
 
@@ -170,116 +190,135 @@ function ExpenseTracker({ user, masterPassword }) {
         </button>
       </div>
 
-      {activeView === 'transactions' ? (
-        <div className="grid gap-6">
-          {/* Add Transaction Form */}
-          <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20">
-            <div className="p-6">
-              <h2 className="text-xl font-semibold text-white mb-4">Add Transaction</h2>
-              <div className="space-y-4">
-                <input
-                  type="number"
-                  placeholder="Amount"
-                  value={newTransaction.amount}
-                  onChange={(e) => setNewTransaction({ ...newTransaction, amount: e.target.value })}
-                  className="w-full bg-white/10 rounded-lg p-3 text-white"
-                />
-                <select
-                  value={newTransaction.account}
-                  onChange={(e) => setNewTransaction({ ...newTransaction, account: e.target.value })}
-                  className="w-full bg-white/10 rounded-lg p-3 text-white"
-                >
-                  <option value="">Select Account</option>
-                  {accounts.map(account => (
-                    <option key={account.id} value={account.id}>{account.name}</option>
-                  ))}
-                </select>
-                <select
-                  value={newTransaction.category}
-                  onChange={(e) => setNewTransaction({ ...newTransaction, category: e.target.value })}
-                  className="w-full bg-white/10 rounded-lg p-3 text-white"
-                >
-                  <option value="">Select Category</option>
-                  {categories.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
-                <input
-                  type="text"
-                  placeholder="Merchant"
-                  value={newTransaction.merchant}
-                  onChange={(e) => setNewTransaction({ ...newTransaction, merchant: e.target.value })}
-                  className="w-full bg-white/10 rounded-lg p-3 text-white"
-                />
-                <input
-                  type="text"
-                  placeholder="Description (optional)"
-                  value={newTransaction.description}
-                  onChange={(e) => setNewTransaction({ ...newTransaction, description: e.target.value })}
-                  className="w-full bg-white/10 rounded-lg p-3 text-white"
-                />
-                <input
-                  type="date"
-                  value={newTransaction.date}
-                  onChange={(e) => setNewTransaction({ ...newTransaction, date: e.target.value })}
-                  className="w-full bg-white/10 rounded-lg p-3 text-white"
-                />
-                <button
-                  onClick={handleAddTransaction}
-                  className="w-full bg-white/10 hover:bg-white/20 rounded-lg p-3 text-white transition-colors"
-                >
-                  Add Transaction
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Transactions List */}
-          <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20">
-            <div className="p-6">
-              <h2 className="text-xl font-semibold text-white mb-4">Recent Transactions</h2>
-              <div className="space-y-4">
-                {transactions.map((transaction) => (
-                  <div 
-                    key={transaction.id}
-                    className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10"
+      {/* Content Section - Wrap in a div */}
+      <div>
+        {activeView === 'transactions' ? (
+          <div className="grid gap-6">
+            {/* Add Transaction Form */}
+            <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20">
+              <div className="p-6">
+                <h2 className="text-xl font-semibold text-white mb-4">Add Transaction</h2>
+                <div className="space-y-4">
+                  <input
+                    type="number"
+                    placeholder="Amount"
+                    value={newTransaction.amount}
+                    onChange={(e) => setNewTransaction({ ...newTransaction, amount: e.target.value })}
+                    className="w-full bg-white/10 rounded-lg p-3 text-white"
+                  />
+                  <select
+                    value={newTransaction.account}
+                    onChange={(e) => setNewTransaction({ ...newTransaction, account: e.target.value })}
+                    className="w-full bg-white/10 rounded-lg p-3 text-white appearance-none hover:bg-white/20 transition-colors cursor-pointer
+                      border border-white/10 focus:outline-none focus:border-white/30"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='white' opacity='0.5'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E")`,
+                      backgroundRepeat: 'no-repeat',
+                      backgroundPosition: 'right 1rem center'
+                    }}
                   >
-                    <div className="flex-1">
-                      <p className="text-white font-medium">{transaction.merchant}</p>
-                      <p className="text-white/60 text-sm">
-                        {transaction.category} • {transaction.account} • {transaction.date}
-                      </p>
-                      {transaction.description && (
-                        <p className="text-white/40 text-sm mt-1">{transaction.description}</p>
-                      )}
+                    <option value="" disabled className="bg-gray-800">Select Account</option>
+                    {accounts.map(account => (
+                      <option key={account.id} value={account.id} className="bg-gray-800">
+                        {account.name}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    value={newTransaction.category}
+                    onChange={(e) => setNewTransaction({ ...newTransaction, category: e.target.value })}
+                    className="w-full bg-white/10 rounded-lg p-3 text-white appearance-none hover:bg-white/20 transition-colors cursor-pointer
+                      border border-white/10 focus:outline-none focus:border-white/30"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='white' opacity='0.5'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E")`,
+                      backgroundRepeat: 'no-repeat',
+                      backgroundPosition: 'right 1rem center'
+                    }}
+                  >
+                    <option value="" disabled className="bg-gray-800">Select Category</option>
+                    {categories.map(cat => (
+                      <option key={cat} value={cat} className="bg-gray-800">
+                        {cat}
+                      </option>
+                    ))}
+                  </select>
+                  <input
+                    type="text"
+                    placeholder="Merchant"
+                    value={newTransaction.merchant}
+                    onChange={(e) => setNewTransaction({ ...newTransaction, merchant: e.target.value })}
+                    className="w-full bg-white/10 rounded-lg p-3 text-white"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Description (optional)"
+                    value={newTransaction.description}
+                    onChange={(e) => setNewTransaction({ ...newTransaction, description: e.target.value })}
+                    className="w-full bg-white/10 rounded-lg p-3 text-white"
+                  />
+                  <input
+                    type="date"
+                    value={newTransaction.date}
+                    onChange={(e) => setNewTransaction({ ...newTransaction, date: e.target.value })}
+                    className="w-full bg-white/10 rounded-lg p-3 text-white"
+                  />
+                  <button
+                    onClick={handleAddTransaction}
+                    className="w-full bg-white/10 hover:bg-white/20 rounded-lg p-3 text-white transition-colors"
+                  >
+                    Add Transaction
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Transactions List */}
+            <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20">
+              <div className="p-6">
+                <h2 className="text-xl font-semibold text-white mb-4">Recent Transactions</h2>
+                <div className="space-y-4">
+                  {transactions.map((transaction) => (
+                    <div 
+                      key={transaction.id}
+                      className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10"
+                    >
+                      <div className="flex-1">
+                        <p className="text-white font-medium">{transaction.merchant}</p>
+                        <p className="text-white/60 text-sm">
+                          {transaction.category} • {transaction.account} • {transaction.date}
+                        </p>
+                        {transaction.description && (
+                          <p className="text-white/40 text-sm mt-1">{transaction.description}</p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <p className="text-white font-medium">₹{parseFloat(transaction.amount).toFixed(2)}</p>
+                        <button
+                          onClick={() => handleDeleteTransaction(transaction.id)}
+                          className="text-white/60 hover:text-white transition-colors"
+                        >
+                          <BiTrash />
+                        </button>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-4">
-                      <p className="text-white font-medium">₹{parseFloat(transaction.amount).toFixed(2)}</p>
-                      <button
-                        onClick={() => handleDeleteTransaction(transaction.id)}
-                        className="text-white/60 hover:text-white transition-colors"
-                      >
-                        <BiTrash />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-                {transactions.length === 0 && (
-                  <p className="text-white/60 text-center py-4">
-                    No transactions recorded yet. Add your first transaction!
-                  </p>
-                )}
+                  ))}
+                  {transactions.length === 0 && (
+                    <p className="text-white/60 text-center py-4">
+                      No transactions recorded yet. Add your first transaction!
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      ) : (
-        // Insights View (to be implemented)
-        <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 p-6">
-          <h2 className="text-xl font-semibold text-white mb-4">Spending Insights</h2>
-          {/* Add your insights components here */}
-        </div>
-      )}
+        ) : (
+          // Insights View
+          <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 p-6">
+            <h2 className="text-xl font-semibold text-white mb-4">Spending Insights</h2>
+            {/* Add your insights components here */}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
