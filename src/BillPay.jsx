@@ -115,10 +115,15 @@ export default function BillPay({ user, masterPassword }) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[300px]">
-        <div className="flex flex-col items-center gap-4">
-          <LoadingSpinner size="lg" />
-          <p className="text-white/70 animate-pulse">Loading your cards...</p>
+      <div className="fixed inset-0 flex items-center justify-center bg-black/20 backdrop-blur-md">
+        <div className="flex flex-col items-center gap-8">
+          <div className="bg-white/5 backdrop-blur-xl p-8 rounded-2xl border border-white/10">
+            <LoadingSpinner size="lg" />
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <p className="text-xl font-medium text-white">Loading your cards</p>
+            <p className="text-white/70 animate-pulse">Please wait...</p>
+          </div>
         </div>
       </div>
     );

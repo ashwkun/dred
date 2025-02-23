@@ -6,6 +6,7 @@ import binData from "./binData.json";
 import CardCustomization from "./CardCustomization";
 import { securityManager } from './utils/security';
 import { BiAddToQueue } from 'react-icons/bi';
+import LoadingSpinner from './LoadingSpinner';
 
 function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
   const [cardHolder, setCardHolder] = useState(user?.displayName || ""); // Editable
@@ -256,8 +257,10 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
                 >
                   {isLoading ? (
                     <div className="flex items-center justify-center">
-                      <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin mr-2" />
-                      Adding Card...
+                      <div className="scale-75">
+                        <LoadingSpinner size="sm" />
+                      </div>
+                      <span className="ml-3">Adding Card...</span>
                     </div>
                   ) : (
                     'Add Card'
