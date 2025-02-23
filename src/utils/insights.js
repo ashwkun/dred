@@ -144,7 +144,7 @@ export const calculateInsights = (transactions, monthlyBudget) => {
       .slice(0, 3)
       .map(([, amount]) => amount);
 
-    const avgMonthlyInvestment = last3Months.reduce((sum, amt) => sum + amt, 0) / last3Months.length;
+    const avgMonthlyInvestment = last3Months.reduce((sum, amt) => sum + amt, 0) / last3Months.length || 0;
 
     // Project future investments assuming same monthly investment
     const projectedSIP = {
@@ -170,8 +170,14 @@ export const calculateInsights = (transactions, monthlyBudget) => {
       };
     });
 
-    return projectedSIP;
+    return {
+      projectedSIP,
+      avgMonthlyInvestment,
+      last3Months
+    };
   };
+
+  const sipTrends = calculateSIPTrend(transactions);
 
   // Add these new calculations in calculateInsights
   // Weekly patterns
@@ -290,11 +296,13 @@ export const calculateInsights = (transactions, monthlyBudget) => {
     daysLeft: daysInMonth - today,
     investments: {
       ...investmentInsights,
-      sipProjections: calculateSIPTrend(transactions),
+      sipProjections: sipTrends.projectedSIP,
       investmentTrends: {
-        monthlyAverage: avgMonthlyInvestment,
-        consistency: last3Months.length === 3 ? 'Regular' : 'Irregular',
-        growthRate: ((last3Months[0] / last3Months[2]) - 1) * 100
+        monthlyAverage: sipTrends.avgMonthlyInvestment,
+        consistency: sipTrends.last3Months.length === 3 ? 'Regular' : 'Irregular',
+        growthRate: sipTrends.last3Months.length >= 2 
+          ? ((sipTrends.last3Months[0] / sipTrends.last3Months[sipTrends.last3Months.length - 1]) - 1) * 100 
+          : 0
       }
     },
     weeklyAnalysis: {
