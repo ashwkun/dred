@@ -193,8 +193,13 @@ function CardScannerComponent({ onScanComplete }) {
       const ctx = canvas.getContext('2d');
       ctx.drawImage(video, 0, 0);
 
-      // Process with Tesseract
-      const worker = await createWorker();
+      // Initialize Tesseract with specific CDN
+      const worker = await createWorker({
+        workerPath: 'https://unpkg.com/tesseract.js@v4.0.0/dist/worker.min.js',
+        langPath: 'https://unpkg.com/tesseract.js-core@v4.0.0/tesseract-core.wasm.js',
+        corePath: 'https://unpkg.com/tesseract.js-core@v4.0.0/tesseract-core.wasm.js',
+      });
+
       await worker.loadLanguage('eng');
       await worker.initialize('eng');
       
