@@ -330,13 +330,29 @@ export const calculateInsights = (transactions, monthlyBudget) => {
     },
     spendingVelocity,
     merchantInsights: {
-      topByFrequency: Object.entries(merchantAnalytics.frequency || {})
-        .sort(([, a], [, b]) => b - a)
-        .slice(0, 5),
+      topByFrequency: (() => {
+        try {
+          const frequency = merchantAnalytics.frequency || {};
+          return Object.entries(frequency)
+            .sort(([, a], [, b]) => b - a)
+            .slice(0, 5);
+        } catch (error) {
+          console.error('Error processing merchant frequency:', error);
+          return [];
+        }
+      })(),
       categoryDistribution: merchantAnalytics.categoryWise || {},
-      recentTransactions: (merchantAnalytics.recent || [])
-        .sort((a, b) => b.date - a.date)
-        .slice(0, 10)
+      recentTransactions: (() => {
+        try {
+          const recent = merchantAnalytics.recent || [];
+          return [...recent]
+            .sort((a, b) => new Date(b.date) - new Date(a.date))
+            .slice(0, 10);
+        } catch (error) {
+          console.error('Error processing recent transactions:', error);
+          return [];
+        }
+      })()
     }
   };
 }; 
