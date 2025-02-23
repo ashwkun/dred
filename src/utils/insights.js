@@ -137,6 +137,144 @@ export const calculateInsights = (transactions, monthlyBudget) => {
     fiveYear: Object.values(projectedReturns).reduce((sum, p) => sum + p.fiveYear, 0)
   };
 
+  // Add these calculations to the investment insights
+  const calculateSIPTrend = (transactions) => {
+    // Get last 3 months of investments
+    const last3Months = Object.entries(investmentInsights.monthlyInvestments)
+      .slice(0, 3)
+      .map(([, amount]) => amount);
+
+    const avgMonthlyInvestment = last3Months.reduce((sum, amt) => sum + amt, 0) / last3Months.length;
+
+    // Project future investments assuming same monthly investment
+    const projectedSIP = {
+      monthly: avgMonthlyInvestment,
+      yearlyContribution: avgMonthlyInvestment * 12,
+      fiveYearContribution: avgMonthlyInvestment * 12 * 5
+    };
+
+    // Calculate returns with compound interest (monthly compounding)
+    const calculateSIPReturns = (monthly, years, rate) => {
+      const monthlyRate = rate / 12;
+      const months = years * 12;
+      return monthly * (Math.pow(1 + monthlyRate, months) - 1) / monthlyRate * (1 + monthlyRate);
+    };
+
+    // Calculate for each instrument type
+    Object.entries(investmentInsights.instrumentWise).forEach(([instrument, amount]) => {
+      const rate = ROI_RATES[instrument] || 0.10;
+      projectedReturns[instrument] = {
+        ...projectedReturns[instrument],
+        sipOneYear: calculateSIPReturns(avgMonthlyInvestment, 1, rate),
+        sipFiveYear: calculateSIPReturns(avgMonthlyInvestment, 5, rate)
+      };
+    });
+
+    return projectedSIP;
+  };
+
+  // Add these new calculations in calculateInsights
+  // Weekly patterns
+  const weeklyPatterns = nonInvestmentTransactions.reduce((acc, t) => {
+    const date = new Date(t.date);
+    const dayOfWeek = date.getDay();
+    const amount = parseFloat(t.amount);
+    
+    acc.dayWise[dayOfWeek] = (acc.dayWise[dayOfWeek] || 0) + amount;
+    acc.weekendTotal += (dayOfWeek === 0 || dayOfWeek === 6) ? amount : 0;
+    acc.weekdayTotal += (dayOfWeek > 0 && dayOfWeek < 6) ? amount : 0;
+    acc.count.weekend += (dayOfWeek === 0 || dayOfWeek === 6) ? 1 : 0;
+    acc.count.weekday += (dayOfWeek > 0 && dayOfWeek < 6) ? 1 : 0;
+    
+    return acc;
+  }, { 
+    dayWise: {}, 
+    weekendTotal: 0, 
+    weekdayTotal: 0, 
+    count: { weekend: 0, weekday: 0 } 
+  });
+
+  // Category frequency and trends
+  const categoryAnalysis = nonInvestmentTransactions.reduce((acc, t) => {
+    const category = t.category;
+    const amount = parseFloat(t.amount);
+    const date = new Date(t.date);
+    const month = date.getMonth();
+    
+    // Frequency
+    acc.frequency[category] = (acc.frequency[category] || 0) + 1;
+    
+    // Monthly trends
+    if (!acc.monthlyTrends[category]) {
+      acc.monthlyTrends[category] = {};
+    }
+    acc.monthlyTrends[category][month] = (acc.monthlyTrends[category][month] || 0) + amount;
+    
+    // Average transaction size
+    if (!acc.avgSize[category]) {
+      acc.avgSize[category] = { total: 0, count: 0 };
+    }
+    acc.avgSize[category].total += amount;
+    acc.avgSize[category].count += 1;
+    
+    return acc;
+  }, { 
+    frequency: {}, 
+    monthlyTrends: {}, 
+    avgSize: {} 
+  });
+
+  // Calculate top categories by frequency and amount
+  const topCategories = Object.entries(categorySpending)
+    .map(([name, amount]) => ({
+      name,
+      amount,
+      frequency: categoryAnalysis.frequency[name] || 0,
+      avgTransaction: amount / (categoryAnalysis.frequency[name] || 1)
+    }))
+    .sort((a, b) => b.amount - a.amount)
+    .slice(0, 5);
+
+  // Calculate spending velocity and projections
+  const spendingVelocity = {
+    daily: thisMonthTotal / today,
+    projected: (thisMonthTotal / today) * daysInMonth,
+    trend: (thisMonthTotal / lastMonthTotal - 1) * 100,
+    daysOverBudget: Object.entries(dailySpending)
+      .filter(([, amount]) => amount > dailyBudget).length
+  };
+
+  // Calculate merchant analytics
+  const merchantAnalytics = nonInvestmentTransactions.reduce((acc, t) => {
+    const merchant = t.merchant;
+    const amount = parseFloat(t.amount);
+    const date = new Date(t.date);
+    
+    // Frequency
+    acc.frequency[merchant] = (acc.frequency[merchant] || 0) + 1;
+    
+    // Recent transactions
+    acc.recent.push({
+      merchant,
+      amount,
+      date,
+      category: t.category
+    });
+    
+    // Category distribution
+    if (!acc.categoryWise[t.category]) {
+      acc.categoryWise[t.category] = {};
+    }
+    acc.categoryWise[t.category][merchant] = (acc.categoryWise[t.category][merchant] || 0) + amount;
+    
+    return acc;
+  }, {
+    frequency: {},
+    recent: [],
+    categoryWise: {}
+  });
+
+  // Add to the return object
   return {
     thisMonthTotal,
     lastMonthTotal,
@@ -150,6 +288,39 @@ export const calculateInsights = (transactions, monthlyBudget) => {
     budgetStatus,
     avgTransactionSize,
     daysLeft: daysInMonth - today,
-    investments: investmentInsights
+    investments: {
+      ...investmentInsights,
+      sipProjections: calculateSIPTrend(transactions),
+      investmentTrends: {
+        monthlyAverage: avgMonthlyInvestment,
+        consistency: last3Months.length === 3 ? 'Regular' : 'Irregular',
+        growthRate: ((last3Months[0] / last3Months[2]) - 1) * 100
+      }
+    },
+    weeklyAnalysis: {
+      mostExpensiveDay: Object.entries(weeklyPatterns.dayWise)
+        .sort(([, a], [, b]) => b - a)[0],
+      weekendAvg: weeklyPatterns.weekendTotal / (weeklyPatterns.count.weekend || 1),
+      weekdayAvg: weeklyPatterns.weekdayTotal / (weeklyPatterns.count.weekday || 1),
+      dayWiseSpending: weeklyPatterns.dayWise
+    },
+    categoryInsights: {
+      topCategories,
+      trends: categoryAnalysis.monthlyTrends,
+      averageSize: Object.entries(categoryAnalysis.avgSize).reduce((acc, [cat, data]) => {
+        acc[cat] = data.total / data.count;
+        return acc;
+      }, {})
+    },
+    spendingVelocity,
+    merchantInsights: {
+      topByFrequency: Object.entries(merchantAnalytics.frequency)
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 5),
+      categoryDistribution: merchantAnalytics.categoryWise,
+      recentTransactions: merchantAnalytics.recent
+        .sort((a, b) => b.date - a.date)
+        .slice(0, 10)
+    }
   };
 }; 
