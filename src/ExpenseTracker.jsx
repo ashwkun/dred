@@ -135,51 +135,104 @@ function ExpenseTracker({ user, masterPassword }) {
   return (
     <div className="container mx-auto px-4 py-6">
       {/* Header Section */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <div className="h-12 w-12 rounded-xl bg-white/10 flex items-center justify-center">
-            <BiReceipt className="text-2xl text-white" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-white">Expenses</h1>
-            <p className="text-white/60">Track your spending</p>
-          </div>
+      <div className="flex items-center gap-3 mb-6">
+        <div className="h-12 w-12 rounded-xl bg-white/10 flex items-center justify-center">
+          <BiReceipt className="text-2xl text-white" />
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setActiveView('transactions')}
-            className={`px-4 py-2 rounded-lg transition-colors ${
-              activeView === 'transactions' 
-                ? 'bg-white/20 text-white' 
-                : 'text-white/70 hover:bg-white/10'
-            }`}
-          >
-            Transactions
-          </button>
-          <button
-            onClick={() => setActiveView('insights')}
-            className={`px-4 py-2 rounded-lg transition-colors ${
-              activeView === 'insights' 
-                ? 'bg-white/20 text-white' 
-                : 'text-white/70 hover:bg-white/10'
-            }`}
-          >
-            <BiLineChart className="inline mr-1" />
-            Insights
-          </button>
+        <div>
+          <h1 className="text-2xl font-bold text-white">Expenses</h1>
+          <p className="text-white/60">Track your spending</p>
         </div>
       </div>
 
+      {/* Section Switcher */}
+      <div className="flex gap-2 mb-6 bg-white/5 p-1 rounded-lg">
+        <button
+          onClick={() => setActiveView('transactions')}
+          className={`flex-1 px-4 py-2 rounded-lg transition-colors ${
+            activeView === 'transactions' 
+              ? 'bg-white/20 text-white' 
+              : 'text-white/70 hover:bg-white/10'
+          }`}
+        >
+          Add Transaction
+        </button>
+        <button
+          onClick={() => setActiveView('insights')}
+          className={`flex-1 px-4 py-2 rounded-lg transition-colors ${
+            activeView === 'insights' 
+              ? 'bg-white/20 text-white' 
+              : 'text-white/70 hover:bg-white/10'
+          }`}
+        >
+          <BiLineChart className="inline mr-1" />
+          Insights
+        </button>
+      </div>
+
       {activeView === 'transactions' ? (
-        <>
-          {/* Add Transaction Button */}
-          <button
-            onClick={() => setShowAddTransaction(true)}
-            className="w-full mb-4 bg-white/10 hover:bg-white/20 rounded-xl p-4 text-white transition-colors flex items-center justify-center gap-2"
-          >
-            <BiPlus className="text-xl" />
-            Add Transaction
-          </button>
+        <div className="grid gap-6">
+          {/* Add Transaction Form */}
+          <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20">
+            <div className="p-6">
+              <h2 className="text-xl font-semibold text-white mb-4">Add Transaction</h2>
+              <div className="space-y-4">
+                <input
+                  type="number"
+                  placeholder="Amount"
+                  value={newTransaction.amount}
+                  onChange={(e) => setNewTransaction({ ...newTransaction, amount: e.target.value })}
+                  className="w-full bg-white/10 rounded-lg p-3 text-white"
+                />
+                <select
+                  value={newTransaction.account}
+                  onChange={(e) => setNewTransaction({ ...newTransaction, account: e.target.value })}
+                  className="w-full bg-white/10 rounded-lg p-3 text-white"
+                >
+                  <option value="">Select Account</option>
+                  {accounts.map(account => (
+                    <option key={account.id} value={account.id}>{account.name}</option>
+                  ))}
+                </select>
+                <select
+                  value={newTransaction.category}
+                  onChange={(e) => setNewTransaction({ ...newTransaction, category: e.target.value })}
+                  className="w-full bg-white/10 rounded-lg p-3 text-white"
+                >
+                  <option value="">Select Category</option>
+                  {categories.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+                <input
+                  type="text"
+                  placeholder="Merchant"
+                  value={newTransaction.merchant}
+                  onChange={(e) => setNewTransaction({ ...newTransaction, merchant: e.target.value })}
+                  className="w-full bg-white/10 rounded-lg p-3 text-white"
+                />
+                <input
+                  type="text"
+                  placeholder="Description (optional)"
+                  value={newTransaction.description}
+                  onChange={(e) => setNewTransaction({ ...newTransaction, description: e.target.value })}
+                  className="w-full bg-white/10 rounded-lg p-3 text-white"
+                />
+                <input
+                  type="date"
+                  value={newTransaction.date}
+                  onChange={(e) => setNewTransaction({ ...newTransaction, date: e.target.value })}
+                  className="w-full bg-white/10 rounded-lg p-3 text-white"
+                />
+                <button
+                  onClick={handleAddTransaction}
+                  className="w-full bg-white/10 hover:bg-white/20 rounded-lg p-3 text-white transition-colors"
+                >
+                  Add Transaction
+                </button>
+              </div>
+            </div>
+          </div>
 
           {/* Transactions List */}
           <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20">
@@ -219,7 +272,7 @@ function ExpenseTracker({ user, masterPassword }) {
               </div>
             </div>
           </div>
-        </>
+        </div>
       ) : (
         // Insights View (to be implemented)
         <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 p-6">
@@ -227,66 +280,6 @@ function ExpenseTracker({ user, masterPassword }) {
           {/* Add your insights components here */}
         </div>
       )}
-
-      {/* Add Transaction Dialog */}
-      <Dialog
-        isOpen={showAddTransaction}
-        onClose={() => setShowAddTransaction(false)}
-        title="Add Transaction"
-        message={
-          <div className="space-y-4">
-            <input
-              type="number"
-              placeholder="Amount"
-              value={newTransaction.amount}
-              onChange={(e) => setNewTransaction({ ...newTransaction, amount: e.target.value })}
-              className="w-full bg-white/10 rounded-lg p-3 text-white"
-            />
-            <select
-              value={newTransaction.account}
-              onChange={(e) => setNewTransaction({ ...newTransaction, account: e.target.value })}
-              className="w-full bg-white/10 rounded-lg p-3 text-white"
-            >
-              <option value="">Select Account</option>
-              {accounts.map(account => (
-                <option key={account.id} value={account.id}>{account.name}</option>
-              ))}
-            </select>
-            <select
-              value={newTransaction.category}
-              onChange={(e) => setNewTransaction({ ...newTransaction, category: e.target.value })}
-              className="w-full bg-white/10 rounded-lg p-3 text-white"
-            >
-              <option value="">Select Category</option>
-              {categories.map(cat => (
-                <option key={cat} value={cat}>{cat}</option>
-              ))}
-            </select>
-            <input
-              type="text"
-              placeholder="Merchant"
-              value={newTransaction.merchant}
-              onChange={(e) => setNewTransaction({ ...newTransaction, merchant: e.target.value })}
-              className="w-full bg-white/10 rounded-lg p-3 text-white"
-            />
-            <input
-              type="text"
-              placeholder="Description (optional)"
-              value={newTransaction.description}
-              onChange={(e) => setNewTransaction({ ...newTransaction, description: e.target.value })}
-              className="w-full bg-white/10 rounded-lg p-3 text-white"
-            />
-            <input
-              type="date"
-              value={newTransaction.date}
-              onChange={(e) => setNewTransaction({ ...newTransaction, date: e.target.value })}
-              className="w-full bg-white/10 rounded-lg p-3 text-white"
-            />
-          </div>
-        }
-        confirmText="Add"
-        onConfirm={handleAddTransaction}
-      />
     </div>
   );
 }
