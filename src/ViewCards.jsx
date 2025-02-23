@@ -188,23 +188,11 @@ function ViewCards({ user, masterPassword, setActivePage }) {
 
   return (
     <div className="container mx-auto px-4 py-6">
-      {/* Mobile Header */}
       <MobileHeader 
         icon={BiCreditCard}
         title="Your Cards"
         description="Manage and view your saved cards"
       />
-
-      {/* Desktop Header */}
-      <div className="hidden md:flex items-center gap-3 mb-6">
-        <div className="h-12 w-12 rounded-xl bg-white/10 flex items-center justify-center">
-          <BiCreditCard className="text-2xl text-white" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-bold text-white">Your Cards</h1>
-          <p className="text-white/60">Manage and view your saved cards</p>
-        </div>
-      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {cards.map((card) => {
