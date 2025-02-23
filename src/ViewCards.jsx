@@ -6,6 +6,7 @@ import CryptoJS from "crypto-js";
 import LogoWithFallback from "./LogoWithFallback";
 import { securityManager } from "./utils/security";
 import { BiCreditCard } from 'react-icons/bi';
+import MobileHeader from './components/MobileHeader';
 
 function ViewCards({ user, masterPassword, setActivePage }) {
   const [cards, setCards] = useState([]);
@@ -187,8 +188,15 @@ function ViewCards({ user, masterPassword, setActivePage }) {
 
   return (
     <div className="container mx-auto px-4 py-6">
-      {/* Header Section */}
-      <div className="flex items-center gap-3 mb-6">
+      {/* Mobile Header */}
+      <MobileHeader 
+        icon={BiCreditCard}
+        title="Your Cards"
+        description="Manage and view your saved cards"
+      />
+
+      {/* Desktop Header */}
+      <div className="hidden md:flex items-center gap-3 mb-6">
         <div className="h-12 w-12 rounded-xl bg-white/10 flex items-center justify-center">
           <BiCreditCard className="text-2xl text-white" />
         </div>

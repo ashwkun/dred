@@ -5,6 +5,29 @@ import MobileNumberDialog from './components/MobileNumberDialog';
 import CryptoJS from 'crypto-js';
 import { BiCreditCard, BiMobile } from 'react-icons/bi';
 
+const MobileHeader = ({ icon: Icon, title, description }) => (
+  <div className="md:hidden">
+    {/* Mobile Header */}
+    <div className="fixed top-0 left-0 right-0 z-20 
+      bg-white/10 backdrop-blur-lg border-b border-white/10
+      px-4 py-3"
+    >
+      <div className="flex items-center gap-3">
+        <div className="flex items-center justify-center w-8 h-8">
+          <Icon className="text-xl text-white" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h1 className="text-lg font-semibold text-white truncate">{title}</h1>
+        </div>
+      </div>
+      <p className="text-sm text-white/60 mt-0.5 ml-11">{description}</p>
+    </div>
+    
+    {/* Spacer for fixed header */}
+    <div className="h-[72px] md:hidden" />
+  </div>
+);
+
 export default function BillPay({ user, masterPassword }) {
   const [cards, setCards] = useState([]);
   const [showMobileDialog, setShowMobileDialog] = useState(false);
@@ -108,16 +131,21 @@ export default function BillPay({ user, masterPassword }) {
 
   return (
     <div className="container mx-auto px-4 py-6">
-      {/* Header Section - Now matches other components with mobile optimization */}
-      <div className="flex flex-col md:flex-row md:items-center gap-3 mb-8 md:mb-6">
-        <div className="flex items-center gap-3">
-          <div className="h-12 w-12 rounded-xl bg-white/10 flex items-center justify-center">
-            <BiCreditCard className="text-2xl text-white" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-white">Pay Credit Card Bills</h1>
-            <p className="text-white/60 text-sm md:text-base">Pay your credit card bills instantly using UPI</p>
-          </div>
+      {/* Mobile Header */}
+      <MobileHeader 
+        icon={BiCreditCard}
+        title="Pay Credit Card Bills"
+        description="Pay your credit card bills instantly using UPI"
+      />
+
+      {/* Desktop Header - hidden on mobile */}
+      <div className="hidden md:flex items-center gap-3 mb-6">
+        <div className="h-12 w-12 rounded-xl bg-white/10 flex items-center justify-center">
+          <BiCreditCard className="text-2xl text-white" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold text-white">Pay Credit Card Bills</h1>
+          <p className="text-white/60">Pay your credit card bills instantly using UPI</p>
         </div>
       </div>
 
