@@ -77,11 +77,8 @@ function CardScannerComponent({ onScanComplete }) {
       // First try with basic constraints
       let stream = null;
       const constraints = [
-        // Try 1: Basic video
         { video: true },
-        // Try 2: Environment camera
         { video: { facingMode: 'environment' } },
-        // Try 3: User camera
         { video: { facingMode: 'user' } }
       ];
 
@@ -99,52 +96,50 @@ function CardScannerComponent({ onScanComplete }) {
         throw new Error('Could not initialize any camera');
       }
 
-      // Get video track for debugging
-      const videoTrack = stream.getVideoTracks()[0];
-      console.log('Using camera:', videoTrack.label);
-      console.log('Camera settings:', videoTrack.getSettings());
-
       // Store stream first
       streamRef.current = stream;
+
+      // Set scanning state and wait for next render cycle
       setIsScanning(true);
+      await new Promise(resolve => requestAnimationFrame(resolve));
+      await new Promise(resolve => requestAnimationFrame(resolve));
 
-      // Wait for next render when video element is available
-      await new Promise(resolve => setTimeout(resolve, 0));
-
-      // Now set up video element
+      // Now check for video element
       if (!videoRef.current) {
-        throw new Error('Video element not found');
+        throw new Error('Video element not available');
       }
 
-      videoRef.current.srcObject = stream;
+      // Set up video element
+      const video = videoRef.current;
+      video.srcObject = stream;
 
       // Wait for video to be ready
       await new Promise((resolve, reject) => {
-        const video = videoRef.current;
-        if (!video) return reject(new Error('Video element not found'));
-
         const timeoutId = setTimeout(() => {
           reject(new Error('Video initialization timeout'));
-        }, 5000);
+        }, 10000);
+
+        const handleError = (error) => {
+          clearTimeout(timeoutId);
+          reject(new Error('Video error: ' + (error?.message || 'Unknown error')));
+        };
+
+        const handleSuccess = () => {
+          clearTimeout(timeoutId);
+          resolve();
+        };
 
         video.onloadedmetadata = () => {
-          clearTimeout(timeoutId);
-          video.play()
-            .then(resolve)
-            .catch(error => {
-              console.error('Play error:', error);
-              reject(error);
-            });
+          video.play().then(handleSuccess).catch(handleError);
         };
 
-        video.onerror = (e) => {
-          clearTimeout(timeoutId);
-          reject(new Error('Video error: ' + (e.target.error?.message || 'Unknown error')));
-        };
+        video.onerror = handleError;
       });
 
     } catch (error) {
+      console.error('Camera initialization error:', error);
       handleCameraError(error);
+      
       // Clean up on error
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
@@ -294,6 +289,21 @@ function CardScannerComponent({ onScanComplete }) {
         </p>
       </div>
 
+      {/* Hidden video element - always rendered */}
+      <video
+        ref={videoRef}
+        autoPlay
+        playsInline
+        muted
+        className={`w-full h-full rounded-xl bg-black ${isScanning ? 'block' : 'hidden'}`}
+        style={{ 
+          transform: isMirror ? 'scaleX(-1)' : 'none',
+          maxHeight: '80vh',
+          objectFit: 'cover',
+          minHeight: '300px'
+        }}
+      />
+
       {/* Hidden canvas for image processing */}
       <canvas ref={canvasRef} className="hidden" />
 
@@ -309,25 +319,17 @@ function CardScannerComponent({ onScanComplete }) {
                   rounded-full animate-spin" />
               </div>
             ) : (
-              <>
-                <video
-                  ref={videoRef}
-                  autoPlay
-                  playsInline
-                  muted
-                  className="w-full h-full rounded-xl bg-black"
-                  style={{ 
-                    transform: isMirror ? 'scaleX(-1)' : 'none',
-                    maxHeight: '80vh',
-                    objectFit: 'cover',
-                    minHeight: '300px'
-                  }}
-                />
+              <div className="relative">
+                {/* Video container */}
+                <div className="w-full h-full rounded-xl overflow-hidden">
+                  {/* Video element is now outside and referenced */}
+                </div>
+                
                 {/* Overlay for scanning area */}
                 <div className="absolute inset-0 border-2 border-white/20 rounded-xl">
                   <div className="absolute inset-x-8 top-1/4 bottom-1/4 border-2 border-white/40 rounded-lg" />
                 </div>
-              </>
+              </div>
             )}
             
             {/* Controls */}
