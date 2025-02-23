@@ -18,7 +18,8 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0",
-    "tailwind-animatecss": "^1.0.0"
+    "tailwind-animatecss": "^1.0.0",
+    "tesseract.js": "^6.0.0"
   },
   "devDependencies": {
     "@parcel/packager-raw-url": "^2.13.3",

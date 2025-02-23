@@ -7,6 +7,7 @@ import CardCustomization from "./CardCustomization";
 import { securityManager } from './utils/security';
 import { BiAddToQueue } from 'react-icons/bi';
 import { LoadingSpinner } from './components/LoadingSpinner';
+import CardScannerComponent from './components/CardScanner';
 
 function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
   const [cardHolder, setCardHolder] = useState(user?.displayName || ""); // Editable
@@ -38,6 +39,32 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
         setNetworkName("");
       }
     }
+  };
+
+  const handleScanComplete = (cardData) => {
+    // Format card number with spaces
+    const formattedNumber = cardData.number.replace(/(\d{4})/g, '$1 ').trim();
+    setCardNumber(formattedNumber);
+    
+    // Format expiry if present (MM/YY)
+    if (cardData.expiry) {
+      const cleanExpiry = cardData.expiry.replace(/[^\d]/g, '');
+      const formattedExpiry = `${cleanExpiry.slice(0,2)}/${cleanExpiry.slice(2)}`;
+      setExpiry(formattedExpiry);
+    }
+    
+    // Set name if present
+    if (cardData.name) {
+      setCardHolder(cardData.name);
+    }
+    
+    // Set card type if detected
+    if (cardData.type) {
+      setCardType(cardData.type);
+    }
+
+    // Auto-detect bank and network based on card number
+    detectCardDetails(cardData.number);
   };
 
   const handleAddCard = async (e) => {
@@ -123,149 +150,154 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
             <h2 className="text-lg font-medium text-white mb-6">Card Details</h2>
             
             <form onSubmit={handleAddCard}>
-              <div className="space-y-4">
-                {/* Card Holder Name */}
-                <div>
-                  <label className="block text-white/70 text-sm font-medium mb-2">
-                    Card Holder Name
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
-                      text-white placeholder-white/30 focus:outline-none focus:ring-2 
-                      focus:ring-primary/30 focus:border-transparent backdrop-blur-sm
-                      transition-all duration-200"
-                    value={cardHolder}
-                    onChange={(e) => setCardHolder(e.target.value)}
-                    placeholder="Name on card"
-                    required
-                  />
-                </div>
+              <div className="space-y-6">
+                <CardScannerComponent onScanComplete={handleScanComplete} />
+                
+                {/* Form Fields */}
+                <div className="space-y-4">
+                  {/* Card Holder Name */}
+                  <div>
+                    <label className="block text-white/70 text-sm font-medium mb-2">
+                      Card Holder Name
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
+                        text-white placeholder-white/30 focus:outline-none focus:ring-2 
+                        focus:ring-primary/30 focus:border-transparent backdrop-blur-sm
+                        transition-all duration-200"
+                      value={cardHolder}
+                      onChange={(e) => setCardHolder(e.target.value)}
+                      placeholder="Name on card"
+                      required
+                    />
+                  </div>
 
-                {/* Card Number */}
-                <div>
-                  <label className="block text-white/70 text-sm font-medium mb-2">
-                    Card Number
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
-                      text-white placeholder-white/30 focus:outline-none focus:ring-2 
-                      focus:ring-primary/30 focus:border-transparent backdrop-blur-sm
-                      transition-all duration-200"
-                    value={cardNumber}
-                    onChange={(e) => {
-                      const value = e.target.value.replace(/\D/g, '').slice(0, 16);
-                      setCardNumber(value);
-                      detectCardDetails(value);
-                    }}
-                    placeholder="•••• •••• •••• ••••"
-                    required
-                  />
-                </div>
+                  {/* Card Number */}
+                  <div>
+                    <label className="block text-white/70 text-sm font-medium mb-2">
+                      Card Number
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
+                        text-white placeholder-white/30 focus:outline-none focus:ring-2 
+                        focus:ring-primary/30 focus:border-transparent backdrop-blur-sm
+                        transition-all duration-200"
+                      value={cardNumber}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, '').slice(0, 16);
+                        setCardNumber(value);
+                        detectCardDetails(value);
+                      }}
+                      placeholder="•••• •••• •••• ••••"
+                      required
+                    />
+                  </div>
 
-                {/* Bank */}
-                <div>
-                  <label className="block text-white/70 text-sm font-medium mb-2">
-                    Bank
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
-                      text-white/50 backdrop-blur-sm cursor-not-allowed"
-                    value={bankName}
-                    disabled
-                  />
-                </div>
+                  {/* Bank */}
+                  <div>
+                    <label className="block text-white/70 text-sm font-medium mb-2">
+                      Bank
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
+                        text-white/50 backdrop-blur-sm cursor-not-allowed"
+                      value={bankName}
+                      disabled
+                    />
+                  </div>
 
-                {/* Network */}
-                <div>
-                  <label className="block text-white/70 text-sm font-medium mb-2">
-                    Network
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
-                      text-white/50 backdrop-blur-sm cursor-not-allowed"
-                    value={networkName}
-                    disabled
-                  />
-                </div>
+                  {/* Network */}
+                  <div>
+                    <label className="block text-white/70 text-sm font-medium mb-2">
+                      Network
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
+                        text-white/50 backdrop-blur-sm cursor-not-allowed"
+                      value={networkName}
+                      disabled
+                    />
+                  </div>
 
-                {/* Card Type */}
-                <div>
-                  <label className="block text-white/70 text-sm font-medium mb-2">
-                    Card Type
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
-                      text-white placeholder-white/30 focus:outline-none focus:ring-2 
-                      focus:ring-primary/30 focus:border-transparent backdrop-blur-sm
-                      transition-all duration-200"
-                    value={cardType}
-                    onChange={(e) => setCardType(e.target.value)}
-                    placeholder="Credit, Debit, Prepaid"
-                    required
-                  />
-                </div>
+                  {/* Card Type */}
+                  <div>
+                    <label className="block text-white/70 text-sm font-medium mb-2">
+                      Card Type
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
+                        text-white placeholder-white/30 focus:outline-none focus:ring-2 
+                        focus:ring-primary/30 focus:border-transparent backdrop-blur-sm
+                        transition-all duration-200"
+                      value={cardType}
+                      onChange={(e) => setCardType(e.target.value)}
+                      placeholder="Credit, Debit, Prepaid"
+                      required
+                    />
+                  </div>
 
-                {/* Expiry Date */}
-                <div>
-                  <label className="block text-white/70 text-sm font-medium mb-2">
-                    Expiry Date
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
-                      text-white placeholder-white/30 focus:outline-none focus:ring-2 
-                      focus:ring-primary/30 focus:border-transparent backdrop-blur-sm
-                      transition-all duration-200"
-                    value={expiry}
-                    onChange={(e) => setExpiry(e.target.value)}
-                    placeholder="MM/YY"
-                    required
-                  />
-                </div>
+                  {/* Expiry Date */}
+                  <div>
+                    <label className="block text-white/70 text-sm font-medium mb-2">
+                      Expiry Date
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
+                        text-white placeholder-white/30 focus:outline-none focus:ring-2 
+                        focus:ring-primary/30 focus:border-transparent backdrop-blur-sm
+                        transition-all duration-200"
+                      value={expiry}
+                      onChange={(e) => setExpiry(e.target.value)}
+                      placeholder="MM/YY"
+                      required
+                    />
+                  </div>
 
-                {/* CVV */}
-                <div>
-                  <label className="block text-white/70 text-sm font-medium mb-2">
-                    CVV
-                  </label>
-                  <input
-                    type="password"
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
-                      text-white placeholder-white/30 focus:outline-none focus:ring-2 
-                      focus:ring-primary/30 focus:border-transparent backdrop-blur-sm
-                      transition-all duration-200"
-                    value={cvv}
-                    onChange={(e) => setCvv(e.target.value)}
-                    placeholder="•••"
-                    required
-                  />
-                </div>
+                  {/* CVV */}
+                  <div>
+                    <label className="block text-white/70 text-sm font-medium mb-2">
+                      CVV
+                    </label>
+                    <input
+                      type="password"
+                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
+                        text-white placeholder-white/30 focus:outline-none focus:ring-2 
+                        focus:ring-primary/30 focus:border-transparent backdrop-blur-sm
+                        transition-all duration-200"
+                      value={cvv}
+                      onChange={(e) => setCvv(e.target.value)}
+                      placeholder="•••"
+                      required
+                    />
+                  </div>
 
-                <button
-                  type="submit"
-                  className="w-full mt-6 px-6 py-4 bg-primary hover:bg-primary/90 
-                    rounded-xl text-white font-medium transition-all duration-200 
-                    focus:outline-none focus:ring-2 focus:ring-primary/50 
-                    disabled:opacity-50 disabled:cursor-not-allowed
-                    shadow-lg shadow-primary/25"
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <div className="flex items-center justify-center">
-                      <div className="scale-75">
-                        <LoadingSpinner size="sm" />
+                  <button
+                    type="submit"
+                    className="w-full mt-6 px-6 py-4 bg-primary hover:bg-primary/90 
+                      rounded-xl text-white font-medium transition-all duration-200 
+                      focus:outline-none focus:ring-2 focus:ring-primary/50 
+                      disabled:opacity-50 disabled:cursor-not-allowed
+                      shadow-lg shadow-primary/25"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <div className="flex items-center justify-center">
+                        <div className="scale-75">
+                          <LoadingSpinner size="sm" />
+                        </div>
+                        <span className="ml-3">Adding Card...</span>
                       </div>
-                      <span className="ml-3">Adding Card...</span>
-                    </div>
-                  ) : (
-                    'Add Card'
-                  )}
-                </button>
+                    ) : (
+                      'Add Card'
+                    )}
+                  </button>
+                </div>
               </div>
             </form>
           </div>
