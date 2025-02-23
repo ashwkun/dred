@@ -511,6 +511,10 @@ body {
   margin-top: 1.5rem;
 }
 
+.ml-2 {
+  margin-left: .5rem;
+}
+
 .block {
   display: block;
 }
