@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { BiCamera } from 'react-icons/bi';
-import { createWorker } from 'tesseract.js';
+import { createWorker, createScheduler } from 'tesseract.js';
 
 function CardScannerComponent({ onScanComplete }) {
   const [isScanning, setIsScanning] = useState(false);
@@ -184,6 +184,8 @@ function CardScannerComponent({ onScanComplete }) {
     if (!videoRef.current || !canvasRef.current) return;
     
     setIsProcessing(true);
+    let worker = null;
+    
     try {
       // Capture frame from video
       const video = videoRef.current;
@@ -193,18 +195,23 @@ function CardScannerComponent({ onScanComplete }) {
       const ctx = canvas.getContext('2d');
       ctx.drawImage(video, 0, 0);
 
-      // Initialize Tesseract with specific CDN
-      const worker = await createWorker({
-        workerPath: 'https://unpkg.com/tesseract.js@v4.0.0/dist/worker.min.js',
-        langPath: 'https://unpkg.com/tesseract.js-core@v4.0.0/tesseract-core.wasm.js',
-        corePath: 'https://unpkg.com/tesseract.js-core@v4.0.0/tesseract-core.wasm.js',
-      });
-
+      // Create worker with minimal configuration
+      worker = await createWorker();
+      
+      // Initialize worker
+      await worker.load();
       await worker.loadLanguage('eng');
       await worker.initialize('eng');
       
+      // Set parameters for better card recognition
+      await worker.setParameters({
+        tessedit_char_whitelist: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ ',
+        preserve_interword_spaces: '1',
+      });
+
+      // Recognize text
       const { data: { text } } = await worker.recognize(canvas);
-      await worker.terminate();
+      console.log('Recognized text:', text); // Debug log
 
       // Process the text to extract card details
       const cardNumber = text.match(/\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}/)?.[0]?.replace(/[\s-]/g, '');
@@ -233,6 +240,9 @@ function CardScannerComponent({ onScanComplete }) {
       console.error('Error processing card:', error);
       alert('Error processing card. Please try again.');
     } finally {
+      if (worker) {
+        await worker.terminate();
+      }
       setIsProcessing(false);
     }
   };
