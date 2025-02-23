@@ -289,10 +289,15 @@ export const calculateInsights = (transactions, monthlyBudget) => {
 
   // Example calculation logic
   const investmentData = {
-    totalInvested: 10000, // Example value
-    totalReturns: 12000,  // Example value
-    investmentGrowth: 20  // Example value
+    totalInvested: transactions.reduce((acc, t) => acc + (t.type === 'investment' ? parseFloat(t.amount) : 0), 0),
+    totalReturns: transactions.reduce((acc, t) => acc + (t.type === 'return' ? parseFloat(t.amount) : 0), 0),
+    investmentGrowth: 0 // Calculate based on your logic
   };
+
+  // Calculate growth
+  if (investmentData.totalInvested > 0) {
+    investmentData.investmentGrowth = ((investmentData.totalReturns / investmentData.totalInvested) - 1) * 100;
+  }
 
   // Add to the return object
   return {

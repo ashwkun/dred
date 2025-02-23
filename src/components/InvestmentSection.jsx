@@ -8,12 +8,12 @@ const InvestmentSection = ({ insights }) => {
   const COLORS = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
 
   // Fetch data from the insights object
-  const investments = insights?.investments || {};
+  const investments = insights?.investmentData || {};
   const totalInvested = investments.totalInvested || 0;
   const totalReturns = investments.totalReturns || 0;
   const investmentGrowth = investments.investmentGrowth || 0;
   const projectedValue = investments.totalProjected?.fiveYear || 0;
-  const expectedReturn = ((projectedValue / totalInvested - 1) * 100).toFixed(1);
+  const expectedReturn = totalInvested > 0 ? ((projectedValue / totalInvested - 1) * 100).toFixed(1) : 0;
   const monthlyAvg = investments.sipProjections?.monthly || 0;
 
   // Data for charts

@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
-import { getFirestore, initializeFirestore, enableIndexedDbPersistence } from "firebase/firestore";
+import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB-9yZNPFFsjG8JR5t9i6ZbYZ9FnbZegw8",
@@ -18,15 +18,7 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 
-// Initialize Firestore with cache enabled
-export const db = initializeFirestore(app, {
-  cacheSizeBytes: 100 * 1024 * 1024, // 100MB cache
-  experimentalForceLongPolling: true // Better compatibility
-});
+// Initialize Firestore
+const db = getFirestore(app);
 
-// Enable offline persistence
-enableIndexedDbPersistence(db).catch((err) => {
-  console.error('Firebase persistence error:', err);
-});
-
-export { app };
+export { db };

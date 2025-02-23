@@ -71,17 +71,19 @@
 
   /* Button styling with better typography */
   .btn-primary {
-    @apply w-full py-3 bg-[#6a3de8] hover:bg-[#5a2de0] 
+    @apply py-2 px-4 bg-white/20 hover:bg-white/30 
     text-white font-semibold rounded-lg 
     text-base tracking-wide
-    transition-all duration-200 shadow-lg;
+    transition-all duration-200 shadow-lg
+    backdrop-blur-md;
   }
 
   .btn-secondary {
-    @apply w-full py-3 bg-gray-700 hover:bg-gray-600 
+    @apply py-2 px-4 bg-red-500/20 hover:bg-red-500/30 
     text-white font-semibold rounded-lg 
     text-base tracking-wide
-    transition-all duration-200 shadow-lg;
+    transition-all duration-200 shadow-lg
+    backdrop-blur-md;
   }
 
   /* Card container styling */
@@ -228,7 +230,7 @@
     @apply text-sm p-2;
   }
   .btn-primary, .btn-secondary {
-    @apply text-base py-2;
+    @apply w-full;
   }
 }
 
