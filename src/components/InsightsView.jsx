@@ -270,75 +270,42 @@ const InsightsView = ({ transactions, cards, monthlyBudget, onSetBudget }) => {
 
           {/* Spending Patterns */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 md:p-6 border border-white/20">
-              <h3 className="text-lg font-semibold text-white mb-4">Spending Patterns</h3>
-              <div className="space-y-3">
-                <div>
-                  <p className="text-white/60 text-sm">Highest Spending Day</p>
-                  <p className="text-white">
-                    {new Date(insights.highestSpendingDay[0]).toLocaleDateString('en-US', {
-                      weekday: 'long',
-                      month: 'short',
-                      day: 'numeric'
-                    })}
-                    <span className="text-white/60 ml-2">
-                      ₹{Math.round(insights.highestSpendingDay[1]).toLocaleString()}
-                    </span>
-                  </p>
-                </div>
-                <div>
-                  <p className="text-white/60 text-sm">Most Frequent Category</p>
-                  <p className="text-white">{insights.mostFrequentCategory}</p>
-                </div>
-                <div>
-                  <p className="text-white/60 text-sm">Largest Single Expense</p>
-                  <p className="text-white">₹{Math.round(insights.largestExpense).toLocaleString()}</p>
-                </div>
-                <div>
-                  <p className="text-white/60 text-sm">Weekend vs Weekday Spending</p>
-                  <p className="text-white">
-                    {insights.weekendSpending > insights.weekdayAvgSpending ? 'Higher' : 'Lower'} on weekends
-                    <span className="text-white/60 ml-2">
-                      ({Math.abs(Math.round(((insights.weekendSpending / insights.weekdayAvgSpending) - 1) * 100))}% difference)
-                    </span>
-                  </p>
+            <SpendingPatternsCard insights={insights} />
+            <SpendingHeatmapCard insights={insights} />
+          </div>
+
+          {/* Spending Analysis */}
+          <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 md:p-6 border border-white/20">
+            <h3 className="text-lg font-semibold text-white mb-4">Spending Analysis</h3>
+            <div className="space-y-3">
+              <div>
+                <p className="text-white/60 text-sm">Monthly Trend</p>
+                <p className="text-white">
+                  {insights.thisMonthTotal > insights.lastMonthTotal ? 'Increased' : 'Decreased'} by
+                  <span className="text-white/60 ml-2">
+                    {Math.abs(Math.round(((insights.thisMonthTotal / insights.lastMonthTotal) - 1) * 100))}%
+                  </span>
+                </p>
+              </div>
+              <div>
+                <p className="text-white/60 text-sm">Top 3 Categories</p>
+                <div className="space-y-1">
+                  {insights.topCategories.map((cat, idx) => (
+                    <p key={cat.name} className="text-white flex justify-between">
+                      <span>{cat.name}</span>
+                      <span className="text-white/60">₹{Math.round(cat.amount).toLocaleString()}</span>
+                    </p>
+                  ))}
                 </div>
               </div>
-            </div>
-
-            {/* Spending Analysis */}
-            <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 md:p-6 border border-white/20">
-              <h3 className="text-lg font-semibold text-white mb-4">Spending Analysis</h3>
-              <div className="space-y-3">
-                <div>
-                  <p className="text-white/60 text-sm">Monthly Trend</p>
-                  <p className="text-white">
-                    {insights.thisMonthTotal > insights.lastMonthTotal ? 'Increased' : 'Decreased'} by
-                    <span className="text-white/60 ml-2">
-                      {Math.abs(Math.round(((insights.thisMonthTotal / insights.lastMonthTotal) - 1) * 100))}%
-                    </span>
-                  </p>
-                </div>
-                <div>
-                  <p className="text-white/60 text-sm">Top 3 Categories</p>
-                  <div className="space-y-1">
-                    {insights.topCategories.map((cat, idx) => (
-                      <p key={cat.name} className="text-white flex justify-between">
-                        <span>{cat.name}</span>
-                        <span className="text-white/60">₹{Math.round(cat.amount).toLocaleString()}</span>
-                      </p>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <p className="text-white/60 text-sm">Budget Utilization</p>
-                  <p className="text-white">
-                    {Math.round(insights.budgetStatus)}% used
-                    <span className="text-white/60 ml-2">
-                      (₹{Math.round(insights.remainingBudget).toLocaleString()} remaining)
-                    </span>
-                  </p>
-                </div>
+              <div>
+                <p className="text-white/60 text-sm">Budget Utilization</p>
+                <p className="text-white">
+                  {Math.round(insights.budgetStatus)}% used
+                  <span className="text-white/60 ml-2">
+                    (₹{Math.round(insights.remainingBudget).toLocaleString()} remaining)
+                  </span>
+                </p>
               </div>
             </div>
           </div>
@@ -874,6 +841,112 @@ const SpendingRecommendationsCard = ({ insights }) => {
             </div>
           </div>
         ))}
+      </div>
+    </div>
+  );
+};
+
+const SpendingPatternsCard = ({ insights }) => {
+  // Helper function to safely format date
+  const formatDate = (dateString) => {
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return 'Not available';
+      return date.toLocaleDateString('en-US', {
+        weekday: 'long',
+        month: 'short',
+        day: 'numeric'
+      });
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return 'Not available';
+    }
+  };
+
+  // Helper function to safely format currency
+  const formatCurrency = (amount) => {
+    try {
+      return `₹${Math.round(Number(amount) || 0).toLocaleString()}`;
+    } catch (error) {
+      console.error('Error formatting currency:', error);
+      return '₹0';
+    }
+  };
+
+  // Safely get highest spending day info
+  const getHighestSpendingDayInfo = () => {
+    try {
+      if (!insights?.highestSpendingDay || !Array.isArray(insights.highestSpendingDay)) {
+        return { date: 'Not available', amount: 0 };
+      }
+      const [date, amount] = insights.highestSpendingDay;
+      return {
+        date: formatDate(date),
+        amount: Number(amount) || 0
+      };
+    } catch (error) {
+      console.error('Error processing highest spending day:', error);
+      return { date: 'Not available', amount: 0 };
+    }
+  };
+
+  const highestSpendingDay = getHighestSpendingDayInfo();
+  const weekendVsWeekday = insights?.weekendSpending > insights?.weekdayAvgSpending;
+  const spendingDiff = Math.abs(
+    Math.round(
+      ((insights?.weekendSpending || 0) / (insights?.weekdayAvgSpending || 1) - 1) * 100
+    )
+  );
+
+  return (
+    <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 md:p-6 border border-white/20">
+      <h3 className="text-lg font-semibold text-white mb-4">Spending Patterns</h3>
+      <div className="space-y-3">
+        <div>
+          <p className="text-white/60 text-sm">Highest Spending Day</p>
+          <p className="text-white">
+            {highestSpendingDay.date}
+            <span className="text-white/60 ml-2">
+              {formatCurrency(highestSpendingDay.amount)}
+            </span>
+          </p>
+        </div>
+
+        <div>
+          <p className="text-white/60 text-sm">Most Frequent Category</p>
+          <p className="text-white">
+            {insights?.mostFrequentCategory || 'No data available'}
+          </p>
+        </div>
+
+        <div>
+          <p className="text-white/60 text-sm">Largest Single Expense</p>
+          <p className="text-white">
+            {formatCurrency(insights?.largestExpense || 0)}
+          </p>
+        </div>
+
+        <div>
+          <p className="text-white/60 text-sm">Weekend vs Weekday Spending</p>
+          <p className="text-white">
+            {weekendVsWeekday ? 'Higher' : 'Lower'} on weekends
+            {spendingDiff > 0 && (
+              <span className="text-white/60 ml-2">
+                ({spendingDiff}% difference)
+              </span>
+            )}
+          </p>
+        </div>
+
+        {/* Additional Pattern Insights */}
+        {insights?.averageDailySpending && (
+          <div>
+            <p className="text-white/60 text-sm">Average Daily Spending</p>
+            <p className="text-white">
+              {formatCurrency(insights.averageDailySpending)}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
