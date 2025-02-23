@@ -64,7 +64,7 @@ const InsightsView = ({ transactions, cards, monthlyBudget, onSetBudget }) => {
 
   const handleBudgetChange = async () => {
     try {
-      const userDoc = doc(db, 'users', 'user_id');
+      const userDoc = doc(db, 'user_settings', 'user_id');
       await updateDoc(userDoc, {
         monthlyBudget: newBudget
       });
@@ -130,7 +130,7 @@ const InsightsView = ({ transactions, cards, monthlyBudget, onSetBudget }) => {
             <p className="text-white text-2xl">₹{monthlyBudget.toLocaleString()}</p>
             <button
               onClick={() => setShowBudgetInput(true)}
-              className="btn-primary"
+              className="btn-primary px-2 py-1"
             >
               Edit
             </button>
