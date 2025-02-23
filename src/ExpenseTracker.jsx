@@ -281,6 +281,75 @@ const calculateInsights = (transactions, monthlyBudget) => {
   const highestSpendingDay = Object.entries(dailyTotals)
     .sort(([,a], [,b]) => b - a)[0];
 
+  // Separate investment transactions
+  const investmentTransactions = transactions.filter(t => t.category === "Investment");
+  const nonInvestmentTransactions = transactions.filter(t => t.category !== "Investment");
+
+  // Investment-specific calculations
+  const investmentInsights = {
+    totalInvested: investmentTransactions.reduce((sum, t) => sum + parseFloat(t.amount), 0),
+    instrumentWise: investmentTransactions.reduce((acc, t) => {
+      acc[t.merchant] = (acc[t.merchant] || 0) + parseFloat(t.amount);
+      return acc;
+    }, {}),
+    monthlyInvestments: {}
+  };
+
+  // Calculate monthly investment trends
+  for (let i = 0; i < 12; i++) {
+    const month = new Date(thisYear, thisMonth - i, 1);
+    const monthKey = month.toLocaleString('default', { month: 'short', year: '2-digit' });
+    investmentInsights.monthlyInvestments[monthKey] = investmentTransactions
+      .filter(t => {
+        const date = new Date(t.date);
+        return date.getMonth() === month.getMonth() && 
+               date.getFullYear() === month.getFullYear();
+      })
+      .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+  }
+
+  // ROI rates for different instruments
+  const ROI_RATES = {
+    'SIP': 0.12,
+    'Mutual Funds': 0.10,
+    'Stocks': 0.15,
+    'Gold': 0.08,
+    'Fixed Deposits': 0.06,
+    'PPF': 0.071,
+    'NPS': 0.10,
+    'Bonds': 0.07,
+    'ETFs': 0.11,
+    'Real Estate': 0.09
+  };
+
+  // Calculate projected returns
+  const projectedReturns = {};
+  Object.entries(investmentInsights.instrumentWise).forEach(([instrument, amount]) => {
+    const rate = ROI_RATES[instrument] || 0.10;
+    projectedReturns[instrument] = {
+      amount,
+      oneYear: amount * (1 + rate),
+      threeYear: amount * Math.pow(1 + rate, 3),
+      fiveYear: amount * Math.pow(1 + rate, 5),
+      rate: rate * 100
+    };
+  });
+
+  investmentInsights.projectedReturns = projectedReturns;
+  investmentInsights.totalProjected = {
+    oneYear: Object.values(projectedReturns).reduce((sum, p) => sum + p.oneYear, 0),
+    threeYear: Object.values(projectedReturns).reduce((sum, p) => sum + p.threeYear, 0),
+    fiveYear: Object.values(projectedReturns).reduce((sum, p) => sum + p.fiveYear, 0)
+  };
+
+  // Use nonInvestmentTransactions for regular expense calculations
+  const thisMonthTotal = nonInvestmentTransactions
+    .filter(t => {
+      const date = new Date(t.date);
+      return date.getMonth() === thisMonth && date.getFullYear() === thisYear;
+    })
+    .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+
   return {
     thisMonthTotal,
     lastMonthTotal,
@@ -294,7 +363,8 @@ const calculateInsights = (transactions, monthlyBudget) => {
     budgetStatus,
     avgTransactionSize,
     highestSpendingDay,
-    daysLeft: daysInMonth - today
+    daysLeft: daysInMonth - today,
+    investments: investmentInsights
   };
 };
 
@@ -425,6 +495,7 @@ const InvestmentSection = ({ investments }) => {
 const InsightsView = ({ transactions, cards, monthlyBudget, onSetBudget }) => {
   const [activeTab, setActiveTab] = useState('expenses');
   const insights = calculateInsights(transactions, monthlyBudget);
+  const COLORS = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEEAD', '#D4A5A5'];
 
   return (
     <div className="space-y-6">
@@ -454,12 +525,145 @@ const InsightsView = ({ transactions, cards, monthlyBudget, onSetBudget }) => {
 
       {/* Content */}
       {activeTab === 'expenses' ? (
-        // Your existing expense insights
-        <div>
-          {/* ... existing expense insights code ... */}
+        <div className="space-y-6">
+          {/* Budget Section */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 border border-white/20">
+              <h3 className="text-white/60 text-sm">This Month</h3>
+              <p className="text-2xl font-bold text-white">₹{insights.thisMonthTotal.toFixed(2)}</p>
+              <p className="text-white/60 text-sm">
+                {insights.thisMonthTotal > insights.lastMonthTotal ? '↑' : '↓'}
+                ₹{Math.abs(insights.thisMonthTotal - insights.lastMonthTotal).toFixed(2)} vs last month
+              </p>
+            </div>
+
+            <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 border border-white/20">
+              <h3 className="text-white/60 text-sm">Daily Average</h3>
+              <p className="text-2xl font-bold text-white">
+                ₹{(insights.thisMonthTotal / new Date().getDate()).toFixed(2)}
+              </p>
+              <p className="text-white/60 text-sm">{insights.daysLeft} days left</p>
+            </div>
+
+            <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 border border-white/20">
+              <h3 className="text-white/60 text-sm">Monthly Budget</h3>
+              <p className="text-2xl font-bold text-white">₹{monthlyBudget.toFixed(2)}</p>
+              <div className="mt-2 bg-white/5 rounded-lg overflow-hidden">
+                <div 
+                  className="h-2 bg-gradient-to-r from-green-400 to-red-400"
+                  style={{ width: `${Math.min(insights.budgetStatus, 100)}%` }}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Spending Trends */}
+          <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 md:p-6 border border-white/20">
+            <h3 className="text-lg font-semibold text-white mb-4">Spending Trends</h3>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart
+                  data={Object.entries(insights.dailySpending).map(([date, amount]) => ({
+                    date,
+                    amount
+                  }))}
+                  margin={{ top: 10, right: 10, left: 0, bottom: 20 }}
+                >
+                  <defs>
+                    <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#4ECDC4" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="#4ECDC4" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#ffffff20" />
+                  <XAxis 
+                    dataKey="date" 
+                    stroke="#ffffff90"
+                    tick={{ fill: '#ffffff90', fontSize: 12 }}
+                  />
+                  <YAxis 
+                    stroke="#ffffff90"
+                    tick={{ fill: '#ffffff90', fontSize: 12 }}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      borderRadius: '8px'
+                    }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="amount"
+                    stroke="#4ECDC4"
+                    fillOpacity={1}
+                    fill="url(#colorAmount)"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Category and Account Distribution */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 md:p-6 border border-white/20">
+              <h3 className="text-lg font-semibold text-white mb-4">Category Distribution</h3>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={Object.entries(insights.categorySpending)
+                        .filter(([category]) => category !== 'Investment')
+                        .map(([name, value]) => ({
+                          name,
+                          value
+                        }))}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      {Object.entries(insights.categorySpending)
+                        .filter(([category]) => category !== 'Investment')
+                        .map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        borderRadius: '8px'
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 md:p-6 border border-white/20">
+              <h3 className="text-lg font-semibold text-white mb-4">Top Merchants</h3>
+              <div className="space-y-2">
+                {Object.entries(insights.merchantSpending)
+                  .sort(([, a], [, b]) => b - a)
+                  .slice(0, 5)
+                  .map(([merchant, amount]) => (
+                    <div
+                      key={merchant}
+                      className="flex items-center justify-between p-3 bg-white/5 rounded-lg"
+                    >
+                      <span className="text-white">{merchant}</span>
+                      <span className="text-white font-medium">₹{amount.toFixed(2)}</span>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          </div>
         </div>
       ) : (
-        // Investment insights
         <InvestmentSection investments={insights.investments} />
       )}
     </div>
