@@ -158,7 +158,8 @@ function ExpenseTracker({ user, masterPassword }) {
         ...doc.data(),
         amount: CryptoJS.AES.decrypt(doc.data().amount, masterPassword).toString(CryptoJS.enc.Utf8),
         merchant: CryptoJS.AES.decrypt(doc.data().merchant, masterPassword).toString(CryptoJS.enc.Utf8),
-        description: CryptoJS.AES.decrypt(doc.data().description, masterPassword).toString(CryptoJS.enc.Utf8)
+        description: CryptoJS.AES.decrypt(doc.data().description, masterPassword).toString(CryptoJS.enc.Utf8),
+        category: doc.data().category // Keep category as is since it's not encrypted
       }));
 
       setTransactions(fetchedTransactions);
@@ -458,12 +459,13 @@ function ExpenseTracker({ user, masterPassword }) {
                     onClick={() => setShowCategorySelector(true)}
                     className="w-full bg-white/10 rounded-lg p-3 text-left text-white hover:bg-white/20 transition-colors flex items-center justify-between"
                   >
-                    <span>{newTransaction.category || 'Select Category'}</span>
-                    {newTransaction.category && (
-                      React.createElement(getCategoryIcon(newTransaction.category), {
+                    <div className="flex items-center gap-2">
+                      {newTransaction.category && React.createElement(getCategoryIcon(newTransaction.category), {
                         className: "text-lg"
-                      })
-                    )}
+                      })}
+                      <span>{newTransaction.category || 'Select Category'}</span>
+                    </div>
+                    <BiChevronDown className="text-lg opacity-50" />
                   </button>
                   {newTransaction.category && (
                     <div className="relative" ref={merchantInputRef}>
@@ -530,7 +532,7 @@ function ExpenseTracker({ user, masterPassword }) {
                     >
                       <div className="flex items-center gap-3">
                         <div className="text-white/70">
-                          {React.createElement(getCategoryIcon(transaction.category) || FaUtensils, {
+                          {React.createElement(getCategoryIcon(transaction.category), {
                             className: "text-lg"
                           })}
                         </div>
