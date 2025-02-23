@@ -208,13 +208,13 @@ function CardCustomization({ cardHolder, cardNumber, bankName, networkName, expi
                     className="group relative aspect-video rounded-xl transition-all duration-200 
                       hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white/20
                       hover:shadow-lg hover:shadow-white/10 overflow-hidden"
-                    onClick={() => setTheme(color)}
+                    onClick={() => setTheme(color.value)}
                   >
-                    <div className="absolute inset-0" style={{ background: color }} />
+                    <div className="absolute inset-0" style={{ background: color.value }} />
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 
                       transition-opacity duration-200 flex items-center justify-center">
                       <span className="text-white text-sm font-medium">
-                        {color.replace('#', '')}
+                        {color.name}
                       </span>
                     </div>
                   </button>
