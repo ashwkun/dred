@@ -77,6 +77,12 @@ function ViewCards({ user, masterPassword, setActivePage }) {
     setShowDetails(prev => ({ ...prev, [cardId]: !prev[cardId] }));
   };
 
+  const handleAddCard = () => {
+    if (typeof setActivePage === 'function') {
+      setActivePage("addCard");
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[200px]">
@@ -197,15 +203,16 @@ function ViewCards({ user, masterPassword, setActivePage }) {
                     </div>
                   </div>
 
-                  {/* Toggle Details Button - Always visible on mobile */}
+                  {/* Toggle Details Button - Centered at bottom */}
                   <button
                     onClick={() => setShowDetails(prev => ({ ...prev, [card.id]: !prev[card.id] }))}
-                    className="absolute right-4 top-4 md:opacity-0 md:group-hover:opacity-100
-                      transition-all duration-200 px-3 py-1.5 rounded-lg 
+                    className="absolute bottom-4 left-1/2 -translate-x-1/2
+                      transition-all duration-200 px-4 py-2 rounded-lg 
                       bg-white/10 backdrop-blur-md border border-white/20 
-                      text-white text-sm font-medium hover:bg-white/20"
+                      text-white text-sm font-medium hover:bg-white/20
+                      md:opacity-0 md:group-hover:opacity-100"
                   >
-                    {isShowingDetails ? 'Hide' : 'Show'}
+                    {isShowingDetails ? 'Hide Details' : 'Show Details'}
                   </button>
                 </div>
               </div>
@@ -213,9 +220,9 @@ function ViewCards({ user, masterPassword, setActivePage }) {
           );
         })}
 
-        {/* Add New Card Link */}
-        <div 
-          onClick={() => setActivePage("addCard")}
+        {/* Add New Card Button */}
+        <button
+          onClick={handleAddCard}
           className="w-full aspect-[1.586/1] rounded-2xl cursor-pointer
             bg-white/5 backdrop-blur-sm border border-white/10
             hover:bg-white/10 transition-all duration-300
@@ -232,7 +239,7 @@ function ViewCards({ user, masterPassword, setActivePage }) {
             <p className="text-white font-medium">Add New Card</p>
             <p className="text-sm text-white/50">Securely store your card details</p>
           </div>
-        </div>
+        </button>
       </div>
     </div>
   );
