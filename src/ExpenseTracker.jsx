@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 import { db } from "./firebase";
-import { collection, query, where, getDocs, addDoc, deleteDoc, doc } from "firebase/firestore";
+import { collection, query, where, getDocs, addDoc, deleteDoc, doc, serverTimestamp } from "firebase/firestore";
 import CryptoJS from "crypto-js";
 import { BiReceipt, BiPlus, BiTrash, BiLineChart } from 'react-icons/bi';
 import { LoadingOverlay } from './components/LoadingOverlay';
 import Dialog from './components/Dialog';
+import { FaUtensils } from 'react-icons/fa';
+import { defaultCategories, getCategoryIcon, getMerchantSuggestions } from './data/categories';
+import AddCategoryDialog from './components/AddCategoryDialog';
 
 function ExpenseTracker({ user, masterPassword }) {
   const [activeView, setActiveView] = useState('transactions');
@@ -20,6 +23,9 @@ function ExpenseTracker({ user, masterPassword }) {
     description: '',
     date: new Date().toISOString().split('T')[0]
   });
+  const [showAddCategory, setShowAddCategory] = useState(false);
+  const [merchantSuggestions, setMerchantSuggestions] = useState([]);
+  const [customCategories, setCustomCategories] = useState([]);
 
   const accounts = [
     { id: 'cash', name: 'Cash' },
@@ -39,66 +45,35 @@ function ExpenseTracker({ user, masterPassword }) {
     'Others'
   ];
 
-  // Fetch saved cards
-  useEffect(() => {
-    const fetchCards = async () => {
-      if (!user || !masterPassword) return;
-      
-      try {
-        const q = query(
-          collection(db, "cards"),
-          where("uid", "==", user.uid)
-        );
-        
-        const snapshot = await getDocs(q);
-        const cardsData = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-          bankName: CryptoJS.AES.decrypt(doc.data().bankName, masterPassword).toString(CryptoJS.enc.Utf8),
-          cardNumber: CryptoJS.AES.decrypt(doc.data().cardNumber, masterPassword).toString(CryptoJS.enc.Utf8)
-        }));
-        
-        setCards(cardsData);
-      } catch (error) {
-        console.error('Error loading cards:', error);
-      }
-    };
+  // Define fetchTransactions first
+  const fetchTransactions = async () => {
+    if (!user || !masterPassword) return;
+    setLoading(true);
 
-    fetchCards();
-  }, [user, masterPassword]);
+    try {
+      const q = query(
+        collection(db, "transactions"),
+        where("uid", "==", user.uid)
+      );
 
-  // Fetch transactions
-  useEffect(() => {
-    const fetchTransactions = async () => {
-      if (!user || !masterPassword) return;
-      setLoading(true);
+      const querySnapshot = await getDocs(q);
+      const fetchedTransactions = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        amount: CryptoJS.AES.decrypt(doc.data().amount, masterPassword).toString(CryptoJS.enc.Utf8),
+        merchant: CryptoJS.AES.decrypt(doc.data().merchant, masterPassword).toString(CryptoJS.enc.Utf8),
+        description: CryptoJS.AES.decrypt(doc.data().description, masterPassword).toString(CryptoJS.enc.Utf8)
+      }));
 
-      try {
-        const q = query(
-          collection(db, "transactions"),
-          where("uid", "==", user.uid)
-        );
+      setTransactions(fetchedTransactions);
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        const querySnapshot = await getDocs(q);
-        const fetchedTransactions = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-          amount: CryptoJS.AES.decrypt(doc.data().amount, masterPassword).toString(CryptoJS.enc.Utf8),
-          merchant: CryptoJS.AES.decrypt(doc.data().merchant, masterPassword).toString(CryptoJS.enc.Utf8),
-          description: CryptoJS.AES.decrypt(doc.data().description, masterPassword).toString(CryptoJS.enc.Utf8)
-        }));
-
-        setTransactions(fetchedTransactions);
-      } catch (error) {
-        console.error("Error fetching transactions:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTransactions();
-  }, [user, masterPassword]);
-
+  // Then define other functions that use fetchTransactions
   const handleAddTransaction = async () => {
     // Validate required fields
     if (!newTransaction.amount || !newTransaction.account || !newTransaction.category || !newTransaction.merchant) {
@@ -132,7 +107,7 @@ function ExpenseTracker({ user, masterPassword }) {
       });
       
       // Refresh transactions list
-      fetchTransactions();
+      await fetchTransactions();
     } catch (error) {
       console.error("Error adding transaction:", error);
       // You might want to show an error message to the user
@@ -142,9 +117,115 @@ function ExpenseTracker({ user, masterPassword }) {
   const handleDeleteTransaction = async (transactionId) => {
     try {
       await deleteDoc(doc(db, "transactions", transactionId));
-      fetchTransactions(); // Refresh the list after deletion
+      await fetchTransactions(); // Call fetchTransactions after deleting
     } catch (error) {
       console.error("Error deleting transaction:", error);
+    }
+  };
+
+  // Then define your useEffects
+  useEffect(() => {
+    fetchTransactions();
+  }, [user, masterPassword]);
+
+  // Fetch saved cards
+  useEffect(() => {
+    const fetchCards = async () => {
+      if (!user || !masterPassword) return;
+      
+      try {
+        const q = query(
+          collection(db, "cards"),
+          where("uid", "==", user.uid)
+        );
+        
+        const snapshot = await getDocs(q);
+        const cardsData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          bankName: CryptoJS.AES.decrypt(doc.data().bankName, masterPassword).toString(CryptoJS.enc.Utf8),
+          cardNumber: CryptoJS.AES.decrypt(doc.data().cardNumber, masterPassword).toString(CryptoJS.enc.Utf8)
+        }));
+        
+        setCards(cardsData);
+      } catch (error) {
+        console.error('Error loading cards:', error);
+      }
+    };
+
+    fetchCards();
+  }, [user, masterPassword]);
+
+  // Fetch custom categories on component mount
+  useEffect(() => {
+    const fetchCustomCategories = async () => {
+      if (!user) return;
+      
+      try {
+        const q = query(
+          collection(db, "custom_categories"),
+          where("uid", "==", user.uid)
+        );
+        
+        const snapshot = await getDocs(q);
+        const categoriesData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          name: CryptoJS.AES.decrypt(doc.data().name, masterPassword).toString(CryptoJS.enc.Utf8),
+          merchants: doc.data().merchants.map(m => 
+            CryptoJS.AES.decrypt(m, masterPassword).toString(CryptoJS.enc.Utf8)
+          )
+        }));
+        
+        setCustomCategories(categoriesData);
+      } catch (error) {
+        console.error('Error loading custom categories:', error);
+      }
+    };
+
+    fetchCustomCategories();
+  }, [user, masterPassword]);
+
+  // Add this function to handle category selection
+  const handleCategoryChange = (e) => {
+    const category = e.target.value;
+    setNewTransaction({ ...newTransaction, category });
+    setMerchantSuggestions(getMerchantSuggestions(category));
+  };
+
+  // Update handleAddCategory to save to Firestore
+  const handleAddCategory = async (category) => {
+    try {
+      const encryptedCategory = {
+        uid: user.uid,
+        name: CryptoJS.AES.encrypt(category.name, masterPassword).toString(),
+        icon: category.icon.name, // Store icon component name
+        merchants: category.merchants.map(m => 
+          CryptoJS.AES.encrypt(m, masterPassword).toString()
+        ),
+        createdAt: serverTimestamp()
+      };
+
+      const docRef = await addDoc(collection(db, "custom_categories"), encryptedCategory);
+      
+      setCustomCategories([...customCategories, {
+        id: docRef.id,
+        ...category
+      }]);
+      
+      setShowAddCategory(false);
+    } catch (error) {
+      console.error('Error adding custom category:', error);
+    }
+  };
+
+  // Add function to delete custom category
+  const handleDeleteCategory = async (categoryId) => {
+    try {
+      await deleteDoc(doc(db, "custom_categories", categoryId));
+      setCustomCategories(customCategories.filter(c => c.id !== categoryId));
+    } catch (error) {
+      console.error('Error deleting custom category:', error);
     }
   };
 
@@ -224,31 +305,56 @@ function ExpenseTracker({ user, masterPassword }) {
                       </option>
                     ))}
                   </select>
-                  <select
-                    value={newTransaction.category}
-                    onChange={(e) => setNewTransaction({ ...newTransaction, category: e.target.value })}
-                    className="w-full bg-white/10 rounded-lg p-3 text-white appearance-none hover:bg-white/20 transition-colors cursor-pointer
-                      border border-white/10 focus:outline-none focus:border-white/30"
-                    style={{
-                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='white' opacity='0.5'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E")`,
-                      backgroundRepeat: 'no-repeat',
-                      backgroundPosition: 'right 1rem center'
-                    }}
-                  >
-                    <option value="" disabled className="bg-gray-800">Select Category</option>
-                    {categories.map(cat => (
-                      <option key={cat} value={cat} className="bg-gray-800">
-                        {cat}
-                      </option>
-                    ))}
-                  </select>
-                  <input
-                    type="text"
-                    placeholder="Merchant"
-                    value={newTransaction.merchant}
-                    onChange={(e) => setNewTransaction({ ...newTransaction, merchant: e.target.value })}
-                    className="w-full bg-white/10 rounded-lg p-3 text-white"
-                  />
+                  <div className="relative">
+                    <select
+                      value={newTransaction.category}
+                      onChange={handleCategoryChange}
+                      className="w-full bg-white/10 rounded-lg p-3 text-white appearance-none hover:bg-white/20 transition-colors cursor-pointer
+                        border border-white/10 focus:outline-none focus:border-white/30"
+                      style={{
+                        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='white' opacity='0.5'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E")`,
+                        backgroundRepeat: 'no-repeat',
+                        backgroundPosition: 'right 1rem center'
+                      }}
+                    >
+                      <option value="" disabled className="bg-gray-800">Select Category</option>
+                      {[...defaultCategories, ...customCategories].map(cat => (
+                        <option key={cat.name} value={cat.name} className="bg-gray-800">
+                          {cat.name}
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      onClick={() => setShowAddCategory(true)}
+                      className="absolute right-12 top-1/2 -translate-y-1/2 p-2 text-white/60 hover:text-white"
+                    >
+                      <BiPlus />
+                    </button>
+                  </div>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Merchant"
+                      value={newTransaction.merchant}
+                      onChange={(e) => setNewTransaction({ ...newTransaction, merchant: e.target.value })}
+                      className="w-full bg-white/10 rounded-lg p-3 text-white"
+                    />
+                    {merchantSuggestions.length > 0 && newTransaction.merchant && (
+                      <div className="absolute w-full mt-1 bg-gray-800 rounded-lg border border-white/10 max-h-48 overflow-y-auto">
+                        {merchantSuggestions
+                          .filter(m => m.toLowerCase().includes(newTransaction.merchant.toLowerCase()))
+                          .map((merchant, index) => (
+                            <button
+                              key={index}
+                              onClick={() => setNewTransaction({ ...newTransaction, merchant })}
+                              className="w-full text-left px-3 py-2 text-white hover:bg-white/10"
+                            >
+                              {merchant}
+                            </button>
+                          ))}
+                      </div>
+                    )}
+                  </div>
                   <input
                     type="text"
                     placeholder="Description (optional)"
@@ -272,39 +378,38 @@ function ExpenseTracker({ user, masterPassword }) {
               </div>
             </div>
 
-            {/* Transactions List */}
+            {/* Transactions List - Compact Version */}
             <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20">
-              <div className="p-6">
-                <h2 className="text-xl font-semibold text-white mb-4">Recent Transactions</h2>
-                <div className="space-y-4">
+              <div className="p-4">
+                <h2 className="text-lg font-semibold text-white mb-3">Recent Transactions</h2>
+                <div className="space-y-2">
                   {transactions.map((transaction) => (
                     <div 
                       key={transaction.id}
-                      className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10"
+                      className="flex items-center justify-between py-2 px-3 bg-white/5 rounded-lg border border-white/10"
                     >
-                      <div className="flex-1">
-                        <p className="text-white font-medium">{transaction.merchant}</p>
-                        <p className="text-white/60 text-sm">
-                          {transaction.category} • {transaction.account} • {transaction.date}
-                        </p>
-                        {transaction.description && (
-                          <p className="text-white/40 text-sm mt-1">{transaction.description}</p>
-                        )}
+                      <div className="flex items-center gap-3">
+                        <div className="text-white/70">
+                          {React.createElement(getCategoryIcon(transaction.category) || FaUtensils, {
+                            className: "text-lg"
+                          })}
+                        </div>
+                        <p className="text-white font-medium">₹{parseFloat(transaction.amount).toFixed(2)}</p>
                       </div>
                       <div className="flex items-center gap-4">
-                        <p className="text-white font-medium">₹{parseFloat(transaction.amount).toFixed(2)}</p>
+                        <p className="text-white/60 text-sm">{transaction.account}</p>
                         <button
                           onClick={() => handleDeleteTransaction(transaction.id)}
-                          className="text-white/60 hover:text-white transition-colors"
+                          className="text-white/40 hover:text-white/60 transition-colors"
                         >
-                          <BiTrash />
+                          <BiTrash className="text-sm" />
                         </button>
                       </div>
                     </div>
                   ))}
                   {transactions.length === 0 && (
-                    <p className="text-white/60 text-center py-4">
-                      No transactions recorded yet. Add your first transaction!
+                    <p className="text-white/60 text-center py-3 text-sm">
+                      No transactions yet
                     </p>
                   )}
                 </div>
@@ -319,6 +424,13 @@ function ExpenseTracker({ user, masterPassword }) {
           </div>
         )}
       </div>
+
+      {/* Add Category Dialog */}
+      <AddCategoryDialog
+        isOpen={showAddCategory}
+        onClose={() => setShowAddCategory(false)}
+        onSave={handleAddCategory}
+      />
     </div>
   );
 }
