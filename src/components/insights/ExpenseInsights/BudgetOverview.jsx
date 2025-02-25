@@ -1,41 +1,51 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaChartLine, FaChevronDown, FaChevronUp, FaWallet } from 'react-icons/fa';
 import { BiEdit, BiSave, BiX } from 'react-icons/bi';
 import { doc, updateDoc, setDoc } from "firebase/firestore";
 import { db } from '../../../firebase';
+import { auth } from '../../../firebase'; // Import auth directly
 
 const BudgetOverview = (props) => {
   console.log("BudgetOverview props:", props);
   const [showBudgetInput, setShowBudgetInput] = useState(false);
   const [newBudget, setNewBudget] = useState(props.monthlyBudget);
   const [saveStatus, setSaveStatus] = useState(null);
+  const [currentUser, setCurrentUser] = useState(auth.currentUser);
+  
+  // Effect to ensure we have the current user
+  useEffect(() => {
+    setCurrentUser(auth.currentUser);
+    console.log("Current user from auth:", auth.currentUser);
+  }, []);
   
   const handleBudgetChange = async () => {
     try {
       setSaveStatus(null);
       
-      console.log("Budget update attempted with userId:", props.userId);
+      // Get userId directly from auth
+      const userId = auth.currentUser?.uid || props.userId;
+      console.log("Budget update attempted with userId:", userId);
       
-      if (!props.userId || props.userId === "undefined") {
+      if (!userId) {
         console.error("Cannot update budget: User ID is missing or invalid");
         setSaveStatus('error');
         return;
       }
       
-      const userDocRef = doc(db, 'user_settings', props.userId);
+      const userDocRef = doc(db, 'user_settings', userId);
       
       // Check if the document exists first
       try {
         await updateDoc(userDocRef, {
           monthlyBudget: parseFloat(newBudget),
-          uid: props.userId // Add this line to ensure uid field is present
+          uid: userId // Add this line to ensure uid field is present
         });
       } catch (error) {
         // If document doesn't exist, create it
         if (error.code === 'not-found') {
           await setDoc(userDocRef, {
             monthlyBudget: parseFloat(newBudget),
-            uid: props.userId // Change from userId to uid to match security rules
+            uid: userId // Use uid field
           });
         } else {
           throw error;
