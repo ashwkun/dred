@@ -5,6 +5,8 @@ import SpendingTrends from './SpendingTrends';
 import SpendingPatterns from './SpendingPatterns';
 import RecurringExpenses from './RecurringExpenses';
 import SpendingPersona from './SpendingPersona';
+import CategoryBudgetAnalysis from './CategoryBudgetAnalysis';
+import InvestmentSummary from './InvestmentSummary';
 
 // Add this function to process transactions into insights
 const processTransactions = (transactions) => {
@@ -152,7 +154,9 @@ const ExpenseInsights = (props) => {
     category: true,
     trends: true,
     patterns: true,
-    recurring: true
+    recurring: true,
+    budgetAnalysis: false,
+    investments: false
   });
 
   const toggleSection = (section) => {
@@ -184,12 +188,20 @@ const ExpenseInsights = (props) => {
       };
     }
 
+    // Filter out investment transactions
+    const investmentCategories = ['Investments', 'Stocks', 'Mutual Funds', 'ETF', 'Crypto', 'Investment'];
+    const expenseTransactions = props.transactions.filter(transaction => 
+      !investmentCategories.includes(transaction.category)
+    );
+    
+    console.log(`Filtered out ${props.transactions.length - expenseTransactions.length} investment transactions`);
+    
     // Process the transactions to generate insights
-    const totalSpent = props.transactions.reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
+    const totalSpent = expenseTransactions.reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
     
     // Category breakdown
     const categories = {};
-    props.transactions.forEach(t => {
+    expenseTransactions.forEach(t => {
       const category = t.category || 'Uncategorized';
       if (!categories[category]) {
         categories[category] = 0;
@@ -204,7 +216,7 @@ const ExpenseInsights = (props) => {
     
     // Monthly spending
     const monthlySpending = {};
-    props.transactions.forEach(t => {
+    expenseTransactions.forEach(t => {
       const date = new Date(t.date);
       if (!isNaN(date.getTime())) {
         const month = date.toLocaleString('default', { month: 'short' });
@@ -217,7 +229,7 @@ const ExpenseInsights = (props) => {
     
     // Weekday vs weekend spending
     const weekdayWeekendSpending = { weekday: 0, weekend: 0 };
-    props.transactions.forEach(t => {
+    expenseTransactions.forEach(t => {
       const date = new Date(t.date);
       if (!isNaN(date.getTime())) {
         const day = date.getDay();
@@ -236,7 +248,7 @@ const ExpenseInsights = (props) => {
     
     const dayMapping = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
     
-    props.transactions.forEach(t => {
+    expenseTransactions.forEach(t => {
       const date = new Date(t.date);
       if (!isNaN(date.getTime())) {
         const day = date.getDay(); // 0-6
@@ -244,7 +256,7 @@ const ExpenseInsights = (props) => {
       }
     });
     
-    // Find recurring expenses
+    // Find recurring expenses - also filter out investments here
     const recurringExpenses = [];
     // Simplified version for now
     
@@ -283,6 +295,13 @@ const ExpenseInsights = (props) => {
         toggleSection={() => toggleSection('category')}
       />
       
+      <CategoryBudgetAnalysis 
+        insights={insights}
+        monthlyBudget={props.monthlyBudget}
+        isExpanded={expandedSections.budgetAnalysis}
+        toggleSection={() => toggleSection('budgetAnalysis')}
+      />
+      
       <SpendingTrends 
         insights={insights}
         isExpanded={expandedSections.trends}
@@ -299,6 +318,12 @@ const ExpenseInsights = (props) => {
         insights={insights}
         isExpanded={expandedSections.recurring}
         toggleSection={() => toggleSection('recurring')}
+      />
+      
+      <InvestmentSummary
+        transactions={props.transactions}
+        isExpanded={expandedSections.investments}
+        toggleSection={() => toggleSection('investments')}
       />
     </div>
   );
