@@ -182,6 +182,10 @@ function App() {
     }
   };
 
+  // In App.jsx, add extra validation to ensure we always have a user ID
+  const safeUserId = user?.uid || null;
+  console.log("App.jsx user ID:", safeUserId);
+
   // If not signed in → show Auth page
   if (!user) {
     return <Auth setUser={setUser} />;
@@ -258,7 +262,7 @@ function App() {
                   cards={cards} 
                   monthlyBudget={userSettings.monthlyBudget} 
                   onSetBudget={handleSetBudget} 
-                  userId={user?.uid} 
+                  userId={safeUserId} 
                 />
               </ErrorBoundary>
             )}

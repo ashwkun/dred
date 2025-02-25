@@ -149,10 +149,10 @@ const ExpenseInsights = (props) => {
   console.log("ExpenseInsights props:", props);
   const [expandedSections, setExpandedSections] = useState({
     budget: true,
-    category: false,
-    trends: false,
-    patterns: false,
-    recurring: false
+    category: true,
+    trends: true,
+    patterns: true,
+    recurring: true
   });
 
   const toggleSection = (section) => {

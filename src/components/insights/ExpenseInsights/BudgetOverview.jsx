@@ -9,34 +9,33 @@ const BudgetOverview = (props) => {
   const [showBudgetInput, setShowBudgetInput] = useState(false);
   const [newBudget, setNewBudget] = useState(props.monthlyBudget);
   const [saveStatus, setSaveStatus] = useState(null);
-  const [userId, setUserId] = useState(props.userId);
-
+  
   const handleBudgetChange = async () => {
     try {
       setSaveStatus(null);
       
-      console.log("Budget update attempted with userId:", userId);
+      console.log("Budget update attempted with userId:", props.userId);
       
-      if (!userId) {
+      if (!props.userId) {
         console.error("Cannot update budget: User ID is missing");
         setSaveStatus('error');
         return;
       }
       
-      const userDocRef = doc(db, 'user_settings', userId);
+      const userDocRef = doc(db, 'user_settings', props.userId);
       
       // Check if the document exists first
       try {
         await updateDoc(userDocRef, {
           monthlyBudget: parseFloat(newBudget),
-          uid: userId // Add this line to ensure uid field is present
+          uid: props.userId // Add this line to ensure uid field is present
         });
       } catch (error) {
         // If document doesn't exist, create it
         if (error.code === 'not-found') {
           await setDoc(userDocRef, {
             monthlyBudget: parseFloat(newBudget),
-            uid: userId // Change from userId to uid to match security rules
+            uid: props.userId // Change from userId to uid to match security rules
           });
         } else {
           throw error;
