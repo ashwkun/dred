@@ -78,11 +78,18 @@ service cloud.firestore {
       allow read, write: if request.auth != null && request.auth.uid == resource.data.uid;
     }
 
-    // New rules for goals
+    // Rules for goals
     match /goals/{goalId} {
       allow read: if request.auth != null && request.auth.uid == resource.data.userId;
       allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
       allow update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
+    }
+    
+    // Add rules for investment_goals collection
+    match /investment_goals/{goalId} {
+      allow read: if request.auth != null && request.auth.uid == resource.data.uid;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.uid;
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.uid;
     }
   }
 } 

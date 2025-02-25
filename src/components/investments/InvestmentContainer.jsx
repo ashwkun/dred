@@ -2,21 +2,25 @@ import React, { useState, useEffect } from 'react';
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db, auth } from "../../firebase";
 import GoalCard from './Goals/GoalCard';
-import { FaSpinner } from 'react-icons/fa';
+import { FaSpinner, FaExclamationTriangle } from 'react-icons/fa';
 import InvestmentSection from './InvestmentSection';
 import { FaCoins } from 'react-icons/fa';
 import { LoadingOverlay } from '../LoadingOverlay';
 
 const InvestmentContainer = ({ investmentData, userId }) => {
   const [investmentGoals, setInvestmentGoals] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   
   const loadGoals = async () => {
     setIsLoading(true);
+    setError(null);
     try {
       const userId = auth.currentUser?.uid;
       if (!userId) {
-        throw new Error("User not authenticated");
+        setError("User not authenticated");
+        setIsLoading(false);
+        return;
       }
       
       const q = query(
@@ -33,6 +37,7 @@ const InvestmentContainer = ({ investmentData, userId }) => {
       setInvestmentGoals(goalsData);
     } catch (error) {
       console.error("Error loading investment goals:", error);
+      setError("Could not load investment goals. Please try again later.");
     } finally {
       setIsLoading(false);
     }
@@ -44,6 +49,26 @@ const InvestmentContainer = ({ investmentData, userId }) => {
   
   if (isLoading) {
     return <LoadingOverlay message="Loading investments" submessage="Retrieving your financial goals..." />;
+  }
+  
+  if (error) {
+    return (
+      <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 text-center">
+        <FaExclamationTriangle className="text-yellow-400 text-5xl mx-auto mb-4" />
+        <h3 className="text-lg font-semibold text-white mb-2">Could Not Load Investment Goals</h3>
+        <p className="text-white/60 mb-4">
+          {error.includes("permissions") ? 
+            "You don't have permission to access investment goals." : 
+            error}
+        </p>
+        <button 
+          onClick={loadGoals}
+          className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white"
+        >
+          Try Again
+        </button>
+      </div>
+    );
   }
   
   if (!investmentData) {
@@ -63,16 +88,16 @@ const InvestmentContainer = ({ investmentData, userId }) => {
       <h2 className="text-2xl font-bold text-white mb-6">Investment Dashboard</h2>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Primary goal card */}
+        {/* Primary goal card - don't auto-show the form */}
         <GoalCard 
-          goalData={investmentGoals[0]} 
+          goal={investmentGoals[0]} 
           refreshGoals={loadGoals} 
         />
         
         {/* If there's already a primary goal, show option for secondary goal */}
         {investmentGoals.length > 0 && (
           <GoalCard 
-            goalData={investmentGoals[1]} 
+            goal={investmentGoals[1]} 
             refreshGoals={loadGoals} 
           />
         )}

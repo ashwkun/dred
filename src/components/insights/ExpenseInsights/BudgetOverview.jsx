@@ -17,7 +17,18 @@ const BudgetEditModal = ({ isOpen, onClose, currentBudget, onSave }) => {
     if (isOpen) {
       setNewBudget(currentBudget);
       setError(null);
+      
+      // Prevent scrolling on body when modal is open
+      document.body.style.overflow = 'hidden';
+    } else {
+      // Re-enable scrolling when modal is closed
+      document.body.style.overflow = 'auto';
     }
+    
+    // Cleanup function
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
   }, [isOpen, currentBudget]);
   
   if (!isOpen) return null;
@@ -41,7 +52,7 @@ const BudgetEditModal = ({ isOpen, onClose, currentBudget, onSave }) => {
   
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-gray-900/90 border border-white/20 rounded-xl p-6 w-full max-w-md">
+      <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gray-900/90 border border-white/20 rounded-xl p-6 w-full max-w-md m-4">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold text-white">Update Monthly Budget</h3>
           <button 
@@ -62,6 +73,7 @@ const BudgetEditModal = ({ isOpen, onClose, currentBudget, onSave }) => {
               onChange={(e) => setNewBudget(e.target.value)}
               className="bg-white/10 border border-white/20 text-white py-3 px-4 rounded-lg flex-1 focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-lg"
               placeholder="Enter amount"
+              autoFocus
             />
           </div>
           {error && (

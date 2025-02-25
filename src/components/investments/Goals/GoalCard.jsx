@@ -8,7 +8,7 @@ import UpdateGoalProgress from './UpdateGoalProgress';
 import { SuccessAnimation } from '../../SuccessAnimation';
 
 const GoalCard = ({ goal, onEdit, onDelete, onUpdateProgress, refreshGoals }) => {
-  const [isEditing, setIsEditing] = useState(!goal); // Start in edit mode if no goal exists
+  const [isEditing, setIsEditing] = useState(false); // Changed to false by default
   const [goalAmount, setGoalAmount] = useState(goal?.targetAmount || "");
   const [goalName, setGoalName] = useState(goal?.name || "");
   const [goalDate, setGoalDate] = useState(goal?.targetDate || "");
@@ -69,9 +69,10 @@ const GoalCard = ({ goal, onEdit, onDelete, onUpdateProgress, refreshGoals }) =>
     }
   };
   
-  const progressPercentage = goal?.currentAmount / goal?.targetAmount * 100;
-  const timeElapsedMonths = Math.floor((new Date() - new Date(goal?.createdAt.seconds * 1000)) / (1000 * 60 * 60 * 24 * 30));
-  const totalMonths = goal?.timeframe * 12;
+  // Only calculate these if goal exists
+  const progressPercentage = goal ? (goal.currentAmount / goal.targetAmount * 100) : 0;
+  const timeElapsedMonths = goal ? Math.floor((new Date() - new Date(goal?.createdAt.seconds * 1000)) / (1000 * 60 * 60 * 24 * 30)) : 0;
+  const totalMonths = goal ? (goal.timeframe * 12) : 0;
   const timePercentage = Math.min(100, (timeElapsedMonths / totalMonths) * 100);
   
   // Determine if goal is on track
@@ -155,7 +156,7 @@ const GoalCard = ({ goal, onEdit, onDelete, onUpdateProgress, refreshGoals }) =>
   // Display mode
   if (goal) {
     return (
-      <div className="flex-shrink-0 w-72 bg-gradient-to-br from-blue-900/30 to-indigo-900/30 backdrop-blur-lg rounded-xl p-4 border border-blue-500/20 mr-4">
+      <div className="flex-shrink-0 bg-gradient-to-br from-blue-900/30 to-indigo-900/30 backdrop-blur-lg rounded-xl p-4 border border-blue-500/20">
         <div className="flex justify-between items-start mb-3">
           <div className="flex items-center">
             <div className="bg-white/10 p-2 rounded-lg mr-3">
@@ -165,7 +166,7 @@ const GoalCard = ({ goal, onEdit, onDelete, onUpdateProgress, refreshGoals }) =>
           </div>
           <div className="flex space-x-2">
             <button 
-              onClick={onEdit}
+              onClick={() => setIsEditing(true)}
               className="text-white/60 hover:text-white p-1"
             >
               <FaEdit />
@@ -216,7 +217,7 @@ const GoalCard = ({ goal, onEdit, onDelete, onUpdateProgress, refreshGoals }) =>
           
           <div className="flex justify-between items-center mt-4">
             <div className="text-white/70 text-sm">Monthly investment</div>
-            <div className="text-white font-semibold">₹{goal.monthlyInvestment.toLocaleString()}</div>
+            <div className="text-white font-semibold">₹{goal.monthlyInvestment?.toLocaleString() || "N/A"}</div>
           </div>
         </div>
         {goal && (
