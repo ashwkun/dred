@@ -21,6 +21,7 @@ import BillPay from "./BillPay";
 import TopBar from "./components/TopBar";
 import Dialog from "./components/Dialog";
 import InsightsView from "./components/InsightsView";
+import ErrorBoundary from './components/ErrorBoundary';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -251,13 +252,15 @@ function App() {
               />
             )}
             {activePage === "insights" && (
-              <InsightsView 
-                transactions={transactions} 
-                cards={cards} 
-                monthlyBudget={userSettings.monthlyBudget} 
-                onSetBudget={handleSetBudget} 
-                userId={user?.uid} 
-              />
+              <ErrorBoundary>
+                <InsightsView 
+                  transactions={transactions} 
+                  cards={cards} 
+                  monthlyBudget={userSettings.monthlyBudget} 
+                  onSetBudget={handleSetBudget} 
+                  userId={user?.uid} 
+                />
+              </ErrorBoundary>
             )}
           </div>
         </div>
