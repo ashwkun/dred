@@ -5,10 +5,99 @@ import { doc, updateDoc, setDoc } from "firebase/firestore";
 import { db } from '../../../firebase';
 import { auth } from '../../../firebase'; // Import auth directly
 
+// Budget Edit Modal Component
+const BudgetEditModal = ({ isOpen, onClose, currentBudget, onSave }) => {
+  const [newBudget, setNewBudget] = useState(currentBudget);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState(null);
+  
+  useEffect(() => {
+    // Reset state when modal opens
+    if (isOpen) {
+      setNewBudget(currentBudget);
+      setError(null);
+    }
+  }, [isOpen, currentBudget]);
+  
+  if (!isOpen) return null;
+  
+  const handleSave = async () => {
+    if (!newBudget) {
+      setError("Please enter a budget amount");
+      return;
+    }
+    
+    setIsSubmitting(true);
+    try {
+      await onSave(parseFloat(newBudget));
+      onClose();
+    } catch (error) {
+      setError("Failed to update budget");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  
+  return (
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="bg-gray-900/90 border border-white/20 rounded-xl p-6 w-full max-w-md">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold text-white">Update Monthly Budget</h3>
+          <button 
+            onClick={onClose}
+            className="text-white/60 hover:text-white"
+          >
+            <BiX size={24} />
+          </button>
+        </div>
+        
+        <div className="mb-4">
+          <label className="block text-white/70 text-sm mb-2">Monthly Budget Amount (₹)</label>
+          <div className="flex items-center gap-2">
+            <span className="text-white/60 text-lg">₹</span>
+            <input
+              type="number"
+              value={newBudget}
+              onChange={(e) => setNewBudget(e.target.value)}
+              className="bg-white/10 border border-white/20 text-white py-3 px-4 rounded-lg flex-1 focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-lg"
+              placeholder="Enter amount"
+            />
+          </div>
+          {error && (
+            <div className="text-red-400 text-sm mt-2">{error}</div>
+          )}
+        </div>
+        
+        <div className="flex items-center justify-end gap-3">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={isSubmitting}
+            className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg text-white transition-opacity hover:opacity-90 disabled:opacity-50 flex items-center gap-2"
+          >
+            {isSubmitting ? (
+              <span className="animate-pulse">Saving...</span>
+            ) : (
+              <>
+                <BiSave />
+                <span>Save Budget</span>
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const BudgetOverview = (props) => {
   console.log("BudgetOverview props:", props);
-  const [showBudgetInput, setShowBudgetInput] = useState(false);
-  const [newBudget, setNewBudget] = useState(props.monthlyBudget);
+  const [showBudgetModal, setShowBudgetModal] = useState(false);
   const [saveStatus, setSaveStatus] = useState(null);
   const [currentUser, setCurrentUser] = useState(auth.currentUser);
   
@@ -18,7 +107,7 @@ const BudgetOverview = (props) => {
     console.log("Current user from auth:", auth.currentUser);
   }, []);
   
-  const handleBudgetChange = async () => {
+  const handleBudgetChange = async (newBudgetAmount) => {
     try {
       setSaveStatus(null);
       
@@ -37,14 +126,14 @@ const BudgetOverview = (props) => {
       // Check if the document exists first
       try {
         await updateDoc(userDocRef, {
-          monthlyBudget: parseFloat(newBudget),
+          monthlyBudget: newBudgetAmount,
           uid: userId // Add this line to ensure uid field is present
         });
       } catch (error) {
         // If document doesn't exist, create it
         if (error.code === 'not-found') {
           await setDoc(userDocRef, {
-            monthlyBudget: parseFloat(newBudget),
+            monthlyBudget: newBudgetAmount,
             uid: userId // Use uid field
           });
         } else {
@@ -52,15 +141,16 @@ const BudgetOverview = (props) => {
         }
       }
       
-      props.onSetBudget(parseFloat(newBudget));
-      setShowBudgetInput(false);
+      props.onSetBudget(newBudgetAmount);
       setSaveStatus('success');
       
       // Auto-hide success message after 3 seconds
       setTimeout(() => setSaveStatus(null), 3000);
+      return true;
     } catch (error) {
       console.error("Error updating budget:", error.code, error.message);
       setSaveStatus('error');
+      throw error;
     }
   };
 
@@ -112,62 +202,65 @@ const BudgetOverview = (props) => {
   const isProjectedOver = projectedOverUnder < 0;
 
   return (
-    <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 md:p-6 border border-white/20">
-      <div 
-        className="flex items-center justify-between cursor-pointer"
-        onClick={props.toggleSection}
-      >
-        <div className="flex items-center gap-2">
-          <FaChartLine className="text-blue-400" />
-          <h3 className="text-lg font-semibold text-white">Budget Overview</h3>
+    <>
+      {/* Budget Edit Modal */}
+      <BudgetEditModal 
+        isOpen={showBudgetModal}
+        onClose={() => setShowBudgetModal(false)}
+        currentBudget={monthlyBudget}
+        onSave={handleBudgetChange}
+      />
+    
+      <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 md:p-6 border border-white/20">
+        <div 
+          className="flex items-center justify-between cursor-pointer"
+          onClick={props.toggleSection}
+        >
+          <div className="flex items-center gap-2">
+            <FaWallet className="text-purple-400" />
+            <h3 className="text-lg font-semibold text-white">Budget Overview</h3>
+          </div>
+          <button className="text-white/60">
+            {props.isExpanded ? <FaChevronUp /> : <FaChevronDown />}
+          </button>
         </div>
-        <button className="text-white/60">
-          {props.isExpanded ? <FaChevronUp /> : <FaChevronDown />}
-        </button>
-      </div>
-      
-      {props.isExpanded && (
-        <div className="mt-4 space-y-6">
-          {/* Apple Wallet Style Budget Card */}
-          <div className={`rounded-xl overflow-hidden shadow-lg relative bg-gradient-to-br ${statusColors[budgetStatus].bg} p-1`}>
-            <div className="bg-black/20 backdrop-blur-sm rounded-lg p-4">
-              <div className="flex items-start justify-between mb-4">
+        
+        {props.isExpanded && (
+          <div className="mt-4">
+            {/* Apple Wallet-style Budget Card */}
+            <div className={`relative bg-gradient-to-r ${statusColors[budgetStatus].bg} rounded-xl p-4 mb-6 shadow-lg overflow-hidden`}>
+              <div className="absolute top-0 right-0 p-2">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent toggling the section
+                    setShowBudgetModal(true);
+                  }}
+                  className="text-white/70 hover:text-white p-1 rounded-full hover:bg-white/10 transition-colors"
+                >
+                  <BiEdit size={20} />
+                </button>
+              </div>
+              
+              <div className="mb-2">
+                <h4 className={`text-sm uppercase ${statusColors[budgetStatus].text}`}>Monthly Budget</h4>
+                <div className="text-white text-2xl font-bold">₹{monthlyBudget.toLocaleString()}</div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4 mb-3">
                 <div>
-                  <h3 className="text-white/80 text-sm font-medium uppercase tracking-wide">Monthly Budget</h3>
-                  <div className="flex items-baseline mt-1">
-                    <span className="text-white text-2xl md:text-3xl font-bold">₹{monthlyBudget.toLocaleString()}</span>
-                    {!showBudgetInput && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setShowBudgetInput(true);
-                        }}
-                        className="ml-2 text-white/60 hover:text-white"
-                      >
-                        <BiEdit size={16} />
-                      </button>
-                    )}
-                  </div>
+                  <h5 className="text-xs text-white/70 mb-1">Spent</h5>
+                  <div className="text-white font-semibold">₹{Math.round(totalSpent).toLocaleString()}</div>
                 </div>
-                <div className="flex flex-col items-end">
-                  <span className="text-white/80 text-sm font-medium uppercase tracking-wide">Spent</span>
-                  <span className="text-white text-xl md:text-2xl font-bold mt-1">₹{totalSpent.toLocaleString()}</span>
+                <div>
+                  <h5 className="text-xs text-white/70 mb-1">Remaining</h5>
+                  <div className="text-white font-semibold">₹{Math.round(remainingBudget).toLocaleString()}</div>
                 </div>
               </div>
               
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className={`${statusColors[budgetStatus].text}`}>
-                    {budgetStatus === 'exceeded' ? 'Over Budget' : 'Remaining'}
-                  </span>
-                  <span className="text-white font-medium">
-                    {budgetStatus === 'exceeded' ? '+' : ''}₹{Math.abs(remainingBudget).toLocaleString()}
-                  </span>
-                </div>
-                
-                <div className="h-2 bg-black/30 rounded-full overflow-hidden">
+              <div className="space-y-1">
+                <div className="h-2 bg-white/20 rounded-full overflow-hidden">
                   <div 
-                    className={`h-full ${statusColors[budgetStatus].progress}`}
+                    className={`h-full ${statusColors[budgetStatus].progress}`} 
                     style={{ width: `${Math.min(percentSpent, 100)}%` }}
                   ></div>
                 </div>
@@ -178,114 +271,83 @@ const BudgetOverview = (props) => {
                 </div>
               </div>
             </div>
-          </div>
-          
-          {/* Budget Insights */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-white/5 rounded-xl p-4">
-              <h4 className="text-white/60 text-sm mb-3">Budget Projection</h4>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-white/80">Daily Spending</span>
-                  <span className="text-white font-medium">₹{Math.round(dailySpentSoFar).toLocaleString()}</span>
+            
+            {/* Budget Insights */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-white/5 rounded-xl p-4">
+                <h4 className="text-white/60 text-sm mb-3">Budget Projection</h4>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-white/80">Daily Spending</span>
+                    <span className="text-white font-medium">₹{Math.round(dailySpentSoFar).toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-white/80">Daily Budget</span>
+                    <span className="text-white font-medium">₹{Math.round(dailyBudget).toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-white/80">Projection for Month</span>
+                    <span className={`font-medium ${isProjectedOver ? 'text-red-400' : 'text-green-400'}`}>
+                      ₹{Math.round(projectedMonthTotal).toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-white/80">
+                      {isProjectedOver ? 'Projected Overspend' : 'Projected Savings'}
+                    </span>
+                    <span className={`font-medium ${isProjectedOver ? 'text-red-400' : 'text-green-400'}`}>
+                      ₹{Math.abs(Math.round(projectedOverUnder)).toLocaleString()}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-white/80">Daily Budget</span>
-                  <span className="text-white font-medium">₹{Math.round(dailyBudget).toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-white/80">Projection for Month</span>
-                  <span className={`font-medium ${isProjectedOver ? 'text-red-400' : 'text-green-400'}`}>
-                    ₹{Math.round(projectedMonthTotal).toLocaleString()}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-white/80">
-                    {isProjectedOver ? 'Projected Overspend' : 'Projected Savings'}
-                  </span>
-                  <span className={`font-medium ${isProjectedOver ? 'text-red-400' : 'text-green-400'}`}>
-                    ₹{Math.abs(Math.round(projectedOverUnder)).toLocaleString()}
-                  </span>
+              </div>
+              
+              <div className="bg-white/5 rounded-xl p-4">
+                <h4 className="text-white/60 text-sm mb-3">Budget Health</h4>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-3 h-3 rounded-full ${budgetStatus === 'good' ? 'bg-green-400' : budgetStatus === 'warning' ? 'bg-yellow-400' : 'bg-red-400'}`}></div>
+                    <span className="text-white/80">
+                      {budgetStatus === 'good' ? 'On Track' : budgetStatus === 'warning' ? 'At Risk' : 'Over Budget'}
+                    </span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center">
+                    <span className="text-white/80">Spending Rate</span>
+                    <span className="text-white font-medium">
+                      {percentOfMonthPassed > 0 && percentSpent > 0 ? 
+                        (percentSpent / percentOfMonthPassed).toFixed(2) : 1}x
+                    </span>
+                  </div>
+                  
+                  <div className="text-white/80">
+                    {budgetStatus === 'good' && percentOfMonthPassed > percentSpent ? (
+                      <span>You're spending at a healthy rate and staying within budget.</span>
+                    ) : budgetStatus === 'warning' ? (
+                      <span>Your spending is slightly high. Consider reducing expenses for the rest of the month.</span>
+                    ) : (
+                      <span>You've exceeded your monthly budget. Review your spending in high-expense categories.</span>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
             
-            <div className="bg-white/5 rounded-xl p-4">
-              <h4 className="text-white/60 text-sm mb-3">Budget Health</h4>
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className={`w-3 h-3 rounded-full ${budgetStatus === 'good' ? 'bg-green-400' : budgetStatus === 'warning' ? 'bg-yellow-400' : 'bg-red-400'}`}></div>
-                  <span className="text-white/80">
-                    {budgetStatus === 'good' ? 'On Track' : budgetStatus === 'warning' ? 'At Risk' : 'Over Budget'}
-                  </span>
-                </div>
-                
-                <div className="flex justify-between items-center">
-                  <span className="text-white/80">Spending Rate</span>
-                  <span className="text-white font-medium">
-                    {percentOfMonthPassed > 0 && percentSpent > 0 ? 
-                      (percentSpent / percentOfMonthPassed).toFixed(2) : 1}x
-                  </span>
-                </div>
-                
-                <div className="text-white/80">
-                  {budgetStatus === 'good' && percentOfMonthPassed > percentSpent ? (
-                    <span>You're spending at a healthy rate and staying within budget.</span>
-                  ) : budgetStatus === 'warning' ? (
-                    <span>Your spending is slightly high. Consider reducing expenses for the rest of the month.</span>
-                  ) : (
-                    <span>You've exceeded your monthly budget. Review your spending in high-expense categories.</span>
-                  )}
-                </div>
+            {/* Success or Error Message */}
+            {saveStatus === 'success' && (
+              <div className="mt-4 p-3 bg-green-500/20 border border-green-500/30 rounded-lg text-green-400">
+                Budget updated successfully!
               </div>
-            </div>
+            )}
+            {saveStatus === 'error' && (
+              <div className="mt-4 p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-400">
+                Failed to update budget. Please try again.
+              </div>
+            )}
           </div>
-          
-          {/* Budget Editing Section */}
-          {showBudgetInput && (
-            <div className="mt-4 bg-white/5 rounded-xl p-4">
-              <h4 className="text-white/60 text-sm mb-3">Update Monthly Budget</h4>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-white/60">₹</span>
-                <input
-                  type="number"
-                  value={newBudget}
-                  onChange={(e) => setNewBudget(e.target.value)}
-                  className="bg-white/10 border border-white/20 text-white py-2 px-3 rounded-lg flex-1 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
-                />
-              </div>
-              <div className="flex gap-2 mt-2">
-                <button
-                  onClick={handleBudgetChange}
-                  className="flex items-center justify-center gap-1 bg-white/10 hover:bg-white/20 text-white py-2 px-4 rounded-lg flex-1 transition-colors"
-                >
-                  <BiSave />
-                  <span>Save</span>
-                </button>
-                <button
-                  onClick={() => setShowBudgetInput(false)}
-                  className="flex items-center justify-center gap-1 bg-white/10 hover:bg-red-500/20 text-white py-2 px-4 rounded-lg flex-1 transition-colors"
-                >
-                  <BiX />
-                  <span>Cancel</span>
-                </button>
-              </div>
-              
-              {saveStatus === 'success' && (
-                <div className="text-green-400 text-sm mt-2">
-                  Budget updated successfully!
-                </div>
-              )}
-              {saveStatus === 'error' && (
-                <div className="text-red-400 text-sm mt-2">
-                  Failed to update budget. Please try again.
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </>
   );
 };
 
