@@ -186,6 +186,12 @@ function App() {
   const safeUserId = user?.uid || null;
   console.log("App.jsx user ID:", safeUserId);
 
+  // Add more logging for userId
+  useEffect(() => {
+    console.log("App.jsx: User changed:", user);
+    console.log("App.jsx: User ID is:", user?.uid);
+  }, [user]);
+
   // If not signed in → show Auth page
   if (!user) {
     return <Auth setUser={setUser} />;

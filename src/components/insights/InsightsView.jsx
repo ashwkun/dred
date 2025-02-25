@@ -8,7 +8,7 @@ import { doc, updateDoc } from "firebase/firestore";
 import { db } from '../../firebase';
 
 const ModularInsightsView = (props) => {
-  console.log("ModularInsightsView props:", props);
+  console.log("ModularInsightsView props:", props, "userId specifically:", props.userId);
   const [activeTab, setActiveTab] = useState('expenses');
   const [insights, setInsights] = useState(null);
   const [isLoading, setIsLoading] = useState(true);

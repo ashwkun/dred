@@ -16,8 +16,8 @@ const BudgetOverview = (props) => {
       
       console.log("Budget update attempted with userId:", props.userId);
       
-      if (!props.userId) {
-        console.error("Cannot update budget: User ID is missing");
+      if (!props.userId || props.userId === "undefined") {
+        console.error("Cannot update budget: User ID is missing or invalid");
         setSaveStatus('error');
         return;
       }
