@@ -299,6 +299,105 @@ export const calculateInsights = (transactions, monthlyBudget) => {
     investmentData.investmentGrowth = ((investmentData.totalReturns / investmentData.totalInvested) - 1) * 100;
   }
 
+  // Add these calculations to your existing calculateInsights function
+
+  // 1. Make sure weekly analysis includes day-wise breakdown
+  const dayWise = {};
+  ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].forEach(day => {
+    dayWise[day] = 0;
+  });
+
+  transactions.forEach(tx => {
+    const txDate = new Date(tx.date);
+    const dayOfWeek = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(txDate);
+    dayWise[dayOfWeek] = (dayWise[dayOfWeek] || 0) + tx.amount;
+  });
+
+  // 2. Calculate payment method breakdown
+  const paymentMethodBreakdown = {};
+  transactions.forEach(tx => {
+    const method = tx.paymentMethod || 'Other';
+    paymentMethodBreakdown[method] = (paymentMethodBreakdown[method] || 0) + tx.amount;
+  });
+
+  // 3. Calculate time-based spending
+  const timeBasedSpending = {
+    morning: 0,    // 6am-12pm
+    afternoon: 0,  // 12pm-5pm
+    evening: 0,    // 5pm-9pm
+    night: 0       // 9pm-6am
+  };
+
+  transactions.forEach(tx => {
+    if (!tx.time) return;
+    
+    const hour = parseInt(tx.time.split(':')[0]);
+    
+    if (hour >= 6 && hour < 12) {
+      timeBasedSpending.morning += tx.amount;
+    } else if (hour >= 12 && hour < 17) {
+      timeBasedSpending.afternoon += tx.amount;
+    } else if (hour >= 17 && hour < 21) {
+      timeBasedSpending.evening += tx.amount;
+    } else {
+      timeBasedSpending.night += tx.amount;
+    }
+  });
+
+  // 4. Identify recurring expenses
+  const recurringExpenses = {};
+  const merchantFrequency = {};
+  const monthSet = new Set();
+
+  // Group transactions by month to find potential recurring items
+  nonInvestmentTransactions.forEach(tx => {
+    const txDate = new Date(tx.date);
+    const monthYear = `${txDate.getMonth()}-${txDate.getFullYear()}`;
+    monthSet.add(monthYear);
+    
+    if (!merchantFrequency[tx.merchant]) {
+      merchantFrequency[tx.merchant] = {};
+    }
+    
+    if (!merchantFrequency[tx.merchant][monthYear]) {
+      merchantFrequency[tx.merchant][monthYear] = [];
+    }
+    
+    merchantFrequency[tx.merchant][monthYear].push({
+      amount: parseFloat(tx.amount),
+      date: txDate
+    });
+  });
+
+  // Find merchants that appear in at least 2 different months
+  Object.entries(merchantFrequency).forEach(([merchant, monthData]) => {
+    const uniqueMonths = Object.keys(monthData).length;
+    
+    if (uniqueMonths >= 2) {
+      // Calculate average transaction amount for this merchant
+      let totalAmount = 0;
+      let count = 0;
+      
+      Object.values(monthData).forEach(transactions => {
+        // If there are multiple transactions in a month, use the smallest one
+        // (recurring bills tend to be consistent amounts)
+        if (transactions.length > 0) {
+          const amounts = transactions.map(t => t.amount);
+          const minAmount = Math.min(...amounts);
+          totalAmount += minAmount;
+          count++;
+        }
+      });
+      
+      const avgAmount = count > 0 ? totalAmount / count : 0;
+      
+      // If the merchant appears in at least half of the months, consider it recurring
+      if (count >= Math.max(2, monthSet.size / 2)) {
+        recurringExpenses[merchant] = avgAmount;
+      }
+    }
+  });
+
   // Add to the return object
   return {
     thisMonthTotal,
@@ -330,7 +429,7 @@ export const calculateInsights = (transactions, monthlyBudget) => {
         : null,
       weekendAvg: weeklyPatterns.count.weekend ? weeklyPatterns.weekendTotal / weeklyPatterns.count.weekend : 0,
       weekdayAvg: weeklyPatterns.count.weekday ? weeklyPatterns.weekdayTotal / weeklyPatterns.count.weekday : 0,
-      dayWiseSpending: weeklyPatterns.dayWise
+      dayWise
     },
     categoryInsights: {
       topCategories,
@@ -369,6 +468,9 @@ export const calculateInsights = (transactions, monthlyBudget) => {
     investmentData,
     highestSpendingDay: Object.entries(dailySpending).sort(([, a], [, b]) => b - a)[0],
     mostFrequentCategory: Object.entries(categorySpending).sort(([, a], [, b]) => b - a)[0]?.[0],
-    largestExpense: Math.max(...transactions.map(t => parseFloat(t.amount)))
+    largestExpense: Math.max(...transactions.map(t => parseFloat(t.amount))),
+    paymentMethodBreakdown,
+    timeBasedSpending,
+    recurringExpenses
   };
 }; 

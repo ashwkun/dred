@@ -14,12 +14,13 @@ import { BiCreditCard, BiAddToQueue, BiLogOut, BiCog } from 'react-icons/bi';
 import { useTheme } from './contexts/ThemeContext';
 import Sidebar from "./components/Sidebar";
 import MobileNav from "./components/MobileNav";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { collection, getDocs, query, where, doc, updateDoc } from "firebase/firestore";
 import CryptoJS from "crypto-js";
 import { db } from "./firebase";
 import BillPay from "./BillPay";
 import TopBar from "./components/TopBar";
 import Dialog from "./components/Dialog";
+import InsightsView from "./components/InsightsView";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -40,6 +41,10 @@ function App() {
     confirmText: 'Confirm',
     cancelText: 'Cancel'
   });
+  const [userSettings, setUserSettings] = useState({
+    monthlyBudget: 0
+  });
+  const [transactions, setTransactions] = useState([]);
 
   // Listen to auth state changes
   useEffect(() => {
@@ -160,6 +165,22 @@ function App() {
     });
   };
 
+  const handleSetBudget = (newBudget) => {
+    setUserSettings(prev => ({
+      ...prev,
+      monthlyBudget: newBudget
+    }));
+    
+    if (user) {
+      const userDocRef = doc(db, 'user_settings', user.uid);
+      updateDoc(userDocRef, {
+        monthlyBudget: newBudget
+      }).catch(error => {
+        console.error("Error updating budget:", error);
+      });
+    }
+  };
+
   // If not signed in → show Auth page
   if (!user) {
     return <Auth setUser={setUser} />;
@@ -227,6 +248,15 @@ function App() {
               <BillPay 
                 user={user} 
                 masterPassword={masterPassword}
+              />
+            )}
+            {activePage === "insights" && (
+              <InsightsView 
+                transactions={transactions} 
+                cards={cards} 
+                monthlyBudget={userSettings.monthlyBudget} 
+                onSetBudget={handleSetBudget} 
+                userId={user?.uid} 
               />
             )}
           </div>
