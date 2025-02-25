@@ -1,161 +1,50 @@
 import React, { useState } from 'react';
-import { FaEdit, FaTrash, FaStar, FaCalendarAlt, FaChartLine } from 'react-icons/fa';
-import { doc, setDoc, updateDoc, getDoc } from "firebase/firestore";
-import { db, auth } from "../../../firebase";
-import { BiEdit, BiSave, BiX } from 'react-icons/bi';
-import { FaCheck } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaStar, FaCalendarAlt, FaChartLine, FaTimes } from 'react-icons/fa';
+import { doc, deleteDoc } from "firebase/firestore";
+import { db } from "../../../firebase";
 import UpdateGoalProgress from './UpdateGoalProgress';
 import { SuccessAnimation } from '../../SuccessAnimation';
+import GoalForm from './GoalForm';
 
-const GoalCard = ({ goal, onEdit, onDelete, onUpdateProgress, refreshGoals }) => {
-  const [isEditing, setIsEditing] = useState(false); // Changed to false by default
-  const [goalAmount, setGoalAmount] = useState(goal?.targetAmount || "");
-  const [goalName, setGoalName] = useState(goal?.name || "");
-  const [goalDate, setGoalDate] = useState(goal?.targetDate || "");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState(null);
+const GoalCard = ({ goal, refreshGoals }) => {
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
   
-  const handleSetGoal = async () => {
-    if (!goalName || !goalAmount) {
-      setError("Please set both a goal name and amount");
-      return;
-    }
-    
-    setIsSubmitting(true);
-    setError(null);
-    
+  // Handle delete confirmation
+  const handleDeleteClick = () => {
+    setShowDeleteConfirm(true);
+  };
+  
+  // Handle actual deletion
+  const handleConfirmDelete = async () => {
     try {
-      const userId = auth.currentUser?.uid;
-      if (!userId) {
-        throw new Error("User not authenticated");
-      }
-      
-      const goalId = goal?.id || `goal_${Date.now()}`;
-      const goalRef = doc(db, "investment_goals", goalId);
-      
-      const goalObject = {
-        id: goalId,
-        uid: userId,
-        name: goalName,
-        targetAmount: parseFloat(goalAmount),
-        targetDate: goalDate || null,
-        currentAmount: goal?.currentAmount || 0,
-        createdAt: goal?.createdAt || new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-      
-      // Check if document exists
-      const docSnap = await getDoc(goalRef);
-      
-      if (docSnap.exists()) {
-        await updateDoc(goalRef, goalObject);
-      } else {
-        await setDoc(goalRef, goalObject);
-      }
+      if (!goal?.id) return;
+      await deleteDoc(doc(db, "investment_goals", goal.id));
       
       if (refreshGoals) refreshGoals();
-      setIsEditing(false);
-      
-      // Show success animation
-      setShowSuccessAnimation(true);
-      setTimeout(() => setShowSuccessAnimation(false), 2000);
-      
-    } catch (err) {
-      console.error("Error setting investment goal:", err);
-      setError("Failed to save goal. Please try again.");
-    } finally {
-      setIsSubmitting(false);
+      setShowDeleteConfirm(false);
+    } catch (error) {
+      console.error("Error deleting goal:", error);
     }
   };
   
-  // Only calculate these if goal exists
+  // Calculate these only if goal exists
   const progressPercentage = goal ? (goal.currentAmount / goal.targetAmount * 100) : 0;
-  const timeElapsedMonths = goal ? Math.floor((new Date() - new Date(goal?.createdAt.seconds * 1000)) / (1000 * 60 * 60 * 24 * 30)) : 0;
-  const totalMonths = goal ? (goal.timeframe * 12) : 0;
-  const timePercentage = Math.min(100, (timeElapsedMonths / totalMonths) * 100);
+  const timeElapsedMonths = goal?.createdAt ? 
+    Math.floor((new Date() - (new Date(goal.createdAt.seconds ? goal.createdAt.seconds * 1000 : goal.createdAt))) / (1000 * 60 * 60 * 24 * 30)) : 0;
+  const totalMonths = goal?.timeframe ? (goal.timeframe * 12) : 60; // Default to 5 years
+  const timePercentage = Math.min(100, Math.max(0, (timeElapsedMonths / totalMonths) * 100));
   
   // Determine if goal is on track
   const isOnTrack = progressPercentage >= timePercentage;
   
-  if (isEditing) {
-    return (
-      <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 border border-white/20 h-full">
-        <h3 className="text-lg font-semibold text-white mb-4">
-          {goal ? "Edit Investment Goal" : "Set Investment Goal"}
-        </h3>
-        
-        <div className="space-y-4">
-          <div>
-            <label className="block text-white/70 text-sm mb-1">Goal Name</label>
-            <input
-              type="text"
-              value={goalName}
-              onChange={(e) => setGoalName(e.target.value)}
-              placeholder="Retirement, House, Education..."
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-white/70 text-sm mb-1">Target Amount (₹)</label>
-            <input
-              type="number"
-              value={goalAmount}
-              onChange={(e) => setGoalAmount(e.target.value)}
-              placeholder="1000000"
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-white/70 text-sm mb-1">Target Date (Optional)</label>
-            <input
-              type="date"
-              value={goalDate}
-              onChange={(e) => setGoalDate(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          
-          {error && (
-            <div className="text-red-400 text-sm">{error}</div>
-          )}
-          
-          <div className="flex gap-2 pt-2">
-            <button
-              onClick={handleSetGoal}
-              disabled={isSubmitting}
-              className="flex items-center justify-center gap-1 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg py-2 px-4 flex-1 hover:opacity-90 transition-opacity disabled:opacity-50"
-            >
-              {isSubmitting ? (
-                <span className="animate-pulse">Saving...</span>
-              ) : (
-                <>
-                  <BiSave />
-                  <span>Save Goal</span>
-                </>
-              )}
-            </button>
-            
-            {goal && (
-              <button
-                onClick={() => setIsEditing(false)}
-                className="flex items-center justify-center gap-1 bg-white/10 hover:bg-white/20 text-white rounded-lg py-2 px-4 transition-colors"
-              >
-                <BiX />
-                <span>Cancel</span>
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-    );
+  if (!goal) {
+    return null; // Don't render anything if no goal
   }
   
-  // Display mode
-  if (goal) {
-    return (
+  return (
+    <>
       <div className="flex-shrink-0 bg-gradient-to-br from-blue-900/30 to-indigo-900/30 backdrop-blur-lg rounded-xl p-4 border border-blue-500/20">
         <div className="flex justify-between items-start mb-3">
           <div className="flex items-center">
@@ -166,13 +55,13 @@ const GoalCard = ({ goal, onEdit, onDelete, onUpdateProgress, refreshGoals }) =>
           </div>
           <div className="flex space-x-2">
             <button 
-              onClick={() => setIsEditing(true)}
+              onClick={() => setShowEditModal(true)}
               className="text-white/60 hover:text-white p-1"
             >
               <FaEdit />
             </button>
             <button 
-              onClick={onDelete}
+              onClick={handleDeleteClick}
               className="text-white/60 hover:text-red-400 p-1"
             >
               <FaTrash />
@@ -207,7 +96,7 @@ const GoalCard = ({ goal, onEdit, onDelete, onUpdateProgress, refreshGoals }) =>
           
           <div className="flex items-center space-x-2 text-sm">
             <FaCalendarAlt className="text-white/60" />
-            <span className="text-white/80">{goal.timeframe} years</span>
+            <span className="text-white/80">{goal.timeframe || 5} years</span>
             <span className="text-white/40">|</span>
             <FaChartLine className={isOnTrack ? 'text-green-400' : 'text-yellow-400'} />
             <span className={isOnTrack ? 'text-green-400' : 'text-yellow-400'}>
@@ -220,32 +109,68 @@ const GoalCard = ({ goal, onEdit, onDelete, onUpdateProgress, refreshGoals }) =>
             <div className="text-white font-semibold">₹{goal.monthlyInvestment?.toLocaleString() || "N/A"}</div>
           </div>
         </div>
-        {goal && (
-          <UpdateGoalProgress 
-            goalId={goal.id}
-            currentAmount={goal.currentAmount}
-            refreshGoals={refreshGoals}
-          />
-        )}
+        <UpdateGoalProgress 
+          goalId={goal.id}
+          currentAmount={goal.currentAmount}
+          refreshGoals={refreshGoals}
+        />
       </div>
-    );
-  }
-  
-  // Empty state / no goal set yet
-  return (
-    <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 border border-white/20 h-full flex flex-col items-center justify-center text-center">
-      <FaChartLine className="text-purple-400 text-4xl mb-4" />
-      <h3 className="text-lg font-semibold text-white mb-2">Set an Investment Goal</h3>
-      <p className="text-white/60 text-sm mb-4">
-        Define your financial targets and track your progress over time.
-      </p>
-      <button
-        onClick={() => setIsEditing(true)}
-        className="flex items-center justify-center gap-1 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg py-2 px-4 hover:opacity-90 transition-opacity"
-      >
-        <span>Set Goal</span>
-      </button>
-    </div>
+      
+      {/* Edit Modal */}
+      {showEditModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-gray-900/90 border border-white/20 rounded-xl p-6 w-full max-w-md m-4">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-semibold text-white">Edit Investment Goal</h3>
+              <button 
+                onClick={() => setShowEditModal(false)}
+                className="text-white/60 hover:text-white"
+              >
+                <FaTimes size={20} />
+              </button>
+            </div>
+            <GoalForm 
+              existingGoal={goal}
+              onSave={() => {
+                setShowEditModal(false);
+                refreshGoals();
+                setShowSuccessAnimation(true);
+                setTimeout(() => setShowSuccessAnimation(false), 2000);
+              }}
+              onCancel={() => setShowEditModal(false)}
+            />
+          </div>
+        </div>
+      )}
+      
+      {/* Delete Confirmation */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-gray-900/90 border border-white/20 rounded-xl p-6 w-full max-w-md m-4">
+            <h3 className="text-xl font-semibold text-white mb-4">Delete Goal</h3>
+            <p className="text-white/70 mb-6">Are you sure you want to delete this goal? This action cannot be undone.</p>
+            
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmDelete}
+                className="px-4 py-2 bg-red-500 hover:bg-red-600 rounded-lg text-white"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Success Animation */}
+      {showSuccessAnimation && <SuccessAnimation message="Goal updated successfully!" />}
+    </>
   );
 };
 
