@@ -5,6 +5,7 @@ import { db, auth } from "../../../firebase";
 import { BiEdit, BiSave, BiX } from 'react-icons/bi';
 import { FaCheck } from 'react-icons/fa';
 import UpdateGoalProgress from './UpdateGoalProgress';
+import { SuccessAnimation } from '../../SuccessAnimation';
 
 const GoalCard = ({ goal, onEdit, onDelete, onUpdateProgress, refreshGoals }) => {
   const [isEditing, setIsEditing] = useState(!goal); // Start in edit mode if no goal exists
@@ -13,6 +14,7 @@ const GoalCard = ({ goal, onEdit, onDelete, onUpdateProgress, refreshGoals }) =>
   const [goalDate, setGoalDate] = useState(goal?.targetDate || "");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
   
   const handleSetGoal = async () => {
     if (!goalName || !goalAmount) {
@@ -52,8 +54,12 @@ const GoalCard = ({ goal, onEdit, onDelete, onUpdateProgress, refreshGoals }) =>
         await setDoc(goalRef, goalObject);
       }
       
+      if (refreshGoals) refreshGoals();
       setIsEditing(false);
-      if (refreshGoals) refreshGoals(); // Refresh parent component data
+      
+      // Show success animation
+      setShowSuccessAnimation(true);
+      setTimeout(() => setShowSuccessAnimation(false), 2000);
       
     } catch (err) {
       console.error("Error setting investment goal:", err);

@@ -5,6 +5,7 @@ import GoalCard from './Goals/GoalCard';
 import { FaSpinner } from 'react-icons/fa';
 import InvestmentSection from './InvestmentSection';
 import { FaCoins } from 'react-icons/fa';
+import { LoadingOverlay } from '../LoadingOverlay';
 
 const InvestmentContainer = ({ investmentData, userId }) => {
   const [investmentGoals, setInvestmentGoals] = useState([]);
@@ -41,6 +42,10 @@ const InvestmentContainer = ({ investmentData, userId }) => {
     loadGoals();
   }, []);
   
+  if (isLoading) {
+    return <LoadingOverlay message="Loading investments" submessage="Retrieving your financial goals..." />;
+  }
+  
   if (!investmentData) {
     return (
       <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 text-center">
@@ -57,27 +62,21 @@ const InvestmentContainer = ({ investmentData, userId }) => {
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-white mb-6">Investment Dashboard</h2>
       
-      {isLoading ? (
-        <div className="flex justify-center py-8">
-          <FaSpinner className="text-white/60 text-2xl animate-spin" />
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Primary goal card */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Primary goal card */}
+        <GoalCard 
+          goalData={investmentGoals[0]} 
+          refreshGoals={loadGoals} 
+        />
+        
+        {/* If there's already a primary goal, show option for secondary goal */}
+        {investmentGoals.length > 0 && (
           <GoalCard 
-            goalData={investmentGoals[0]} 
+            goalData={investmentGoals[1]} 
             refreshGoals={loadGoals} 
           />
-          
-          {/* If there's already a primary goal, show option for secondary goal */}
-          {investmentGoals.length > 0 && (
-            <GoalCard 
-              goalData={investmentGoals[1]} 
-              refreshGoals={loadGoals} 
-            />
-          )}
-        </div>
-      )}
+        )}
+      </div>
       
       {/* Add more investment-related components here */}
       <InvestmentSection insights={investmentData} userId={userId} />

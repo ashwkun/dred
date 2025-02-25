@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { doc, updateDoc, getDoc } from "firebase/firestore";
 import { db } from "../../../firebase";
 import { BiPlus } from 'react-icons/bi';
+import { SuccessAnimation } from '../../SuccessAnimation';
 
 const UpdateGoalProgress = ({ goalId, currentAmount, refreshGoals }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [amount, setAmount] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
   
   const handleUpdateProgress = async () => {
     if (!amount || isNaN(parseFloat(amount))) return;
@@ -26,6 +28,10 @@ const UpdateGoalProgress = ({ goalId, currentAmount, refreshGoals }) => {
         if (refreshGoals) refreshGoals();
         setIsOpen(false);
         setAmount("");
+        
+        // Show success animation
+        setShowSuccessAnimation(true);
+        setTimeout(() => setShowSuccessAnimation(false), 2000);
       }
     } catch (error) {
       console.error("Error updating goal progress:", error);
@@ -47,31 +53,37 @@ const UpdateGoalProgress = ({ goalId, currentAmount, refreshGoals }) => {
   }
   
   return (
-    <div className="mt-3 p-3 bg-white/5 rounded-lg">
-      <label className="block text-white/70 text-xs mb-1">Add to Current Progress (₹)</label>
-      <div className="flex gap-2">
-        <input
-          type="number"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          placeholder="Amount"
-          className="flex-1 bg-white/10 border border-white/20 rounded-lg px-3 py-1 text-white text-sm focus:outline-none"
-        />
-        <button
-          onClick={handleUpdateProgress}
-          disabled={isSubmitting}
-          className="bg-blue-500 hover:bg-blue-600 text-white rounded-lg px-3 py-1 text-sm disabled:opacity-50"
-        >
-          {isSubmitting ? "..." : "Add"}
-        </button>
-        <button
-          onClick={() => setIsOpen(false)}
-          className="bg-white/10 hover:bg-white/20 text-white rounded-lg px-3 py-1 text-sm"
-        >
-          Cancel
-        </button>
+    <>
+      {showSuccessAnimation && (
+        <SuccessAnimation message="Progress updated successfully!" />
+      )}
+      
+      <div className="mt-3 p-3 bg-white/5 rounded-lg">
+        <label className="block text-white/70 text-xs mb-1">Add to Current Progress (₹)</label>
+        <div className="flex gap-2">
+          <input
+            type="number"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            placeholder="Amount"
+            className="flex-1 bg-white/10 border border-white/20 rounded-lg px-3 py-1 text-white text-sm focus:outline-none"
+          />
+          <button
+            onClick={handleUpdateProgress}
+            disabled={isSubmitting}
+            className="bg-blue-500 hover:bg-blue-600 text-white rounded-lg px-3 py-1 text-sm disabled:opacity-50"
+          >
+            {isSubmitting ? "..." : "Add"}
+          </button>
+          <button
+            onClick={() => setIsOpen(false)}
+            className="bg-white/10 hover:bg-white/20 text-white rounded-lg px-3 py-1 text-sm"
+          >
+            Cancel
+          </button>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

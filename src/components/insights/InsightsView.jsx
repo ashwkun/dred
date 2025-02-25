@@ -6,6 +6,7 @@ import ExpenseInsights from './ExpenseInsights/ExpenseInsights';
 import InvestmentContainer from '../investments/InvestmentContainer';
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from '../../firebase';
+import { LoadingOverlay } from '../LoadingOverlay';
 
 const ModularInsightsView = (props) => {
   console.log("ModularInsightsView props:", props, "userId specifically:", props.userId);
@@ -21,7 +22,7 @@ const ModularInsightsView = (props) => {
   }, [props.transactions, props.monthlyBudget]);
 
   if (isLoading) {
-    return <div className="py-10 text-center text-white/70">Loading insights...</div>;
+    return <LoadingOverlay message="Processing insights" submessage="Analyzing your financial data..." />;
   }
 
   return (

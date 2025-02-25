@@ -4,6 +4,7 @@ import { BiEdit, BiSave, BiX } from 'react-icons/bi';
 import { doc, updateDoc, setDoc } from "firebase/firestore";
 import { db } from '../../../firebase';
 import { auth } from '../../../firebase'; // Import auth directly
+import { SuccessAnimation } from '../../SuccessAnimation';
 
 // Budget Edit Modal Component
 const BudgetEditModal = ({ isOpen, onClose, currentBudget, onSave }) => {
@@ -100,6 +101,7 @@ const BudgetOverview = (props) => {
   const [showBudgetModal, setShowBudgetModal] = useState(false);
   const [saveStatus, setSaveStatus] = useState(null);
   const [currentUser, setCurrentUser] = useState(auth.currentUser);
+  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
   
   // Effect to ensure we have the current user
   useEffect(() => {
@@ -142,10 +144,11 @@ const BudgetOverview = (props) => {
       }
       
       props.onSetBudget(newBudgetAmount);
-      setSaveStatus('success');
       
-      // Auto-hide success message after 3 seconds
-      setTimeout(() => setSaveStatus(null), 3000);
+      // Show success animation instead of inline message
+      setShowSuccessAnimation(true);
+      setTimeout(() => setShowSuccessAnimation(false), 2000);
+      
       return true;
     } catch (error) {
       console.error("Error updating budget:", error.code, error.message);
@@ -203,6 +206,11 @@ const BudgetOverview = (props) => {
 
   return (
     <>
+      {/* Success Animation */}
+      {showSuccessAnimation && (
+        <SuccessAnimation message="Budget updated successfully!" />
+      )}
+      
       {/* Budget Edit Modal */}
       <BudgetEditModal 
         isOpen={showBudgetModal}
@@ -333,12 +341,7 @@ const BudgetOverview = (props) => {
               </div>
             </div>
             
-            {/* Success or Error Message */}
-            {saveStatus === 'success' && (
-              <div className="mt-4 p-3 bg-green-500/20 border border-green-500/30 rounded-lg text-green-400">
-                Budget updated successfully!
-              </div>
-            )}
+            {/* Only keep error message */}
             {saveStatus === 'error' && (
               <div className="mt-4 p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-400">
                 Failed to update budget. Please try again.
