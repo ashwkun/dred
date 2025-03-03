@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "parcel serve public/index.html",
-    "build": "parcel build public/index.html --public-url ./",
+    "build": "parcel build public/index.html --public-url ./ --no-cache",
     "test": "echo \"Error: no test specified\" && exit 1",
     "deploy": "npm run build && firebase deploy",
     "c": "sh scripts/deploy.sh"
@@ -27,6 +27,7 @@
     "uuid": "^11.1.0"
   },
   "devDependencies": {
+    "@parcel/optimizer-terser": "^2.13.3",
     "@parcel/packager-raw-url": "^2.13.3",
     "@parcel/transformer-webmanifest": "^2.13.3",
     "autoprefixer": "^10.4.20",
@@ -38,5 +39,8 @@
     "svgo": "^3.3.2",
     "tailwindcss": "^3.4.17"
   },
-  "description": ""
+  "description": "",
+  "alias": {
+    "firebase": "./node_modules/firebase"
+  }
 }

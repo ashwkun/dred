@@ -537,7 +537,6 @@ function ExpenseTracker({ user, masterPassword }) {
     end: new Date().toISOString().split('T')[0]
   });
   const [searchQuery, setSearchQuery] = useState('');
-  const [accounts, setAccounts] = useState([]);
 
   const accounts = [
     { id: 'cash', name: 'Cash' },

@@ -1,0 +1,8 @@
+{
+  "transform": [
+    "babelify"
+  ],
+  "standalone": "app",
+  "dedupe": true,
+  "global": true
+} 

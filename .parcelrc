@@ -1,9 +1,15 @@
 {
   "extends": "@parcel/config-default",
-  "reporters": ["...", "@parcel/reporter-cli"],
-  "transformers": {
-    "*.{js,mjs,jsx,cjs,ts,tsx}": ["@parcel/transformer-js"],
-    "manifest.webmanifest": ["@parcel/transformer-webmanifest"]
+  "optimizers": {
+    "*.js": ["@parcel/optimizer-terser"]
   },
-  "resolvers": ["@parcel/resolver-default"]
+  "reporters": ["@parcel/reporter-cli"],
+  "resolvers": ["@parcel/resolver-default"],
+  "packagers": {
+    "*.html": "@parcel/packager-html",
+    "*.js": "@parcel/packager-js",
+    "*.css": "@parcel/packager-css",
+    "*.{png,jpg,jpeg,gif,svg}": "@parcel/packager-raw-url",
+    "*.webmanifest": "@parcel/packager-raw-url"
+  }
 } 
