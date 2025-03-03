@@ -167,14 +167,13 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
       });
       
       console.log("Card added successfully, showing success message");
-      setStatus("success");
+      // Only use the App.jsx global success animation
       setShowSuccess(true);
       
       // Reset form after delay but stay on the same page
       setTimeout(() => {
         setShowSuccess(false);
         resetForm();
-        setStatus("");
         console.log("Form reset after successful card addition");
       }, 2000);
 
@@ -224,21 +223,7 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
         </div>
       )}
 
-      {/* Success Dialog */}
-      {status === "success" && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/50"></div>
-          <div className="bg-gray-800 rounded-xl p-6 w-full max-w-md z-10 border border-green-500/50 shadow-lg animate-fadeIn">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="h-10 w-10 rounded-full bg-green-500/20 flex items-center justify-center">
-                <span className="text-green-500 text-xl">✓</span>
-              </div>
-              <h3 className="text-lg font-medium text-white">Success</h3>
-            </div>
-            <p className="text-white/80 mb-6">Card added successfully!</p>
-          </div>
-        </div>
-      )}
+      {/* Success Dialog is removed */}
 
       {/* Header Section */}
       <div className="flex items-center gap-3 mb-6">

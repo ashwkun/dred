@@ -18,21 +18,26 @@ import InsightsView from './components/InsightsView';
 // Move formatAccountName to the top, before any components
 const formatAccountName = (account, cards) => {
   // If it's a card
-  if (account.startsWith('card_')) {
-    const cardId = account.replace('card_', ''); // Remove prefix to match with cards array
-    const card = cards.find(c => c.id === cardId);
-    if (card) {
-      const bankNameFirst = card.bankName.split(' ')[0];
-      const lastFourDigits = card.cardNumber.slice(-4);
-      return `${bankNameFirst}-${lastFourDigits}`;
+  try {
+    if (account && account.startsWith('card_')) {
+      const cardId = account.replace('card_', ''); // Remove prefix to match with cards array
+      const card = cards.find(c => c.id === cardId);
+      if (card) {
+        const bankNameFirst = card.bankName.split(' ')[0];
+        const lastFourDigits = card.cardNumber.slice(-4);
+        return `${bankNameFirst}-${lastFourDigits}`;
+      }
     }
+    
+    // For cash and bank account, keep as is
+    if (account === 'cash') return 'Cash';
+    if (account === 'bank') return 'Bank';
+    
+    return account;
+  } catch (error) {
+    console.error("Error formatting account name:", error, account);
+    return "Unknown Account";
   }
-  
-  // For cash and bank account, keep as is
-  if (account === 'cash') return 'Cash';
-  if (account === 'bank') return 'Bank';
-  
-  return account;
 };
 
 // Add new component for category selector
@@ -120,6 +125,16 @@ const AccountSelector = ({ isOpen, onClose, onSelect, accounts }) => {
 // Add this new component at the top of the file
 const TransactionItem = ({ transaction, cards, onDelete }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  
+  // Safely format account display name
+  const getDisplayAccount = () => {
+    try {
+      return formatAccountName(transaction.account, cards);
+    } catch (error) {
+      console.error("Error formatting account in TransactionItem:", error);
+      return "Unknown Account";
+    }
+  };
 
   return (
     <div className="overflow-hidden">
@@ -137,7 +152,7 @@ const TransactionItem = ({ transaction, cards, onDelete }) => {
         </div>
         <div className="flex items-center gap-4">
           <p className="text-white/60 text-sm">
-            {formatAccountName(transaction.account, cards)}
+            {getDisplayAccount()}
           </p>
           <button
             onClick={(e) => {
@@ -178,7 +193,7 @@ const TransactionItem = ({ transaction, cards, onDelete }) => {
               </div>
               <div>
                 <p className="text-white/50 text-sm">Account</p>
-                <p className="text-white">{formatAccountName(transaction.account, cards)}</p>
+                <p className="text-white">{getDisplayAccount()}</p>
               </div>
               {transaction.description && (
                 <div className="col-span-2">
@@ -557,15 +572,29 @@ function ExpenseTracker({ user, masterPassword }) {
       const querySnapshot = await getDocs(q);
       console.log(`Retrieved ${querySnapshot.docs.length} transactions`);
       
-      const fetchedTransactions = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        amount: CryptoJS.AES.decrypt(doc.data().amount, masterPassword).toString(CryptoJS.enc.Utf8),
-        merchant: CryptoJS.AES.decrypt(doc.data().merchant, masterPassword).toString(CryptoJS.enc.Utf8),
-        description: CryptoJS.AES.decrypt(doc.data().description, masterPassword).toString(CryptoJS.enc.Utf8),
-        account: CryptoJS.AES.decrypt(doc.data().account, masterPassword).toString(CryptoJS.enc.Utf8),
-        category: doc.data().category // Keep category as is since it's not encrypted
-      }));
+      const fetchedTransactions = querySnapshot.docs.map(doc => {
+        const encryptedData = doc.data();
+        let decryptedAccount = '';
+        
+        try {
+          decryptedAccount = CryptoJS.AES.decrypt(encryptedData.account, masterPassword).toString(CryptoJS.enc.Utf8);
+          console.log("Decrypted account:", decryptedAccount);
+        } catch (error) {
+          console.error("Error decrypting account:", error);
+          decryptedAccount = "Unknown";
+        }
+        
+        return {
+          id: doc.id,
+          ...encryptedData,
+          amount: CryptoJS.AES.decrypt(encryptedData.amount, masterPassword).toString(CryptoJS.enc.Utf8),
+          merchant: CryptoJS.AES.decrypt(encryptedData.merchant, masterPassword).toString(CryptoJS.enc.Utf8),
+          description: encryptedData.description ? 
+                       CryptoJS.AES.decrypt(encryptedData.description, masterPassword).toString(CryptoJS.enc.Utf8) : '',
+          account: decryptedAccount,
+          category: encryptedData.category // Keep category as is since it's not encrypted
+        };
+      });
 
       setTransactions(fetchedTransactions);
     } catch (error) {
