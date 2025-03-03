@@ -32,10 +32,27 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
     });
     
     // Redirect to view cards if not authenticated
-    if (!user || !masterPassword) {
-      console.error("AddCard: Not authenticated, redirecting to viewCards");
+    if (!user) {
+      console.error("AddCard: No user, redirecting to viewCards");
       setActivePage("viewCards");
+      return;
     }
+    
+    if (!masterPassword) {
+      console.error("AddCard: No master password, redirecting to viewCards");
+      setActivePage("viewCards");
+      return;
+    }
+    
+    // If we get here, we have a user and master password, now refresh the token to ensure fresh authentication
+    user.getIdToken(true)
+      .then(token => {
+        console.log("AddCard: Authentication token refreshed successfully");
+      })
+      .catch(error => {
+        console.error("AddCard: Error refreshing token:", error);
+        // Don't redirect here, just log the error
+      });
   }, [user, masterPassword, setActivePage]);
 
   useEffect(() => {

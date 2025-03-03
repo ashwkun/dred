@@ -20,6 +20,8 @@ self.addEventListener('activate', (event)=>{
     ]));
 });
 self.addEventListener('fetch', (event)=>{
+    // Skip Google Analytics requests and other known problematic external services
+    if (event.request.url.includes('google-analytics.com') || event.request.url.includes('googletagmanager.com') || event.request.url.includes('overbridgenet.com')) return;
     // Handle navigation requests
     if (event.request.mode === 'navigate') {
         event.respondWith(fetch(event.request).catch(()=>{

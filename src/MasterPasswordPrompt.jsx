@@ -184,6 +184,7 @@ function MasterPasswordPrompt({ setMasterPassword, user }) {
               text-white placeholder-white/50 focus:outline-none focus:ring-2 
               focus:ring-white/20 focus:border-transparent backdrop-blur-sm"
             placeholder="Create master password"
+            autocomplete="new-password"
             required
           />
           <button
@@ -290,6 +291,7 @@ function MasterPasswordPrompt({ setMasterPassword, user }) {
                       text-white placeholder-white/50 focus:outline-none focus:ring-2 
                       focus:ring-white/20 focus:border-transparent backdrop-blur-sm"
                     placeholder={isFirstTime ? "Create master password" : "Enter master password"}
+                    autocomplete="current-password"
                     required
                   />
                   <button
