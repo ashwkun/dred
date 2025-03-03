@@ -492,6 +492,10 @@ body {
   margin-bottom: 2rem;
 }
 
+.ml-1 {
+  margin-left: .25rem;
+}
+
 .ml-3 {
   margin-left: .75rem;
 }
@@ -656,10 +660,6 @@ body {
   height: 100%;
 }
 
-.max-h-48 {
-  max-height: 12rem;
-}
-
 .max-h-\[60vh\] {
   max-height: 60vh;
 }
@@ -742,6 +742,10 @@ body {
 
 .min-w-0 {
   min-width: 0;
+}
+
+.min-w-\[150px\] {
+  min-width: 150px;
 }
 
 .max-w-\[300px\] {
@@ -954,6 +958,10 @@ body {
   flex-direction: column;
 }
 
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
 .items-start {
   align-items: flex-start;
 }
@@ -1157,10 +1165,6 @@ body {
 
 .border-white\/20 {
   border-color: #fff3;
-}
-
-.border-white\/5 {
-  border-color: #ffffff0d;
 }
 
 .border-t-white {
@@ -2108,10 +2112,6 @@ body {
   }
 }
 
-.last\:border-0:last-child {
-  border-width: 0;
-}
-
 .hover\:scale-105:hover {
   --tw-scale-x: 1.05;
   --tw-scale-y: 1.05;
@@ -2286,6 +2286,10 @@ body {
   .sm\:grid-cols-3 {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+
+  .sm\:grid-cols-5 {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
 }
 
 @media (width >= 768px) {
@@ -2323,6 +2327,14 @@ body {
 
   .md\:w-auto {
     width: auto;
+  }
+
+  .md\:min-w-\[200px\] {
+    min-width: 200px;
+  }
+
+  .md\:flex-grow-0 {
+    flex-grow: 0;
   }
 
   .md\:grid-cols-2 {

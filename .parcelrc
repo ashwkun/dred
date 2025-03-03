@@ -4,5 +4,6 @@
   "transformers": {
     "*.{js,mjs,jsx,cjs,ts,tsx}": ["@parcel/transformer-js"],
     "manifest.webmanifest": ["@parcel/transformer-webmanifest"]
-  }
+  },
+  "resolvers": ["@parcel/resolver-default"]
 } 
