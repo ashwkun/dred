@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { db } from "./firebase";
 import { collection, query, where, getDocs, addDoc, deleteDoc, doc, serverTimestamp, setDoc, getDoc } from "firebase/firestore";
 import CryptoJS from "crypto-js";
@@ -529,6 +529,15 @@ function ExpenseTracker({ user, masterPassword }) {
   const merchantInputRef = useRef(null);
   const [error, setError] = useState(null);
   const [monthlyBudget, setMonthlyBudget] = useState(0);
+  const [transactionGroupBy, setTransactionGroupBy] = useState('date'); // 'date', 'category', 'merchant', 'account'
+  const [transactionSortBy, setTransactionSortBy] = useState('newest'); // 'newest', 'oldest', 'highest', 'lowest'
+  const [transactionFilter, setTransactionFilter] = useState('all'); // 'all', 'thisMonth', 'lastMonth', 'custom'
+  const [filterDateRange, setFilterDateRange] = useState({
+    start: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
+    end: new Date().toISOString().split('T')[0]
+  });
+  const [searchQuery, setSearchQuery] = useState('');
+  const [accounts, setAccounts] = useState([]);
 
   const accounts = [
     { id: 'cash', name: 'Cash' },
@@ -832,6 +841,135 @@ function ExpenseTracker({ user, masterPassword }) {
     fetchBudget();
   }, [user]);
 
+  // Enhanced sorting and filtering for transactions
+  const filteredAndSortedTransactions = useMemo(() => {
+    // First filter by search query
+    let filtered = transactions;
+    
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = transactions.filter(t => 
+        t.merchant.toLowerCase().includes(query) ||
+        t.category.toLowerCase().includes(query) ||
+        t.description.toLowerCase().includes(query)
+      );
+    }
+    
+    // Then apply date filters
+    if (transactionFilter === 'thisMonth') {
+      const now = new Date();
+      const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+      const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+      
+      filtered = filtered.filter(t => t.date >= firstDay && t.date <= lastDay);
+    } else if (transactionFilter === 'lastMonth') {
+      const now = new Date();
+      const firstDay = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString().split('T')[0];
+      const lastDay = new Date(now.getFullYear(), now.getMonth(), 0).toISOString().split('T')[0];
+      
+      filtered = filtered.filter(t => t.date >= firstDay && t.date <= lastDay);
+    } else if (transactionFilter === 'custom' && filterDateRange.start && filterDateRange.end) {
+      filtered = filtered.filter(t => t.date >= filterDateRange.start && t.date <= filterDateRange.end);
+    }
+    
+    // Then sort
+    let sorted = [...filtered];
+    if (transactionSortBy === 'newest') {
+      sorted.sort((a, b) => new Date(b.date) - new Date(a.date));
+    } else if (transactionSortBy === 'oldest') {
+      sorted.sort((a, b) => new Date(a.date) - new Date(b.date));
+    } else if (transactionSortBy === 'highest') {
+      sorted.sort((a, b) => parseFloat(b.amount) - parseFloat(a.amount));
+    } else if (transactionSortBy === 'lowest') {
+      sorted.sort((a, b) => parseFloat(a.amount) - parseFloat(b.amount));
+    }
+    
+    return sorted;
+  }, [transactions, transactionSortBy, transactionFilter, filterDateRange, searchQuery]);
+
+  // Group transactions for display
+  const groupedTransactions = useMemo(() => {
+    if (transactionGroupBy === 'none') {
+      return { 'All Transactions': filteredAndSortedTransactions };
+    }
+    
+    const grouped = {};
+    
+    if (transactionGroupBy === 'date') {
+      // Group by date (day)
+      filteredAndSortedTransactions.forEach(t => {
+        const date = new Date(t.date);
+        const formattedDate = new Intl.DateTimeFormat('en-US', {
+          weekday: 'short',
+          month: 'short',
+          day: 'numeric'
+        }).format(date);
+        
+        if (!grouped[formattedDate]) {
+          grouped[formattedDate] = [];
+        }
+        grouped[formattedDate].push(t);
+      });
+    } else if (transactionGroupBy === 'month') {
+      // Group by month
+      filteredAndSortedTransactions.forEach(t => {
+        const date = new Date(t.date);
+        const formattedMonth = new Intl.DateTimeFormat('en-US', {
+          month: 'long',
+          year: 'numeric'
+        }).format(date);
+        
+        if (!grouped[formattedMonth]) {
+          grouped[formattedMonth] = [];
+        }
+        grouped[formattedMonth].push(t);
+      });
+    } else if (transactionGroupBy === 'category') {
+      // Group by category
+      filteredAndSortedTransactions.forEach(t => {
+        const category = t.category || 'Uncategorized';
+        
+        if (!grouped[category]) {
+          grouped[category] = [];
+        }
+        grouped[category].push(t);
+      });
+    } else if (transactionGroupBy === 'merchant') {
+      // Group by merchant
+      filteredAndSortedTransactions.forEach(t => {
+        const merchant = t.merchant || 'Unknown';
+        
+        if (!grouped[merchant]) {
+          grouped[merchant] = [];
+        }
+        grouped[merchant].push(t);
+      });
+    } else if (transactionGroupBy === 'account') {
+      // Group by account
+      filteredAndSortedTransactions.forEach(t => {
+        const account = formatAccountName(t.account, cards) || 'Unknown Account';
+        
+        if (!grouped[account]) {
+          grouped[account] = [];
+        }
+        grouped[account].push(t);
+      });
+    }
+    
+    return grouped;
+  }, [filteredAndSortedTransactions, transactionGroupBy, cards]);
+
+  // Calculate totals for each group
+  const groupTotals = useMemo(() => {
+    const totals = {};
+    
+    Object.entries(groupedTransactions).forEach(([group, transactions]) => {
+      totals[group] = transactions.reduce((sum, t) => sum + parseFloat(t.amount), 0);
+    });
+    
+    return totals;
+  }, [groupedTransactions]);
+
   if (error) {
     return (
       <div className="container mx-auto px-4 py-6">
@@ -909,78 +1047,104 @@ function ExpenseTracker({ user, masterPassword }) {
               <div className="p-6">
                 <h2 className="text-xl font-semibold text-white mb-4">Add Transaction</h2>
                 <div className="space-y-4">
-                  <input
-                    type="number"
-                    placeholder="Amount"
-                    value={newTransaction.amount}
-                    onChange={(e) => setNewTransaction({ ...newTransaction, amount: e.target.value })}
-                    className="w-full bg-white/10 rounded-lg p-3 text-white"
-                  />
-                  <button
-                    onClick={() => setShowAccountSelector(true)}
-                    className="w-full bg-white/10 rounded-lg p-3 text-left text-white hover:bg-white/20 transition-colors flex items-center justify-between"
-                  >
-                    <span>{accounts.find(a => a.id === newTransaction.account)?.name || 'Select Account'}</span>
-                    <BiChevronDown className="text-lg opacity-50" />
-                  </button>
-                  <button
-                    onClick={() => setShowCategorySelector(true)}
-                    className="w-full bg-white/10 rounded-lg p-3 text-left text-white hover:bg-white/20 transition-colors flex items-center justify-between"
-                  >
-                    <div className="flex items-center gap-2">
-                      {newTransaction.category && React.createElement(getCategoryIcon(newTransaction.categoryIcon || 'FaUtensils'), {
-                        className: "text-lg"
-                      })}
-                      <span>{newTransaction.category || 'Select Category'}</span>
-                    </div>
-                    <BiChevronDown className="text-lg opacity-50" />
-                  </button>
-                  {newTransaction.category && (
-                    <div className="relative" ref={merchantInputRef}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-white/70 text-sm mb-1">Amount</label>
                       <input
-                        type="text"
-                        placeholder="Search Merchant"
-                        value={newTransaction.merchant}
-                        onChange={(e) => setNewTransaction({ ...newTransaction, merchant: e.target.value })}
-                        onFocus={() => setShowMerchantSuggestions(true)}
-                        className="w-full bg-white/10 rounded-lg p-3 text-white"
+                        type="number"
+                        placeholder="Amount"
+                        value={newTransaction.amount}
+                        onChange={(e) => setNewTransaction({ ...newTransaction, amount: e.target.value })}
+                        className="w-full bg-white/10 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
+                    </div>
+                    <div>
+                      <label className="block text-white/70 text-sm mb-1">Date</label>
+                      <input
+                        type="date"
+                        value={newTransaction.date}
+                        onChange={(e) => setNewTransaction({ ...newTransaction, date: e.target.value })}
+                        className="w-full bg-white/10 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-white/70 text-sm mb-1">Account</label>
+                    <button
+                      onClick={() => setShowAccountSelector(true)}
+                      className="w-full bg-white/10 rounded-lg p-3 text-left text-white hover:bg-white/20 transition-colors flex items-center justify-between"
+                    >
+                      <span>{accounts.find(a => a.id === newTransaction.account)?.name || 'Select Account'}</span>
+                      <BiChevronDown className="text-lg opacity-50" />
+                    </button>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-white/70 text-sm mb-1">Category</label>
+                    <button
+                      onClick={() => setShowCategorySelector(true)}
+                      className="w-full bg-white/10 rounded-lg p-3 text-left text-white hover:bg-white/20 transition-colors flex items-center justify-between"
+                    >
+                      <div className="flex items-center gap-2">
+                        {newTransaction.category && React.createElement(getCategoryIcon(newTransaction.categoryIcon || 'FaUtensils'), {
+                          className: "text-lg"
+                        })}
+                        <span>{newTransaction.category || 'Select Category'}</span>
+                      </div>
+                      <BiChevronDown className="text-lg opacity-50" />
+                    </button>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-white/70 text-sm mb-1">Merchant</label>
+                    <div className="relative">
+                      <input
+                        ref={merchantInputRef}
+                        type="text"
+                        placeholder="Merchant"
+                        value={newTransaction.merchant}
+                        onChange={(e) => {
+                          setNewTransaction({ ...newTransaction, merchant: e.target.value });
+                          setShowMerchantSuggestions(true);
+                        }}
+                        className="w-full bg-white/10 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                      
+                      {/* Merchant Suggestions */}
                       {showMerchantSuggestions && merchantSuggestions.length > 0 && (
-                        <div className="absolute w-full mt-1 bg-gray-800 rounded-lg border border-white/10 max-h-48 overflow-y-auto z-10">
-                          {merchantSuggestions
-                            .filter(m => m.toLowerCase().includes(newTransaction.merchant.toLowerCase()))
-                            .map((merchant, index) => (
-                              <button
-                                key={index}
-                                onClick={() => {
-                                  setNewTransaction({ ...newTransaction, merchant });
-                                  setShowMerchantSuggestions(false);
-                                }}
-                                className="w-full text-left px-4 py-3 text-white hover:bg-white/10 border-b border-white/5 last:border-0"
-                              >
-                                {merchant}
-                              </button>
-                            ))}
+                        <div className="absolute z-10 mt-1 w-full bg-white/10 backdrop-blur-lg rounded-lg border border-white/20 overflow-hidden">
+                          {merchantSuggestions.map((merchant, index) => (
+                            <div
+                              key={index}
+                              className="p-2 hover:bg-white/10 cursor-pointer text-white"
+                              onClick={() => {
+                                setNewTransaction({ ...newTransaction, merchant });
+                                setShowMerchantSuggestions(false);
+                              }}
+                            >
+                              {merchant}
+                            </div>
+                          ))}
                         </div>
                       )}
                     </div>
-                  )}
-                  <input
-                    type="text"
-                    placeholder="Description (optional)"
-                    value={newTransaction.description}
-                    onChange={(e) => setNewTransaction({ ...newTransaction, description: e.target.value })}
-                    className="w-full bg-white/10 rounded-lg p-3 text-white"
-                  />
-                  <input
-                    type="date"
-                    value={newTransaction.date}
-                    onChange={(e) => setNewTransaction({ ...newTransaction, date: e.target.value })}
-                    className="w-full bg-white/10 rounded-lg p-3 text-white"
-                  />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-white/70 text-sm mb-1">Description (Optional)</label>
+                    <input
+                      type="text"
+                      placeholder="Description"
+                      value={newTransaction.description}
+                      onChange={(e) => setNewTransaction({ ...newTransaction, description: e.target.value })}
+                      className="w-full bg-white/10 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
                   <button
                     onClick={handleAddTransaction}
-                    className="w-full bg-white/10 hover:bg-white/20 rounded-lg p-3 text-white transition-colors"
+                    className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:opacity-90 transition-opacity rounded-lg p-3 text-white font-medium"
                   >
                     Add Transaction
                   </button>
@@ -988,23 +1152,122 @@ function ExpenseTracker({ user, masterPassword }) {
               </div>
             </div>
 
-            {/* Transactions List */}
+            {/* Transactions List with Filters */}
             <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20">
-              <div className="p-4">
-                <h2 className="text-lg font-semibold text-white mb-3">Recent Transactions</h2>
-                <div className="space-y-2">
-                  {transactions.map((transaction) => (
-                    <TransactionItem
-                      key={transaction.id}
-                      transaction={transaction}
-                      cards={cards}
-                      onDelete={handleDeleteTransaction}
-                    />
+              <div className="p-4 md:p-6">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                  <h2 className="text-lg font-semibold text-white">Transactions</h2>
+                  
+                  <div className="flex flex-wrap gap-2 w-full md:w-auto">
+                    {/* Search */}
+                    <div className="relative flex-grow md:flex-grow-0 md:min-w-[200px]">
+                      <input
+                        type="text"
+                        placeholder="Search transactions..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full bg-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    
+                    {/* Filter by date dropdown */}
+                    <select
+                      value={transactionFilter}
+                      onChange={(e) => setTransactionFilter(e.target.value)}
+                      className="bg-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="all">All Time</option>
+                      <option value="thisMonth">This Month</option>
+                      <option value="lastMonth">Last Month</option>
+                      <option value="custom">Custom Range</option>
+                    </select>
+                    
+                    {/* Group by dropdown */}
+                    <select
+                      value={transactionGroupBy}
+                      onChange={(e) => setTransactionGroupBy(e.target.value)}
+                      className="bg-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="date">Group by Date</option>
+                      <option value="month">Group by Month</option>
+                      <option value="category">Group by Category</option>
+                      <option value="merchant">Group by Merchant</option>
+                      <option value="account">Group by Account</option>
+                      <option value="none">No Grouping</option>
+                    </select>
+                    
+                    {/* Sort by dropdown */}
+                    <select
+                      value={transactionSortBy}
+                      onChange={(e) => setTransactionSortBy(e.target.value)}
+                      className="bg-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="newest">Newest First</option>
+                      <option value="oldest">Oldest First</option>
+                      <option value="highest">Highest Amount</option>
+                      <option value="lowest">Lowest Amount</option>
+                    </select>
+                  </div>
+                </div>
+                
+                {/* Custom date range if selected */}
+                {transactionFilter === 'custom' && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 p-3 rounded-lg border border-white/10 bg-white/5">
+                    <div>
+                      <label className="block text-white/70 text-sm mb-1">Start Date</label>
+                      <input
+                        type="date"
+                        value={filterDateRange.start}
+                        onChange={(e) => setFilterDateRange(prev => ({ ...prev, start: e.target.value }))}
+                        className="w-full bg-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-white/70 text-sm mb-1">End Date</label>
+                      <input
+                        type="date"
+                        value={filterDateRange.end}
+                        onChange={(e) => setFilterDateRange(prev => ({ ...prev, end: e.target.value }))}
+                        className="w-full bg-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                  </div>
+                )}
+                
+                {/* Transaction count and total */}
+                <div className="mb-4 flex justify-between items-center">
+                  <p className="text-white/60 text-sm">
+                    {filteredAndSortedTransactions.length} transactions found
+                  </p>
+                  <p className="text-white font-medium">
+                    Total: ₹{filteredAndSortedTransactions.reduce((sum, t) => sum + parseFloat(t.amount), 0).toFixed(2)}
+                  </p>
+                </div>
+                
+                {/* Display grouped transactions */}
+                <div className="space-y-6">
+                  {Object.entries(groupedTransactions).map(([group, transactions]) => (
+                    <div key={group} className="space-y-2">
+                      <div className="flex justify-between items-center mb-2">
+                        <h3 className="text-white/90 font-medium text-sm">{group}</h3>
+                        <span className="text-white/70 text-sm">₹{groupTotals[group].toFixed(2)}</span>
+                      </div>
+                      
+                      {transactions.map((transaction) => (
+                        <TransactionItem
+                          key={transaction.id}
+                          transaction={transaction}
+                          cards={cards}
+                          onDelete={handleDeleteTransaction}
+                        />
+                      ))}
+                    </div>
                   ))}
-                  {transactions.length === 0 && (
-                    <p className="text-white/60 text-center py-3 text-sm">
-                      No transactions yet
-                    </p>
+                  
+                  {filteredAndSortedTransactions.length === 0 && (
+                    <div className="text-center py-8">
+                      <p className="text-white/60">No transactions found</p>
+                    </div>
                   )}
                 </div>
               </div>
@@ -1014,7 +1277,13 @@ function ExpenseTracker({ user, masterPassword }) {
           // Insights View
           <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 p-6">
             <h2 className="text-xl font-semibold text-white mb-6">Spending Insights</h2>
-            <InsightsView transactions={transactions} cards={cards} monthlyBudget={monthlyBudget} onSetBudget={saveBudget} />
+            <InsightsView 
+              transactions={transactions} 
+              cards={cards} 
+              monthlyBudget={monthlyBudget} 
+              onSetBudget={saveBudget} 
+              userId={user.uid} 
+            />
           </div>
         )}
       </div>

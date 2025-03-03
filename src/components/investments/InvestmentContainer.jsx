@@ -1,48 +1,51 @@
 import React, { useState, useEffect } from 'react';
-import { collection, query, where, getDocs } from "firebase/firestore";
-import { db, auth } from "../../firebase";
-import { FaSpinner, FaExclamationTriangle } from 'react-icons/fa';
-import InvestmentSection from './InvestmentSection';
-import { FaCoins } from 'react-icons/fa';
-import { LoadingOverlay } from '../LoadingOverlay';
+import { FaChartLine, FaWallet, FaInfoCircle } from 'react-icons/fa';
 import InvestmentDashboard from './InvestmentDashboard';
+import InvestmentSection from './InvestmentSection';
+import { calculateInsights } from '../../utils/insights';
+import { LoadingOverlay } from '../LoadingOverlay';
 
 const InvestmentContainer = ({ investmentData, userId }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [insights, setInsights] = useState(null);
+  
+  // Normalize the investment data to ensure we have all expected properties
+  useEffect(() => {
+    setIsLoading(true);
+    
+    try {
+      // Make sure investmentData has the expected structure
+      // This is to handle potential inconsistencies in data passed from different sources
+      const normalizedData = investmentData || {
+        totalInvested: 0,
+        portfolioDistribution: {},
+        monthlyInvestmentTrends: {},
+        projections: {
+          oneYear: 0,
+          threeYear: 0,
+          fiveYear: 0,
+          tenYear: 0
+        },
+        sipImpact: {},
+        investmentGrowth: 0
+      };
+      
+      setInsights(normalizedData);
+    } catch (error) {
+      console.error("Error normalizing investment data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [investmentData]);
   
   if (isLoading) {
-    return <LoadingOverlay message="Loading investments" submessage="Retrieving your financial data..." />;
+    return <LoadingOverlay message="Loading investment data" submessage="Analyzing your portfolio..." />;
   }
   
-  if (error) {
+  if (!insights) {
     return (
-      <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 text-center">
-        <FaExclamationTriangle className="text-yellow-400 text-5xl mx-auto mb-4" />
-        <h3 className="text-lg font-semibold text-white mb-2">Could Not Load Investment Data</h3>
-        <p className="text-white/60 mb-4">
-          {error.includes("permissions") ? 
-            "You don't have permission to access investment data." : 
-            error}
-        </p>
-        <button 
-          onClick={() => window.location.reload()}
-          className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white"
-        >
-          Try Again
-        </button>
-      </div>
-    );
-  }
-  
-  if (!investmentData) {
-    return (
-      <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 text-center">
-        <FaCoins className="text-white/40 text-5xl mx-auto mb-4" />
-        <h3 className="text-lg font-semibold text-white mb-2">No Investment Data</h3>
-        <p className="text-white/60">
-          Start tracking your investments to see insights and projections here.
-        </p>
+      <div className="text-center py-8">
+        <p className="text-white/70">No investment data available</p>
       </div>
     );
   }
@@ -51,11 +54,9 @@ const InvestmentContainer = ({ investmentData, userId }) => {
     <div className="space-y-8">
       <h2 className="text-2xl font-bold text-white mb-6">Investment Dashboard</h2>
       
-      {/* Investment Goals Section */}
-      <InvestmentDashboard />
-      
-      {/* Investment Analysis Section */}
-      <InvestmentSection insights={investmentData} userId={userId} />
+      {/* Investment Analysis Section - Using only a single InvestmentSection component
+          which already includes the GoalManager component */}
+      <InvestmentSection insights={insights} userId={userId} />
     </div>
   );
 };
