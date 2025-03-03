@@ -1135,6 +1135,10 @@ body {
   border-color: #22c55e33;
 }
 
+.border-green-500\/50 {
+  border-color: #22c55e80;
+}
+
 .border-purple-500\/20 {
   border-color: #a855f733;
 }
@@ -1147,6 +1151,10 @@ body {
   border-color: #ef44444d;
 }
 
+.border-red-500\/50 {
+  border-color: #ef444480;
+}
+
 .border-white\/10 {
   border-color: #ffffff1a;
 }
@@ -1157,14 +1165,6 @@ body {
 
 .border-white\/5 {
   border-color: #ffffff0d;
-}
-
-.border-red-500\/50 {
-  border-color: #ef444480;
-}
-
-.border-green-500\/50 {
-  border-color: #22c55e80;
 }
 
 .border-t-white {
