@@ -55,7 +55,7 @@ function App() {
         console.log("User ID:", currentUser.uid);
         console.log("Is anonymous:", currentUser.isAnonymous);
         console.log("Email verified:", currentUser.emailVerified);
-        currentUser.getIdToken().then(token => {
+        currentUser.getIdToken(true).then(token => { // Force token refresh
           console.log("Token available:", !!token);
         }).catch(error => {
           console.error("Token error:", error);
@@ -71,10 +71,27 @@ function App() {
           });
       }
       setUser(currentUser || null);
-      setMasterPassword(null);
+      // Only reset master password if user is null
+      if (!currentUser) {
+        setMasterPassword(null);
+      }
     });
     return () => unsubscribe();
   }, []);
+
+  // Add a useEffect to track page changes
+  useEffect(() => {
+    console.log("Active page changed to:", activePage);
+    // Check if user is authenticated when navigating to protected pages
+    if (activePage === "addCard" || activePage === "expenses" || activePage === "settings" || activePage === "billPay") {
+      if (!user) {
+        console.log("No user - redirecting to viewCards from", activePage);
+        setActivePage("viewCards");
+      } else {
+        console.log("User authenticated for page:", activePage, "User ID:", user.uid);
+      }
+    }
+  }, [activePage, user]);
 
   useEffect(() => {
     // Check if app is installed

@@ -23,6 +23,21 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Add authentication check
+  useEffect(() => {
+    console.log("AddCard: Authentication check", { 
+      userExists: !!user, 
+      userId: user?.uid, 
+      hasMasterPassword: !!masterPassword 
+    });
+    
+    // Redirect to view cards if not authenticated
+    if (!user || !masterPassword) {
+      console.error("AddCard: Not authenticated, redirecting to viewCards");
+      setActivePage("viewCards");
+    }
+  }, [user, masterPassword, setActivePage]);
+
   useEffect(() => {
     if (user?.displayName) {
       setCardHolder(user.displayName); // Auto-fetch Google name but allow editing

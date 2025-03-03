@@ -30,17 +30,26 @@ self.addEventListener('fetch', (event)=>{
     // Handle other requests
     event.respondWith(caches.match(event.request).then((response)=>{
         if (response) return response;
-        return fetch(event.request).then((response)=>{
+        // Clone the request - fixes the 'Failed to convert value to Response' error
+        const fetchRequest = event.request.clone();
+        return fetch(fetchRequest).then((response)=>{
             // Don't cache if not a valid response
             if (!response || response.status !== 200 || response.type !== 'basic') return response;
             const responseToCache = response.clone();
             caches.open(CACHE_NAME).then((cache)=>{
-                cache.put(event.request, responseToCache);
+                try {
+                    cache.put(event.request, responseToCache);
+                } catch (error) {
+                    console.error('Cache put error:', error);
+                }
             });
             return response;
-        }).catch(()=>{
+        }).catch((error)=>{
+            console.error('Fetch error:', error);
             // Return offline page for navigation requests
             if (event.request.mode === 'navigate') return caches.match('./offline.html');
+            // For other requests, just propagate the error
+            throw error;
         });
     }));
 });
