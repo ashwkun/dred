@@ -540,12 +540,23 @@ function ExpenseTracker({ user, masterPassword }) {
     setError(null);
 
     try {
+      // Try to refresh token first to ensure fresh authentication
+      try {
+        await user.getIdToken(true);
+        console.log("Token refreshed before fetching transactions");
+      } catch (tokenError) {
+        console.error("Error refreshing token:", tokenError);
+      }
+
       const q = query(
         collection(db, "transactions"),
         where("uid", "==", user.uid)
       );
 
+      console.log("Fetching transactions for user:", user.uid);
       const querySnapshot = await getDocs(q);
+      console.log(`Retrieved ${querySnapshot.docs.length} transactions`);
+      
       const fetchedTransactions = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
@@ -650,15 +661,26 @@ function ExpenseTracker({ user, masterPassword }) {
   // Fetch custom categories on component mount
   useEffect(() => {
     const fetchCustomCategories = async () => {
-      if (!user) return;
+      if (!user || !masterPassword) return;
       
       try {
+        // Try to refresh token first to ensure fresh authentication
+        try {
+          await user.getIdToken(true);
+          console.log("Token refreshed before fetching custom categories");
+        } catch (tokenError) {
+          console.error("Error refreshing token for custom categories:", tokenError);
+        }
+
         const q = query(
           collection(db, "custom_categories"),
           where("uid", "==", user.uid)
         );
         
+        console.log("Fetching custom categories for user:", user.uid);
         const snapshot = await getDocs(q);
+        console.log(`Retrieved ${snapshot.docs.length} custom categories`);
+        
         const categoriesData = snapshot.docs.map(doc => ({
           id: doc.id,
           name: CryptoJS.AES.decrypt(doc.data().name, masterPassword).toString(CryptoJS.enc.Utf8),

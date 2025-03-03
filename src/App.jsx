@@ -16,7 +16,7 @@ import Sidebar from "./components/Sidebar";
 import MobileNav from "./components/MobileNav";
 import { collection, getDocs, query, where, doc, updateDoc } from "firebase/firestore";
 import CryptoJS from "crypto-js";
-import { db } from "./firebase";
+import { db, checkFirebaseConnection } from "./firebase";
 import BillPay from "./BillPay";
 import TopBar from "./components/TopBar";
 import Dialog from "./components/Dialog";
@@ -60,6 +60,15 @@ function App() {
         }).catch(error => {
           console.error("Token error:", error);
         });
+        
+        // Check Firebase connection with user ID
+        checkFirebaseConnection(currentUser.uid)
+          .then(result => {
+            console.log("Firebase connection check result:", result);
+          })
+          .catch(error => {
+            console.error("Firebase connection check failed:", error);
+          });
       }
       setUser(currentUser || null);
       setMasterPassword(null);
