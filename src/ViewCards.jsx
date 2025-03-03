@@ -108,8 +108,28 @@ function ViewCards({ user, masterPassword, setActivePage }) {
     
     try {
       if (setActivePage) {
-        console.log('Calling setActivePage with:', "addCard");
-        setActivePage("addCard");
+        // Check authentication before navigation
+        if (!user || !user.uid) {
+          console.error('ViewCards: Cannot navigate to AddCard - user not authenticated');
+          return;
+        }
+        
+        if (!masterPassword) {
+          console.error('ViewCards: Cannot navigate to AddCard - master password not set');
+          return;
+        }
+        
+        console.log('ViewCards: Calling setActivePage with:', "addCard", {
+          userId: user.uid,
+          hasMasterPassword: !!masterPassword,
+          setActivePageExists: !!setActivePage
+        });
+        
+        // Use setTimeout to ensure this happens after the current event loop
+        setTimeout(() => {
+          setActivePage("addCard");
+          console.log('ViewCards: Navigation to AddCard completed');
+        }, 0);
       } else {
         console.error('setActivePage is undefined');
       }

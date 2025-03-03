@@ -1159,6 +1159,14 @@ body {
   border-color: #ffffff0d;
 }
 
+.border-red-500\/50 {
+  border-color: #ef444480;
+}
+
+.border-green-500\/50 {
+  border-color: #22c55e80;
+}
+
 .border-t-white {
   --tw-border-opacity: 1;
   border-top-color: rgb(255 255 255 / var(--tw-border-opacity, 1));

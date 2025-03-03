@@ -19,41 +19,53 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
   const [expiry, setExpiry] = useState("");
   const [cvv, setCvv] = useState("");
   const [theme, setTheme] = useState("#6a3de8"); // Default theme
-  const [status, setStatus] = useState("");
+  const [status, setStatus] = useState(""); // Track error, success, or loading status
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [authChecked, setAuthChecked] = useState(false);
 
-  // Add authentication check
+  // Add authentication check as a separate effect to run only once
   useEffect(() => {
-    console.log("AddCard: Authentication check", { 
+    console.log("AddCard: Initial render with props:", { 
       userExists: !!user, 
       userId: user?.uid, 
       hasMasterPassword: !!masterPassword 
     });
     
-    // Redirect to view cards if not authenticated
-    if (!user) {
-      console.error("AddCard: No user, redirecting to viewCards");
-      setActivePage("viewCards");
-      return;
+    // Only redirect if we've verified auth is missing
+    if (authChecked) {
+      if (!user) {
+        console.error("AddCard: No user after auth check, redirecting to viewCards");
+        setActivePage("viewCards");
+        return;
+      }
+      
+      if (!masterPassword) {
+        console.error("AddCard: No master password after auth check, redirecting to viewCards");
+        setActivePage("viewCards");
+        return;
+      }
     }
-    
-    if (!masterPassword) {
-      console.error("AddCard: No master password, redirecting to viewCards");
-      setActivePage("viewCards");
-      return;
+  }, [authChecked, user, masterPassword, setActivePage]);
+  
+  // Separate effect to do token refresh and mark auth as checked
+  useEffect(() => {
+    if (user && masterPassword) {
+      // If we have both user and masterPassword, refresh token
+      user.getIdToken(true)
+        .then(token => {
+          console.log("AddCard: Authentication token refreshed successfully");
+          setAuthChecked(true);
+        })
+        .catch(error => {
+          console.error("AddCard: Error refreshing token:", error);
+          setAuthChecked(true);
+        });
+    } else {
+      // Still mark auth as checked even if missing credentials
+      setAuthChecked(true);
     }
-    
-    // If we get here, we have a user and master password, now refresh the token to ensure fresh authentication
-    user.getIdToken(true)
-      .then(token => {
-        console.log("AddCard: Authentication token refreshed successfully");
-      })
-      .catch(error => {
-        console.error("AddCard: Error refreshing token:", error);
-        // Don't redirect here, just log the error
-      });
-  }, [user, masterPassword, setActivePage]);
+  }, [user, masterPassword]);
 
   useEffect(() => {
     if (user?.displayName) {
@@ -101,30 +113,40 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
     detectCardDetails(cardData.number);
   };
 
-  const handleAddCard = async () => {
+  const handleAddCard = async (e) => {
+    // Prevent form default submission
+    if (e && e.preventDefault) {
+      e.preventDefault();
+    }
+    
     setIsLoading(true);
     setError(null);
+    setStatus(""); // Clear any previous status
 
     try {
       await retryOperation(async () => {
         // Validate required fields
         if (!cardNumber || !cardHolder || !bankName || !networkName || !expiry || !cvv) {
+          setStatus("error");
           throw new Error("Please fill in all required fields");
         }
 
-        // Validate card number format
-        if (!/^\d{16}$/.test(cardNumber.replace(/\s/g, ''))) {
-          throw new Error("Please enter a valid 16-digit card number");
+        // Validate card number format - now allows 15 or 16 digits
+        if (!/^\d{15,16}$/.test(cardNumber.replace(/\s/g, ''))) {
+          setStatus("error");
+          throw new Error("Please enter a valid 15 or 16-digit card number");
         }
 
         // Validate expiry format (MM/YY)
         if (!/^(0[1-9]|1[0-2])\/([0-9]{2})$/.test(expiry)) {
+          setStatus("error");
           throw new Error("Please enter expiry in MM/YY format");
         }
 
-        // Validate CVV format
+        // Validate CVV format - now allows 3 or 4 digits
         if (!/^\d{3,4}$/.test(cvv)) {
-          throw new Error("Please enter a valid CVV");
+          setStatus("error");
+          throw new Error("Please enter a valid CVV (3 or 4 digits)");
         }
 
         const encryptedCard = {
@@ -141,18 +163,24 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
         };
 
         await addDoc(collection(db, "cards"), encryptedCard);
+        console.log("Card added successfully to Firestore");
       });
       
+      console.log("Card added successfully, showing success message");
+      setStatus("success");
       setShowSuccess(true);
       
-      // Reset form after delay
+      // Reset form after delay but stay on the same page
       setTimeout(() => {
         setShowSuccess(false);
         resetForm();
+        setStatus("");
+        console.log("Form reset after successful card addition");
       }, 2000);
 
     } catch (error) {
       console.error("Error adding card:", error);
+      setStatus("error");
       setError(error.message || "Failed to add card. Please try again.");
     } finally {
       setIsLoading(false);
@@ -171,6 +199,47 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
 
   return (
     <div className="container mx-auto px-4 py-6">
+      {/* Error Dialog */}
+      {error && status === "error" && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setError(null)}></div>
+          <div className="bg-gray-800 rounded-xl p-6 w-full max-w-md z-10 border border-red-500/50 shadow-lg animate-fadeIn">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="h-10 w-10 rounded-full bg-red-500/20 flex items-center justify-center">
+                <span className="text-red-500 text-xl">❌</span>
+              </div>
+              <h3 className="text-lg font-medium text-white">Validation Error</h3>
+            </div>
+            <p className="text-white/80 mb-6">{error}</p>
+            <button 
+              className="w-full py-3 bg-red-500/20 hover:bg-red-500/30 rounded-lg text-white transition-colors"
+              onClick={() => {
+                setError(null);
+                setStatus("");
+              }}
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Success Dialog */}
+      {status === "success" && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/50"></div>
+          <div className="bg-gray-800 rounded-xl p-6 w-full max-w-md z-10 border border-green-500/50 shadow-lg animate-fadeIn">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="h-10 w-10 rounded-full bg-green-500/20 flex items-center justify-center">
+                <span className="text-green-500 text-xl">✓</span>
+              </div>
+              <h3 className="text-lg font-medium text-white">Success</h3>
+            </div>
+            <p className="text-white/80 mb-6">Card added successfully!</p>
+          </div>
+        </div>
+      )}
+
       {/* Header Section */}
       <div className="flex items-center gap-3 mb-6">
         <div className="h-12 w-12 rounded-xl bg-white/10 flex items-center justify-center">
@@ -188,7 +257,7 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6">
             <h2 className="text-lg font-medium text-white mb-6">Card Details</h2>
             
-            <form onSubmit={handleAddCard}>
+            <form onSubmit={(e) => handleAddCard(e)}>
               <div className="space-y-6">
                 <CardScannerComponent onScanComplete={handleScanComplete} />
                 

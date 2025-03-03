@@ -83,15 +83,24 @@ function App() {
   useEffect(() => {
     console.log("Active page changed to:", activePage);
     // Check if user is authenticated when navigating to protected pages
-    if (activePage === "addCard" || activePage === "expenses" || activePage === "settings" || activePage === "billPay") {
-      if (!user) {
+    if ((activePage === "addCard" || activePage === "expenses" || activePage === "settings" || activePage === "billPay") 
+        && (!user || !masterPassword)) {
+      console.log("Protected page access attempt without auth:", activePage);
+      console.log("Auth state:", { user: !!user, masterPassword: !!masterPassword });
+      
+      // Don't redirect during initial load, only if user explicitly tries to navigate
+      if (user === null && document.readyState === "complete") {
         console.log("No user - redirecting to viewCards from", activePage);
         setActivePage("viewCards");
-      } else {
-        console.log("User authenticated for page:", activePage, "User ID:", user.uid);
       }
+    } else if (activePage === "addCard") {
+      // Debug for AddCard page
+      console.log("Add Card page accessed with auth:", { 
+        userId: user?.uid, 
+        hasMasterPassword: !!masterPassword 
+      });
     }
-  }, [activePage, user]);
+  }, [activePage, user, masterPassword]);
 
   useEffect(() => {
     // Check if app is installed
@@ -229,15 +238,22 @@ function App() {
     console.log("App.jsx: User ID is:", user?.uid);
   }, [user]);
 
-  // If not signed in → show Auth page
+  // If waiting for auth or not signed in → show Auth component
   if (!user) {
-    return <Auth setUser={setUser} />;
+    return <Auth />;
   }
 
   // If signed in but master password not set → show Master Password prompt
   if (!masterPassword) {
     return <MasterPasswordPrompt setMasterPassword={setMasterPassword} user={user} />;
   }
+
+  // Additional debug to ensure state before rendering
+  console.log("Rendering main UI with:", {
+    userId: user?.uid,
+    hasMasterPassword: !!masterPassword,
+    activePage
+  });
 
   return (
     <div className={`min-h-screen bg-gradient-to-br ${currentThemeData.gradient} overflow-hidden`}>
