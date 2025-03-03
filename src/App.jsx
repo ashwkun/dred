@@ -50,6 +50,17 @@ function App() {
   // Listen to auth state changes
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      console.log("Auth state changed:", currentUser ? "Logged in" : "Logged out");
+      if (currentUser) {
+        console.log("User ID:", currentUser.uid);
+        console.log("Is anonymous:", currentUser.isAnonymous);
+        console.log("Email verified:", currentUser.emailVerified);
+        currentUser.getIdToken().then(token => {
+          console.log("Token available:", !!token);
+        }).catch(error => {
+          console.error("Token error:", error);
+        });
+      }
       setUser(currentUser || null);
       setMasterPassword(null);
     });

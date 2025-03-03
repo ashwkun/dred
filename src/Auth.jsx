@@ -12,7 +12,16 @@ export default function Auth() {
     setIsLoading(true);
     const provider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      console.log("Login successful with user:", result.user.uid);
+      
+      // Force token refresh to ensure we have the latest authentication
+      try {
+        await result.user.getIdToken(true); // true forces refresh
+        console.log("Token refreshed successfully");
+      } catch (tokenError) {
+        console.error("Error refreshing token:", tokenError);
+      }
     } catch (error) {
       console.error("Error signing in with Google:", error);
     } finally {
