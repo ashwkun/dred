@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth } from "./firebase";
 import { BiLock, BiCreditCard, BiMobile, BiLogoGoogle } from 'react-icons/bi';
@@ -7,6 +7,21 @@ import ExpenseTracker from './ExpenseTracker';
 
 export default function Auth() {
   const [isLoading, setIsLoading] = useState(false);
+  const [logoError, setLogoError] = useState(false);
+  const [usingSVG, setUsingSVG] = useState(false);
+  
+  const logoSrc = usingSVG 
+    ? `${window.location.origin}/logo.b6b4f441.svg`
+    : logo;
+
+  const handleLogoError = () => {
+    console.error("Logo failed to load:", usingSVG ? "SVG version" : "PNG version");
+    if (!usingSVG) {
+      setUsingSVG(true);
+    } else {
+      setLogoError(true);
+    }
+  };
 
   const signInWithGoogle = async () => {
     setIsLoading(true);
@@ -45,7 +60,17 @@ export default function Auth() {
           <div className="w-20 h-20 mx-auto mb-8 bg-white/10 backdrop-blur-md
             rounded-2xl flex items-center justify-center
             border border-white/20 shadow-lg">
-            <img src={logo} alt="Dred" className="h-12" />
+            {logoError ? (
+              <div className="text-white text-xl font-bold">DRED</div>
+            ) : (
+              <img 
+                src={logoSrc} 
+                alt="Dred" 
+                className="h-12" 
+                style={{ filter: 'brightness(0) invert(1)' }} 
+                onError={handleLogoError}
+              />
+            )}
           </div>
 
           {/* Welcome Text */}
