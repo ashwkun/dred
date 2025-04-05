@@ -3,13 +3,16 @@ import { collection, query, where, getDocs, doc, setDoc } from "firebase/firesto
 import { db } from "./firebase";
 import MobileNumberDialog from './components/MobileNumberDialog';
 import CryptoJS from 'crypto-js';
-import { BiCreditCard, BiMobile } from 'react-icons/bi';
+import { BiCreditCard, BiMobile, BiInfoCircle } from 'react-icons/bi';
 import { LoadingOverlay } from './components/LoadingOverlay';
 import { SuccessAnimation } from './components/SuccessAnimation';
 import { securityManager } from './utils/security';
+import { bankLogos, networkLogos } from './utils/logoMap';
+import { SUPPORTED_BILL_PAY_BANKS } from './utils/bankUtils';
 
 export default function BillPay({ user, masterPassword }) {
   const [cards, setCards] = useState([]);
+  const [supportedCards, setSupportedCards] = useState([]);
   const [showMobileDialog, setShowMobileDialog] = useState(false);
   const [mobileNumber, setMobileNumber] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -53,6 +56,10 @@ export default function BillPay({ user, masterPassword }) {
         }));
         
         setCards(cardsData);
+        
+        // Filter supported cards
+        const supported = cardsData.filter(card => getUpiId(card) !== null);
+        setSupportedCards(supported);
       } catch (error) {
         console.error('Error loading data:', error);
         setError('Failed to load data. Please try again.');
@@ -115,6 +122,18 @@ export default function BillPay({ user, masterPassword }) {
     window.location.href = upiUrl;
   };
 
+  const getSupportedBankLogo = (bankName) => {
+    const normalized = bankName.toLowerCase().replace(/\s+/g, '');
+    
+    if (normalized === 'axisbank') return bankLogos.axisbank.symbolSVG;
+    if (normalized === 'icicibank') return bankLogos.icicibank.symbolSVG;
+    if (normalized === 'ausmallfinancebank') return bankLogos.ausmallfinancebank.symbolSVG;
+    if (normalized === 'idfcbank' || normalized === 'idfcfirstbank') return bankLogos.idfcfirstbank.symbolSVG;
+    if (normalized === 'amex') return networkLogos.amex;
+    
+    return null;
+  };
+
   if (loading) {
     return <LoadingOverlay message="Loading your cards" />;
   }
@@ -165,20 +184,53 @@ export default function BillPay({ user, masterPassword }) {
         </div>
 
         {/* Cards Section with improved mobile layout */}
-        {cards.length === 0 ? (
+        {supportedCards.length === 0 ? (
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6 md:p-8">
-            <div className="text-center">
+            <div className="text-center mb-6">
               <div className="w-16 h-16 rounded-full bg-white/10 mx-auto mb-4 
                 flex items-center justify-center">
-                <BiCreditCard className="text-3xl text-white/70" />
+                <BiInfoCircle className="text-3xl text-white/70" />
               </div>
               <p className="text-white/70 text-lg">No supported cards found</p>
-              <p className="text-white/50 mt-2">Add a credit card to pay bills</p>
+              <p className="text-white/50 mt-2">Add a credit card from a supported bank</p>
+            </div>
+            
+            {/* Supported Banks Section */}
+            <div className="mt-8">
+              <h3 className="text-white text-center mb-4 font-medium">Supported Banks</h3>
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                {SUPPORTED_BILL_PAY_BANKS.map((bank, index) => {
+                  const logoKey = bank.toLowerCase().replace(/\s+/g, '');
+                  let logoSrc;
+                  
+                  if (logoKey === 'amex') {
+                    logoSrc = networkLogos.amex;
+                  } else {
+                    const normalizedKey = logoKey === 'icicibank' ? 'icicibank' : 
+                                      logoKey === 'axisbank' ? 'axisbank' :
+                                      logoKey === 'ausmallfinancebank' ? 'ausmallfinancebank' :
+                                      logoKey === 'idfcbank' ? 'idfcfirstbank' : null;
+                    
+                    logoSrc = normalizedKey ? bankLogos[normalizedKey]?.symbolSVG : bankLogos.default.symbolSVG;
+                  }
+                                      
+                  return (
+                    <div key={index} className="flex flex-col items-center p-4 bg-white/5 rounded-xl">
+                      <img 
+                        src={logoSrc} 
+                        alt={bank} 
+                        className="h-10 w-10 object-contain mb-2"
+                      />
+                      <span className="text-white/70 text-xs text-center">{bank}</span>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {cards.map(card => {
+            {supportedCards.map(card => {
               const upiId = getUpiId(card);
               if (!upiId) return null;
 
@@ -253,13 +305,19 @@ export default function BillPay({ user, masterPassword }) {
         )}
       </div>
 
-      <MobileNumberDialog
-        isOpen={showMobileDialog}
-        onClose={() => setShowMobileDialog(false)}
-        onSubmit={handleMobileSubmit}
-      />
+      {/* Mobile Number Dialog */}
+      {showMobileDialog && (
+        <MobileNumberDialog 
+          onClose={() => setShowMobileDialog(false)}
+          onSubmit={handleMobileSubmit}
+          currentNumber={mobileNumber}
+        />
+      )}
 
-      {showSuccess && <SuccessAnimation message={successMessage} />}
+      {/* Success Animation */}
+      {showSuccess && (
+        <SuccessAnimation message={successMessage} />
+      )}
     </div>
   );
 } 

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import ExpenseTracker from '../ExpenseTracker';
 
 const hints = [
   {

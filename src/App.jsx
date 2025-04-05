@@ -6,7 +6,6 @@ import Auth from "./Auth";
 import MasterPasswordPrompt from "./MasterPasswordPrompt";
 import ViewCards from "./ViewCards";
 import AddCard from "./AddCard";
-import ExpenseTracker from './ExpenseTracker';
 import Settings from "./features/settings/Settings";
 import logo from "./assets/logo.png";
 import { RiAddCircleLine, RiCreditCardLine } from 'react-icons/ri';
@@ -20,7 +19,6 @@ import { db } from "./firebase";
 import BillPay from "./BillPay";
 import TopBar from "./components/TopBar";
 import Dialog from "./components/Dialog";
-import InsightsView from "./components/InsightsView";
 import ErrorBoundary from './components/ErrorBoundary';
 
 function App() {
@@ -42,10 +40,6 @@ function App() {
     confirmText: 'Confirm',
     cancelText: 'Cancel'
   });
-  const [userSettings, setUserSettings] = useState({
-    monthlyBudget: 0
-  });
-  const [transactions, setTransactions] = useState([]);
 
   // Listen to auth state changes
   useEffect(() => {
@@ -55,6 +49,35 @@ function App() {
     });
     return () => unsubscribe();
   }, []);
+
+  // Add session timeout handler
+  useEffect(() => {
+    // Handle session timeout event (occurs after inactivity)
+    const handleSessionTimeout = (e) => {
+      console.log("Session timeout detected");
+      // Don't sign out immediately if the user is active in the app
+      // Instead, check if they've been inactive or are in the middle of an operation
+      if (activePage === "addCard" || activePage === "viewCards") {
+        console.log("User is active in app, preventing auto-logout");
+        // Prevent auto-logout
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
+      
+      // Otherwise proceed with signing out
+      signOut(auth).then(() => {
+        console.log("User signed out due to inactivity");
+      });
+    };
+    
+    window.addEventListener('session-timeout', handleSessionTimeout);
+    
+    // Cleanup 
+    return () => {
+      window.removeEventListener('session-timeout', handleSessionTimeout);
+    };
+  }, [activePage]);
 
   useEffect(() => {
     // Check if app is installed
@@ -166,22 +189,6 @@ function App() {
     });
   };
 
-  const handleSetBudget = (newBudget) => {
-    setUserSettings(prev => ({
-      ...prev,
-      monthlyBudget: newBudget
-    }));
-    
-    if (user) {
-      const userDocRef = doc(db, 'user_settings', user.uid);
-      updateDoc(userDocRef, {
-        monthlyBudget: newBudget
-      }).catch(error => {
-        console.error("Error updating budget:", error);
-      });
-    }
-  };
-
   // In App.jsx, add extra validation to ensure we always have a user ID
   const safeUserId = user?.uid || null;
   console.log("App.jsx user ID:", safeUserId);
@@ -248,29 +255,12 @@ function App() {
                 setShowSuccess={setShowSuccess}
               />
             )}
-            {activePage === "expenses" && (
-              <ExpenseTracker 
-                user={user} 
-                masterPassword={masterPassword}
-              />
-            )}
             {activePage === "settings" && <Settings user={user} masterPassword={masterPassword} />}
             {activePage === "billPay" && (
               <BillPay 
                 user={user} 
                 masterPassword={masterPassword}
               />
-            )}
-            {activePage === "insights" && (
-              <ErrorBoundary>
-                <InsightsView 
-                  transactions={transactions} 
-                  cards={cards} 
-                  monthlyBudget={userSettings.monthlyBudget} 
-                  onSetBudget={handleSetBudget} 
-                  userId={safeUserId} 
-                />
-              </ErrorBoundary>
             )}
           </div>
         </div>

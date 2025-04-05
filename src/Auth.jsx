@@ -3,7 +3,6 @@ import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth } from "./firebase";
 import { BiLock, BiCreditCard, BiMobile, BiLogoGoogle } from 'react-icons/bi';
 import logo from "./assets/logo.png";
-import ExpenseTracker from './ExpenseTracker';
 
 export default function Auth() {
   const [isLoading, setIsLoading] = useState(false);

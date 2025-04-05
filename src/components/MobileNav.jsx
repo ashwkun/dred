@@ -1,10 +1,9 @@
 import React from 'react';
-import { BiCreditCard, BiAddToQueue, BiWallet, BiReceipt, BiCog } from 'react-icons/bi';
-import { hasSupportedBillPayBank } from '../utils/bankUtils';
+import { BiCreditCard, BiAddToQueue, BiWallet as BiBillPay, BiCog } from 'react-icons/bi';
 
 export default function MobileNav({ activePage, setActivePage, cards }) {
-  const showBillPay = hasSupportedBillPayBank(cards);
-
+  // Always show Bill Pay regardless of supported cards
+  
   const navItems = [
     {
       id: 'viewCards',
@@ -16,15 +15,10 @@ export default function MobileNav({ activePage, setActivePage, cards }) {
       icon: BiAddToQueue,
       label: 'Add'
     },
-    ...(showBillPay ? [{
-      id: 'billPay',
-      icon: BiWallet,
-      label: 'Bill Pay'
-    }] : []),
     {
-      id: 'expenses',
-      icon: BiReceipt,
-      label: 'Expenses'
+      id: 'billPay',
+      icon: BiBillPay,
+      label: 'Bill Pay'
     },
     {
       id: 'settings',

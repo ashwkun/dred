@@ -99,8 +99,31 @@ class SecurityManager {
       }, SESSION_TIMEOUT_MS);
     };
 
-    window.addEventListener('mousemove', resetTimer);
-    window.addEventListener('keypress', resetTimer);
+    // Track more interaction events
+    const events = [
+      'mousemove', 'keypress', 'scroll', 'click', 'touchstart', 
+      'touchmove', 'touchend', 'submit', 'focus', 'blur', 'input', 'change'
+    ];
+    
+    events.forEach(event => {
+      window.addEventListener(event, resetTimer, { passive: true });
+    });
+    
+    // Also track specific card form interactions
+    document.addEventListener('DOMContentLoaded', () => {
+      // Add input tracking for forms
+      document.querySelectorAll('input, select, textarea, button').forEach(el => {
+        el.addEventListener('focus', resetTimer, { passive: true });
+        el.addEventListener('input', resetTimer, { passive: true });
+        el.addEventListener('change', resetTimer, { passive: true });
+      });
+      
+      // Add form submission tracking
+      document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', resetTimer, { passive: true });
+      });
+    });
+    
     resetTimer();
   }
 

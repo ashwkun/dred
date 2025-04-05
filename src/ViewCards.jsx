@@ -210,10 +210,11 @@ function ViewCards({ user, masterPassword, setActivePage }) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {cards.map((card) => {
-          const decryptedTheme = decryptField(card.theme);
+          // Get the theme directly, it's not encrypted in the database
+          const cardTheme = card.theme || "#6a3de8"; // Use default theme if not present
           const decryptedBankName = decryptField(card.bankName);
           const decryptedNetworkName = decryptField(card.networkName);
-          const decryptedCardType = decryptField(card.cardType);
+          const decryptedCardType = card.cardType || "Card"; // Card type is stored unencrypted
           const decryptedCardNumber = decryptField(card.cardNumber);
           const decryptedCardHolder = decryptField(card.cardHolder);
           const decryptedCVV = decryptField(card.cvv);
@@ -227,7 +228,7 @@ function ViewCards({ user, masterPassword, setActivePage }) {
                 <div 
                   className="absolute inset-0"
                   style={{ 
-                    background: decryptedTheme,
+                    background: cardTheme,
                     opacity: 0.4,  // Increased from 0.15
                   }}
                 />
@@ -236,7 +237,7 @@ function ViewCards({ user, masterPassword, setActivePage }) {
                 <div 
                   className="absolute inset-0"
                   style={{ 
-                    background: `linear-gradient(120deg, ${decryptedTheme}, transparent)`,
+                    background: `linear-gradient(120deg, ${cardTheme}, transparent)`,
                     opacity: 0.3,
                   }}
                 />
@@ -261,7 +262,7 @@ function ViewCards({ user, masterPassword, setActivePage }) {
 
                   {/* Top Section */}
                   <div className="flex justify-between items-start">
-                    <div className="h-8 w-32 opacity-90">
+                    <div className="h-6 w-24 opacity-90">
                       <LogoWithFallback
                         logoName={decryptedBankName}
                         logoType="bank"
@@ -280,7 +281,7 @@ function ViewCards({ user, masterPassword, setActivePage }) {
                       transition-all duration-300 ${
                       isShowingDetails ? 'opacity-0 translate-y-4 pointer-events-none' : 'opacity-100 translate-y-0'
                     }`}>
-                      <div className="text-xl md:text-2xl text-white font-light tracking-wider font-mono text-center">
+                      <div className="text-base sm:text-lg md:text-xl text-white font-light tracking-wider font-mono text-center whitespace-nowrap overflow-hidden">
                         {decryptedCardNumber.replace(/(.{4})/g, "$1 ").trim()}
                       </div>
                       <button

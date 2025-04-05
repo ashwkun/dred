@@ -7,7 +7,6 @@ import CardCustomization from "./CardCustomization";
 import { securityManager } from './utils/security';
 import { BiAddToQueue } from 'react-icons/bi';
 import { LoadingSpinner } from './components/LoadingSpinner';
-import CardScannerComponent from './components/CardScanner';
 import { retryOperation } from './utils/firestore';
 
 function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
@@ -22,6 +21,31 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
   const [status, setStatus] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  // Check form validity
+  const isFormValid = () => {
+    // Check all required fields are filled
+    if (!cardNumber || !cardHolder || !bankName || !networkName || !expiry || !cvv || !cardType) {
+      return false;
+    }
+    
+    // Validate card number format (15 or 16 digits for AMEX/others)
+    if (!/^\d{15,16}$/.test(cardNumber.replace(/\s/g, ''))) {
+      return false;
+    }
+    
+    // Validate expiry format (MM/YY)
+    if (!/^(0[1-9]|1[0-2])\/([0-9]{2})$/.test(expiry)) {
+      return false;
+    }
+    
+    // Validate CVV format (3 or 4 digits)
+    if (!/^\d{3,4}$/.test(cvv)) {
+      return false;
+    }
+    
+    return true;
+  };
 
   useEffect(() => {
     if (user?.displayName) {
@@ -43,35 +67,15 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
     }
   };
 
-  const handleScanComplete = (cardData) => {
-    // Format card number with spaces
-    const formattedNumber = cardData.number.replace(/(\d{4})/g, '$1 ').trim();
-    setCardNumber(formattedNumber);
-    
-    // Format expiry if present (MM/YY)
-    if (cardData.expiry) {
-      const cleanExpiry = cardData.expiry.replace(/[^\d]/g, '');
-      const formattedExpiry = `${cleanExpiry.slice(0,2)}/${cleanExpiry.slice(2)}`;
-      setExpiry(formattedExpiry);
-    }
-    
-    // Set name if present
-    if (cardData.name) {
-      setCardHolder(cardData.name);
-    }
-    
-    // Set card type if detected
-    if (cardData.type) {
-      setCardType(cardData.type);
-    }
-
-    // Auto-detect bank and network based on card number
-    detectCardDetails(cardData.number);
-  };
-
-  const handleAddCard = async () => {
+  const handleAddCard = async (e) => {
+    if (e) e.preventDefault(); // Ensure we prevent default form submission
     setIsLoading(true);
     setError(null);
+
+    // Track user activity - this helps prevent session timeouts
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('activity'));
+    }
 
     try {
       await retryOperation(async () => {
@@ -81,8 +85,8 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
         }
 
         // Validate card number format
-        if (!/^\d{16}$/.test(cardNumber.replace(/\s/g, ''))) {
-          throw new Error("Please enter a valid 16-digit card number");
+        if (!/^\d{15,16}$/.test(cardNumber.replace(/\s/g, ''))) {
+          throw new Error("Please enter a valid 15 or 16-digit card number");
         }
 
         // Validate expiry format (MM/YY)
@@ -95,9 +99,21 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
           throw new Error("Please enter a valid CVV");
         }
 
+        // Ensure user is still valid before encrypting
+        if (!user || !user.uid) {
+          console.error("User is not defined or missing UID");
+          throw new Error("Authentication error. Please refresh and try again.");
+        }
+
+        // Check if masterPassword is still valid
+        if (!masterPassword) {
+          console.error("Master password is not defined");
+          throw new Error("Session expired. Please refresh and enter your master password again.");
+        }
+
         const encryptedCard = {
           uid: user.uid,
-          cardNumber: CryptoJS.AES.encrypt(cardNumber, masterPassword).toString(),
+          cardNumber: CryptoJS.AES.encrypt(cardNumber.replace(/\s/g, ''), masterPassword).toString(),
           cardHolder: CryptoJS.AES.encrypt(cardHolder, masterPassword).toString(),
           bankName: CryptoJS.AES.encrypt(bankName, masterPassword).toString(),
           networkName: CryptoJS.AES.encrypt(networkName, masterPassword).toString(),
@@ -108,6 +124,7 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
           createdAt: serverTimestamp()
         };
 
+        console.log("Adding card for user:", user.uid);
         await addDoc(collection(db, "cards"), encryptedCard);
       });
       
@@ -124,6 +141,24 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
       setError(error.message || "Failed to add card. Please try again.");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Format card number with spaces (4 digits per group)
+  const formatCardNumber = (value) => {
+    const digits = value.replace(/\D/g, '');
+    // Special formatting for AMEX (15 digits: 4-6-5)
+    if (/^3[47]/.test(digits)) {
+      let formatted = '';
+      for (let i = 0; i < digits.length; i++) {
+        if (i === 4 || i === 10) formatted += ' ';
+        formatted += digits[i];
+      }
+      return formatted.trim();
+    }
+    // Standard 16-digit formatting (4-4-4-4)
+    else {
+      return digits.replace(/(\d{4})(?=\d)/g, '$1 ').trim();
     }
   };
 
@@ -158,10 +193,13 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
             
             <form onSubmit={handleAddCard}>
               <div className="space-y-6">
-                <CardScannerComponent onScanComplete={handleScanComplete} />
-                
                 {/* Form Fields */}
                 <div className="space-y-4">
+                  {error && (
+                    <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+                      <p className="text-red-400 text-sm">{error}</p>
+                    </div>
+                  )}
                   {/* Card Holder Name */}
                   <div>
                     <label className="block text-white/70 text-sm font-medium mb-2">
@@ -187,19 +225,25 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
                     </label>
                     <input
                       type="text"
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
+                      className={`w-full px-4 py-3 bg-white/5 border ${cardNumber && !/^\d{15,16}$/.test(cardNumber.replace(/\s/g, '')) ? 'border-red-400' : 'border-white/10'} rounded-xl 
                         text-white placeholder-white/30 focus:outline-none focus:ring-2 
                         focus:ring-primary/30 focus:border-transparent backdrop-blur-sm
-                        transition-all duration-200"
+                        transition-all duration-200`}
                       value={cardNumber}
                       onChange={(e) => {
-                        const value = e.target.value.replace(/\D/g, '').slice(0, 16);
-                        setCardNumber(value);
-                        detectCardDetails(value);
+                        const rawValue = e.target.value.replace(/\D/g, '').slice(0, 16);
+                        const formattedValue = formatCardNumber(rawValue);
+                        setCardNumber(formattedValue);
+                        detectCardDetails(rawValue);
                       }}
                       placeholder="•••• •••• •••• ••••"
                       required
                     />
+                    {cardNumber && !/^\d{15,16}$/.test(cardNumber.replace(/\s/g, '')) && (
+                      <p className="text-red-400 text-xs mt-1">
+                        Please enter a valid 15 or 16-digit card number
+                      </p>
+                    )}
                   </div>
 
                   {/* Bank */}
@@ -255,15 +299,27 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
                     </label>
                     <input
                       type="text"
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
+                      className={`w-full px-4 py-3 bg-white/5 border ${expiry && !/^(0[1-9]|1[0-2])\/([0-9]{2})$/.test(expiry) ? 'border-red-400' : 'border-white/10'} rounded-xl 
                         text-white placeholder-white/30 focus:outline-none focus:ring-2 
                         focus:ring-primary/30 focus:border-transparent backdrop-blur-sm
-                        transition-all duration-200"
+                        transition-all duration-200`}
                       value={expiry}
-                      onChange={(e) => setExpiry(e.target.value)}
+                      onChange={(e) => {
+                        let value = e.target.value.replace(/[^\d/]/g, '');
+                        if (value.length === 2 && !value.includes('/') && e.nativeEvent.inputType !== 'deleteContentBackward') {
+                          value += '/';
+                        }
+                        setExpiry(value);
+                      }}
                       placeholder="MM/YY"
+                      maxLength="5"
                       required
                     />
+                    {expiry && !/^(0[1-9]|1[0-2])\/([0-9]{2})$/.test(expiry) && (
+                      <p className="text-red-400 text-xs mt-1">
+                        Please enter expiry in MM/YY format
+                      </p>
+                    )}
                   </div>
 
                   {/* CVV */}
@@ -273,15 +329,21 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
                     </label>
                     <input
                       type="password"
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
+                      className={`w-full px-4 py-3 bg-white/5 border ${cvv && !/^\d{3,4}$/.test(cvv) ? 'border-red-400' : 'border-white/10'} rounded-xl 
                         text-white placeholder-white/30 focus:outline-none focus:ring-2 
                         focus:ring-primary/30 focus:border-transparent backdrop-blur-sm
-                        transition-all duration-200"
+                        transition-all duration-200`}
                       value={cvv}
-                      onChange={(e) => setCvv(e.target.value)}
+                      onChange={(e) => setCvv(e.target.value.replace(/\D/g, '').slice(0, 4))}
                       placeholder="•••"
+                      maxLength="4"
                       required
                     />
+                    {cvv && !/^\d{3,4}$/.test(cvv) && (
+                      <p className="text-red-400 text-xs mt-1">
+                        Please enter a valid 3 or 4-digit CVV
+                      </p>
+                    )}
                   </div>
 
                   <button
@@ -291,7 +353,7 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
                       focus:outline-none focus:ring-2 focus:ring-primary/50 
                       disabled:opacity-50 disabled:cursor-not-allowed
                       shadow-lg shadow-primary/25"
-                    disabled={isLoading}
+                    disabled={isLoading || !isFormValid()}
                   >
                     {isLoading ? (
                       <div className="flex items-center justify-center">

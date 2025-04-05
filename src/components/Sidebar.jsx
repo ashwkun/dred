@@ -1,16 +1,14 @@
 import React from 'react';
-import { BiCreditCard, BiAddToQueue, BiWallet, BiCog, BiLogOut, BiDownload } from 'react-icons/bi';
-import { hasSupportedBillPayBank } from '../utils/bankUtils';
+import { BiCreditCard, BiAddToQueue, BiWallet as BiBillPay, BiCog, BiLogOut, BiDownload } from 'react-icons/bi';
 import logo from "../assets/logo.png";
 
 export default function Sidebar({ activePage, setActivePage, cards, user, onSignOut, onInstall, isAppInstalled, deferredPrompt }) {
-  const showBillPay = hasSupportedBillPayBank(cards);
-
+  // Always show Bill Pay regardless of supported cards
+  
   const navItems = [
     { id: 'viewCards', icon: BiCreditCard, label: 'Cards' },
     { id: 'addCard', icon: BiAddToQueue, label: 'Add Card' },
-    ...(showBillPay ? [{ id: 'billPay', icon: BiWallet, label: 'Bill Pay' }] : []),
-    { id: 'expenses', icon: BiWallet, label: 'Expenses' },
+    { id: 'billPay', icon: BiBillPay, label: 'Bill Pay' },
     { id: 'settings', icon: BiCog, label: 'Controls' }
   ];
 
