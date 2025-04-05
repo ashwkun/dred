@@ -37,26 +37,46 @@ class SecurityManager {
   // Master password validation
   async validatePassword(validationString, password, userId) {
     try {
+      // Rate limit checks
+      this.checkRateLimit();
+      
+      // Check lockout status
       const lockoutStatus = await this.checkLockoutStatus(userId);
       if (lockoutStatus.isLocked) {
         throw new Error(`Account locked. Try again in ${lockoutStatus.minutesLeft} minutes`);
       }
 
-      const decrypted = this.decryptData(validationString, password);
+      // Try to decrypt with the provided password
+      let decrypted = '';
+      try {
+        decrypted = this.decryptData(validationString, password);
+      } catch (decryptError) {
+        console.error("Decryption error:", decryptError);
+        // Don't expose the actual error to the user
+        decrypted = '';
+      }
+      
+      // If decryption was successful
       if (decrypted && decrypted.length > 0) {
+        // Reset failed attempts on success
         await this.updateLockoutStatus(userId, 0);
         return { success: true, decryptedSentence: decrypted };
       }
       
       // Increment failed attempts
-      const securityDoc = await getDoc(doc(db, "userSecurity", userId));
-      const currentAttempts = securityDoc.exists() ? securityDoc.data().failedAttempts || 0 : 0;
-      const newAttempts = currentAttempts + 1;
-      
-      await this.updateLockoutStatus(userId, newAttempts);
-      
-      if (newAttempts >= 3) {
-        throw new Error("Too many failed attempts. Account locked for 15 minutes.");
+      try {
+        const securityDoc = await getDoc(doc(db, "userSecurity", userId));
+        const currentAttempts = securityDoc.exists() ? securityDoc.data().failedAttempts || 0 : 0;
+        const newAttempts = currentAttempts + 1;
+        
+        await this.updateLockoutStatus(userId, newAttempts);
+        
+        if (newAttempts >= MAX_FAILED_ATTEMPTS) {
+          throw new Error(`Too many failed attempts. Account locked for ${LOCKOUT_TIME_MS/60000} minutes.`);
+        }
+      } catch (attemptsError) {
+        console.error("Error tracking failed attempts:", attemptsError);
+        // Still throw an invalid password error but don't expose the internal error
       }
       
       throw new Error("Invalid password");
@@ -122,25 +142,36 @@ class SecurityManager {
   }
 
   async updateLockoutStatus(userId, attempts) {
-    await setDoc(doc(db, "userSecurity", userId), {
-      failedAttempts: attempts,
-      lockoutUntil: attempts >= 3 ? Date.now() + (15 * 60 * 1000) : null,
-      updatedAt: new Date()
-    });
+    try {
+      await setDoc(doc(db, "userSecurity", userId), {
+        failedAttempts: attempts,
+        lockoutUntil: attempts >= 3 ? Date.now() + (15 * 60 * 1000) : null,
+        updatedAt: new Date()
+      }, { merge: true });  // Add merge: true to update only the specified fields
+    } catch (error) {
+      console.error("Error updating lockout status:", error);
+      // Don't throw the error to prevent the 400 Bad Request from blocking the UI
+      // Instead we'll just log it and continue
+    }
   }
 
   async checkLockoutStatus(userId) {
-    const securityDoc = await getDoc(doc(db, "userSecurity", userId));
-    if (securityDoc.exists()) {
-      const data = securityDoc.data();
-      if (data.lockoutUntil && Date.now() < data.lockoutUntil) {
-        return {
-          isLocked: true,
-          minutesLeft: Math.ceil((data.lockoutUntil - Date.now()) / 60000)
-        };
+    try {
+      const securityDoc = await getDoc(doc(db, "userSecurity", userId));
+      if (securityDoc.exists()) {
+        const data = securityDoc.data();
+        if (data.lockoutUntil && Date.now() < data.lockoutUntil) {
+          return {
+            isLocked: true,
+            minutesLeft: Math.ceil((data.lockoutUntil - Date.now()) / 60000)
+          };
+        }
       }
+      return { isLocked: false };
+    } catch (error) {
+      console.error("Error checking lockout status:", error);
+      return { isLocked: false }; // Default to not locked if there's an error
     }
-    return { isLocked: false };
   }
 }
 

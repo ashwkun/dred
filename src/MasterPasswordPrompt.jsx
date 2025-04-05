@@ -99,13 +99,20 @@ function MasterPasswordPrompt({ setMasterPassword, user }) {
       await new Promise(r => setTimeout(r, 2000));
       setMasterPassword(inputValue);
     } catch (error) {
-      setValidationError(error.message);
-      await new Promise(r => setTimeout(r, 2000));
-      setValidationError(null);
-      if (error.message.includes("Account locked")) {
+      // Enhanced error messages
+      let errorMessage = error.message;
+      if (errorMessage === "Invalid password") {
+        errorMessage = "The password you entered is incorrect. Please try again.";
+      } else if (errorMessage.includes("Account locked")) {
+        const minutes = errorMessage.match(/\d+/)[0];
+        errorMessage = `Too many failed attempts. Your account is locked for ${minutes} minutes.`;
         setIsLockedOut(true);
-        setLockoutMinutes(parseInt(error.message.match(/\d+/)[0]));
+        setLockoutMinutes(parseInt(minutes));
       }
+      
+      setValidationError(errorMessage);
+      // Remove the automatic clearing of error message
+      // Let it persist until the next attempt
     } finally {
       setIsValidating(false);
     }
@@ -285,7 +292,10 @@ function MasterPasswordPrompt({ setMasterPassword, user }) {
                   <input
                     type={showPassword ? "text" : "password"}
                     value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
+                    onChange={(e) => {
+                      setInputValue(e.target.value);
+                      setValidationError(null); // Clear error on input change
+                    }}
                     className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
                       text-white placeholder-white/50 focus:outline-none focus:ring-2 
                       focus:ring-white/20 focus:border-transparent backdrop-blur-sm"

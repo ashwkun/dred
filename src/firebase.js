@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB-9yZNPFFsjG8JR5t9i6ZbYZ9FnbZegw8",
@@ -18,7 +18,16 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 
-// Initialize Firestore
+// Initialize Firestore with error handling
 const db = getFirestore(app);
+
+// For error handling, add a global error handler for Firebase operations
+window.addEventListener('unhandledrejection', (event) => {
+  if (event.reason && event.reason.code && event.reason.code.startsWith('firestore/')) {
+    console.error('Firestore error:', event.reason);
+    // Prevent the error from crashing the app
+    event.preventDefault();
+  }
+});
 
 export { db };
