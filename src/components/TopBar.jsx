@@ -34,7 +34,7 @@ export default function TopBar({
   return (
     <div className="fixed top-0 left-0 right-0 z-40 p-4">
       <motion.div 
-        className={`${currentThemeData.surfaces.primary} border border-white/20 ${currentThemeData.radius} md:w-[calc(100%-.5rem)] max-w-[1400px] mx-auto shadow-lg`}
+        className={`${currentThemeData.surfaces.primary} border border-white/20 ${currentThemeData.radius} md:w-[calc(100%-.3rem)] max-w-[1400px] mx-auto shadow-lg`}
         initial={{ y: -10, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, ease: "easeOut" }}

@@ -3182,6 +3182,10 @@ body {
     width: calc(100% - .5rem);
   }
 
+  .md\:w-\[calc\(100\%-\.3rem\)\] {
+    width: calc(100% - .3rem);
+  }
+
   .md\:max-w-\[400px\] {
     max-width: 400px;
   }
