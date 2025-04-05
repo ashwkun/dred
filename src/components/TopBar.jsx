@@ -60,24 +60,6 @@ export default function TopBar({
 
             {/* Right - Actions */}
             <div className="flex items-center gap-3" ref={profileRef}>
-              {/* Theme Toggle Button */}
-              {toggleMode && (
-                <motion.button
-                  onClick={toggleMode}
-                  className="p-2 rounded-xl bg-white/10 hover:bg-white/20 
-                    border border-white/10 text-white/80 transition-colors"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  aria-label={mode === 'light' ? "Switch to dark mode" : "Switch to light mode"}
-                >
-                  {mode === 'light' ? (
-                    <BiMoon className="w-5 h-5" />
-                  ) : (
-                    <BiSun className="w-5 h-5" />
-                  )}
-                </motion.button>
-              )}
-              
               {/* Install Button */}
               {deferredPrompt && (
                 <motion.button

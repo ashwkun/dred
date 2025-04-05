@@ -34,14 +34,14 @@ export default function Sidebar({ activePage, setActivePage, cards, user, onSign
 
   return (
     <motion.div 
-      className="hidden md:flex flex-col fixed top-0 left-0 h-full p-4 pt-20 z-30"
+      className="hidden md:flex flex-col fixed top-0 left-0 h-screen p-4 pt-24 z-30"
       initial="hidden"
       animate="visible"
       variants={sidebarVariants}
     >
       <motion.div 
         className="bg-black/30 backdrop-blur-xl border border-white/20 rounded-2xl 
-          h-full w-64 flex flex-col shadow-xl"
+          h-[calc(100vh-7rem)] w-64 flex flex-col shadow-xl overflow-hidden"
       >
         {/* Logo is now hidden since we have the logo in topbar */}
         <div className="pt-2"></div>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { BiCreditCard, BiAddToQueue, BiWallet as BiBillPay, BiCog, BiLogOut } from 'react-icons/bi';
+import { BiCreditCard, BiAddToQueue, BiWallet as BiBillPay, BiCog } from 'react-icons/bi';
 
 export default function MobileNav({ activePage, setActivePage, cards, onSignOut }) {
   // Always show Bill Pay regardless of supported cards
@@ -77,18 +77,6 @@ export default function MobileNav({ activePage, setActivePage, cards, onSignOut 
               <span className="text-[10px] mt-1 font-medium">{item.label}</span>
             </motion.button>
           ))}
-          
-          {/* Add Logout Button */}
-          <motion.button 
-            onClick={onSignOut}
-            className="flex flex-col items-center py-2 px-3 rounded-lg transition-all text-red-400/80 hover:bg-red-400/10"
-            variants={buttonVariants}
-            whileHover="hover"
-            whileTap="tap"
-          >
-            <BiLogOut className="text-lg" />
-            <span className="text-[10px] mt-1 font-medium">Logout</span>
-          </motion.button>
         </div>
       </motion.div>
     </div>

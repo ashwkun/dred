@@ -418,7 +418,15 @@ function App() {
     }
 
     if (!masterPassword) {
-      return <MasterPasswordPrompt onPasswordSubmit={setMasterPassword} />;
+      return (
+        <MasterPasswordPrompt 
+          onPasswordSubmit={setMasterPassword} 
+          user={user}
+          setActivePage={setActivePage}
+          mode={mode}
+          toggleMode={toggleMode}
+        />
+      );
     }
 
     return (
@@ -458,6 +466,8 @@ function App() {
               setActivePage={setActivePage}
               setDialog={setDialog}
               showSuccessMessage={showSuccessMessage}
+              cards={cards}
+              setCards={setCards}
             />
           )}
           {activePage === "addCard" && (
@@ -520,7 +530,7 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: getBgGradient() }}>
+    <div className={`min-h-screen ${getBgGradient()}`}>
       {/* Render the main app flow */}
       {renderContent()}
       

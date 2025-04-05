@@ -19,7 +19,7 @@ const itemVariants = {
   visible: { y: 0, opacity: 1, transition: { duration: 0.4, ease: "easeOut" } }
 };
 
-function MasterPasswordPrompt({ setMasterPassword, user, setActivePage, mode, toggleMode }) {
+function MasterPasswordPrompt({ setMasterPassword, user, setActivePage, mode, toggleMode, onPasswordSubmit }) {
   const [inputValue, setInputValue] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isFirstTime, setIsFirstTime] = useState(false);
@@ -33,12 +33,31 @@ function MasterPasswordPrompt({ setMasterPassword, user, setActivePage, mode, to
   const [lockoutMinutes, setLockoutMinutes] = useState(0);
   const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
 
+  // Log user info for debugging
   useEffect(() => {
-    checkFirstTimeUser();
+    console.log("MasterPasswordPrompt: User state:", user ? `User with ID ${user.uid}` : "No user");
+  }, [user]);
+
+  useEffect(() => {
+    // Only proceed if we have a valid user with uid
+    if (user && user.uid) {
+      checkFirstTimeUser();
+    } else {
+      console.warn("MasterPasswordPrompt: User or user.uid is undefined, skipping first-time check");
+      // Default to first-time if we can't verify
+      setIsFirstTime(true);
+    }
   }, [user]);
 
   const checkFirstTimeUser = async () => {
     try {
+      // Guard against null user
+      if (!user || !user.uid) {
+        console.error("Error checking first time user: User or user.uid is undefined");
+        setIsFirstTime(true);
+        return;
+      }
+
       const validationRef = doc(db, "validationStrings", user.uid);
       const validationDoc = await getDoc(validationRef);
       setIsFirstTime(!validationDoc.exists());
@@ -73,6 +92,11 @@ function MasterPasswordPrompt({ setMasterPassword, user, setActivePage, mode, to
     setValidationError(null);
 
     try {
+      // Guard against null user
+      if (!user || !user.uid) {
+        throw new Error("User not authenticated. Please refresh and try again.");
+      }
+
       const validationString = securityManager.createValidationString(masterPass, validationSentence);
       await setDoc(doc(db, "validationStrings", user.uid), {
         validationString,
@@ -85,7 +109,12 @@ function MasterPasswordPrompt({ setMasterPassword, user, setActivePage, mode, to
       
       // Set master password first
       console.log("MasterPasswordPrompt: Setting master password:", masterPass.substring(0, 1) + "******");
-      setMasterPassword(masterPass);
+      if (typeof onPasswordSubmit === 'function') {
+        onPasswordSubmit(masterPass);
+      }
+      if (typeof setMasterPassword === 'function') {
+        setMasterPassword(masterPass);
+      }
       
       // Wait for state to update before navigation
       console.log("MasterPasswordPrompt: Waiting before navigating to viewCards");
@@ -93,7 +122,9 @@ function MasterPasswordPrompt({ setMasterPassword, user, setActivePage, mode, to
       
       // Then navigate
       console.log("MasterPasswordPrompt: First-time setup complete, navigating to viewCards");
-      setActivePage('viewCards');
+      if (typeof setActivePage === 'function') {
+        setActivePage('viewCards');
+      }
     } catch (error) {
       setValidationError(error.message || "An error occurred during setup.");
     } finally {
@@ -107,6 +138,11 @@ function MasterPasswordPrompt({ setMasterPassword, user, setActivePage, mode, to
     setValidationError(null);
 
     try {
+      // Guard against null user
+      if (!user || !user.uid) {
+        throw new Error("User not authenticated. Please refresh and try again.");
+      }
+
       const validationDoc = await getDoc(doc(db, "validationStrings", user.uid));
       if (!validationDoc.exists()) {
         throw new Error("Validation data not found. Setup might be incomplete.");
@@ -121,7 +157,12 @@ function MasterPasswordPrompt({ setMasterPassword, user, setActivePage, mode, to
       
       // Set master password first
       console.log("MasterPasswordPrompt: Setting master password after successful validation:", inputValue.substring(0, 1) + "******");
-      setMasterPassword(inputValue);
+      if (typeof onPasswordSubmit === 'function') {
+        onPasswordSubmit(inputValue);
+      }
+      if (typeof setMasterPassword === 'function') {
+        setMasterPassword(inputValue);
+      }
       
       // Wait for state to update before navigation
       console.log("MasterPasswordPrompt: Waiting before navigating to viewCards");
@@ -129,7 +170,9 @@ function MasterPasswordPrompt({ setMasterPassword, user, setActivePage, mode, to
       
       // Then navigate
       console.log("MasterPasswordPrompt: Navigating to viewCards page");
-      setActivePage('viewCards');
+      if (typeof setActivePage === 'function') {
+        setActivePage('viewCards');
+      }
 
     } catch (error) {
       let errorMessage = error.message;

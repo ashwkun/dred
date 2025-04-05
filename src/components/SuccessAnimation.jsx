@@ -13,7 +13,7 @@ export function SuccessAnimation({ message = "Success!" }) {
       >
         <motion.div 
           className="bg-black/30 backdrop-blur-xl border border-white/20 rounded-2xl p-8 
-            flex flex-col items-center shadow-xl"
+            flex flex-col items-center shadow-xl max-w-[90%] md:max-w-[400px] mx-auto"
           initial={{ scale: 0.8, opacity: 0, y: 10 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.8, opacity: 0, y: 10 }}

@@ -14,13 +14,15 @@ export default function BillPay({ user, masterPassword, showSuccessMessage }) {
   const [cards, setCards] = useState([]);
   const [supportedCards, setSupportedCards] = useState([]);
   const [showMobileDialog, setShowMobileDialog] = useState(false);
-  const [mobileNumber, setMobileNumber] = useState(null);
+  const [mobileNumber, setMobileNumber] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  console.log("BillPay rendering with showMobileDialog:", showMobileDialog);
+
+  // Load cards and mobile number on component mount
   useEffect(() => {
     const loadData = async () => {
-      // Check if user is defined before accessing properties
       if (!user || !user.uid) {
         console.error('BillPay: User or user.uid is undefined');
         setError('User authentication required');
@@ -30,7 +32,10 @@ export default function BillPay({ user, masterPassword, showSuccessMessage }) {
 
       setLoading(true);
       setError(null);
+      
       try {
+        console.log("Loading data for user:", user.uid);
+        
         // Load mobile number
         const mobileSnapshot = await getDocs(query(
           collection(db, "mobile_numbers"),
@@ -40,8 +45,16 @@ export default function BillPay({ user, masterPassword, showSuccessMessage }) {
         if (!mobileSnapshot.empty) {
           // Decrypt mobile number
           const encryptedNumber = mobileSnapshot.docs[0].data().number;
-          const decryptedNumber = CryptoJS.AES.decrypt(encryptedNumber, masterPassword).toString(CryptoJS.enc.Utf8);
-          setMobileNumber(decryptedNumber);
+          try {
+            const decryptedNumber = CryptoJS.AES.decrypt(encryptedNumber, masterPassword).toString(CryptoJS.enc.Utf8);
+            console.log("Mobile number loaded:", decryptedNumber ? "Found" : "Empty");
+            setMobileNumber(decryptedNumber);
+          } catch (error) {
+            console.error("Failed to decrypt mobile number:", error);
+            setError("Failed to decrypt mobile number. Please try again.");
+          }
+        } else {
+          console.log("No mobile number found");
         }
 
         // Load cards
@@ -50,9 +63,17 @@ export default function BillPay({ user, masterPassword, showSuccessMessage }) {
           where("uid", "==", user.uid)
         ));
         
+        if (cardsSnapshot.empty) {
+          console.log("No cards found");
+          setCards([]);
+          setSupportedCards([]);
+          setLoading(false);
+          return;
+        }
+        
         const cardsData = cardsSnapshot.docs.map(doc => {
           try {
-            return {
+            const decryptedCard = {
               ...doc.data(),
               id: doc.id,
               cardNumber: CryptoJS.AES.decrypt(doc.data().cardNumber, masterPassword).toString(CryptoJS.enc.Utf8),
@@ -61,24 +82,26 @@ export default function BillPay({ user, masterPassword, showSuccessMessage }) {
               cardHolder: CryptoJS.AES.decrypt(doc.data().cardHolder, masterPassword).toString(CryptoJS.enc.Utf8),
               theme: doc.data().theme || "#6a3de8" // Default theme if not present
             };
+            return decryptedCard;
           } catch (error) {
             console.error('Error decrypting card data:', error);
             return null;
           }
         }).filter(Boolean); // Remove any null entries
         
+        console.log(`Loaded ${cardsData.length} cards`);
         setCards(cardsData);
         
-        // Filter supported cards
+        // Filter supported cards - simplified check
         const supported = cardsData.filter(card => {
-          const bankName = card.bankName.toLowerCase().trim();
-          return SUPPORTED_BILL_PAY_BANKS.some(bank => 
-            bankName.includes(bank.toLowerCase())
+          const bankName = card.bankName.toLowerCase();
+          return SUPPORTED_BILL_PAY_BANKS.some(supportedBank => 
+            bankName.includes(supportedBank.toLowerCase())
           );
         });
-        setSupportedCards(supported);
         
-        console.log(`Found ${supported.length} supported cards out of ${cardsData.length} total cards`);
+        console.log(`Found ${supported.length} supported cards`);
+        setSupportedCards(supported);
       } catch (error) {
         console.error('Error loading data:', error);
         setError('Failed to load data. Please try again.');
@@ -90,8 +113,10 @@ export default function BillPay({ user, masterPassword, showSuccessMessage }) {
     loadData();
   }, [user, masterPassword]);
 
+  // Handle mobile number submission
   const handleMobileSubmit = async (number) => {
-    // Check if user is defined before accessing properties
+    console.log("Mobile submit handler called with:", number);
+    
     if (!user || !user.uid) {
       console.error('BillPay: User or user.uid is undefined');
       setError('User authentication required');
@@ -102,6 +127,7 @@ export default function BillPay({ user, masterPassword, showSuccessMessage }) {
       // Encrypt mobile number before storing
       const encryptedNumber = CryptoJS.AES.encrypt(number, masterPassword).toString();
       
+      // Save to Firestore
       const docRef = doc(collection(db, "mobile_numbers"));
       await setDoc(docRef, {
         uid: user.uid,
@@ -109,33 +135,39 @@ export default function BillPay({ user, masterPassword, showSuccessMessage }) {
         createdAt: new Date()
       });
       
+      console.log("Mobile number saved successfully");
       setMobileNumber(number); // Store decrypted version in state
-      showSuccessMessage('Mobile number updated successfully!');
       setShowMobileDialog(false);
+      showSuccessMessage('Mobile number saved successfully!');
+      
     } catch (error) {
       console.error('Error saving mobile number:', error);
       setError('Failed to save mobile number. Please try again.');
     }
   };
 
+  // Generate UPI ID for a card
   const getUpiId = (card) => {
-    if (!mobileNumber) return null;
+    if (!mobileNumber) {
+      console.log("No mobile number available");
+      return null;
+    }
     
     const last4 = card.cardNumber.slice(-4);
     const cardNumber = card.cardNumber.replace(/\s/g, '');
     
-    // Normalize bank name for comparison
+    // Normalize bank name for comparison and make the matching more flexible
     const bankLower = card.bankName.toLowerCase().trim();
     
-    if (bankLower.includes('axis') || bankLower === 'axisbank') {
+    if (bankLower.includes('axis')) {
       return `CC.91${mobileNumber}${last4}@axisbank`;
-    } else if (bankLower.includes('icici') || bankLower === 'icicibank') {
+    } else if (bankLower.includes('icici')) {
       return `ccpay${cardNumber}@icici`;
     } else if (bankLower.includes('au') || bankLower.includes('small finance')) {
       return `AUCC${mobileNumber}${last4}@AUBANK`;
     } else if (bankLower.includes('idfc')) {
       return `${cardNumber}.cc@idfcbank`;
-    } else if (bankLower.includes('amex') || bankLower === 'american express') {
+    } else if (bankLower.includes('amex') || bankLower.includes('american express')) {
       return `AEBC${cardNumber}@SC`;
     }
     
@@ -150,7 +182,7 @@ export default function BillPay({ user, masterPassword, showSuccessMessage }) {
   };
 
   const getSupportedBankLogo = (bankName) => {
-    const normalized = bankName.toLowerCase().replace(/\s+/g, '');
+    const normalized = bankName.toLowerCase();
     
     if (normalized.includes('axis')) return bankLogos.axisbank?.symbolSVG;
     if (normalized.includes('icici')) return bankLogos.icicibank?.symbolSVG;
@@ -247,13 +279,13 @@ export default function BillPay({ user, masterPassword, showSuccessMessage }) {
                     const logoKey = bank.toLowerCase().replace(/\s+/g, '');
                     let logoSrc;
                     
-                    if (logoKey === 'amex') {
+                    if (logoKey.includes('amex')) {
                       logoSrc = networkLogos.amex;
                     } else {
                       const normalizedKey = logoKey.includes('icici') ? 'icicibank' : 
-                                        logoKey.includes('axis') ? 'axisbank' :
-                                        logoKey.includes('au') ? 'ausmallfinancebank' :
-                                        logoKey.includes('idfc') ? 'idfcfirstbank' : null;
+                                      logoKey.includes('axis') ? 'axisbank' :
+                                      logoKey.includes('au') ? 'ausmallfinancebank' :
+                                      logoKey.includes('idfc') ? 'idfcfirstbank' : null;
                       
                       logoSrc = normalizedKey && bankLogos[normalizedKey] ? 
                                 bankLogos[normalizedKey].symbolSVG : 
@@ -280,9 +312,13 @@ export default function BillPay({ user, masterPassword, showSuccessMessage }) {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
               {supportedCards.map((card, idx) => {
-                const upiId = getUpiId(card);
-                if (!upiId) return null;
-
+                // More flexible UPI ID generation
+                let upiId = null;
+                if (mobileNumber) {
+                  upiId = getUpiId(card);
+                }
+                
+                // Show the card even if UPI ID can't be generated yet
                 const last4 = card.cardNumber.slice(-4);
                 
                 // Use securityManager to decrypt theme if it's encrypted
@@ -337,27 +373,36 @@ export default function BillPay({ user, masterPassword, showSuccessMessage }) {
                           
                           <p className="text-white/60 text-sm">{card.networkName}</p>
                           
-                          {/* UPI ID */}
+                          {/* UPI ID or Missing Mobile Number Message */}
                           <div className="flex items-center gap-2">
-                            <div className="px-3 py-1.5 bg-black/20 backdrop-blur-sm rounded-lg">
-                              <p className="text-white/70 text-xs font-mono">{upiId}</p>
-                            </div>
+                            {upiId ? (
+                              <div className="px-3 py-1.5 bg-black/20 backdrop-blur-sm rounded-lg">
+                                <p className="text-white/70 text-xs font-mono">{upiId}</p>
+                              </div>
+                            ) : (
+                              <div className="px-3 py-1.5 bg-red-500/10 backdrop-blur-sm rounded-lg">
+                                <p className="text-red-300/80 text-xs">Add mobile number to enable payments</p>
+                              </div>
+                            )}
                           </div>
                         </div>
                         
-                        {/* Pay Button */}
+                        {/* Pay Button - Only enable if UPI ID is available */}
                         <motion.button
-                          onClick={() => handlePayBill(upiId)}
-                          className="w-full px-4 py-2.5 bg-white/10 hover:bg-white/20 
-                            rounded-xl text-white font-medium
-                            transition-all duration-200 flex items-center justify-center gap-2
-                            border border-white/10 backdrop-blur-sm"
-                          whileHover={{ 
+                          onClick={() => upiId && handlePayBill(upiId)}
+                          className={`w-full px-4 py-2.5 
+                            rounded-xl text-white font-medium flex items-center justify-center gap-2
+                            border border-white/10 backdrop-blur-sm
+                            ${upiId 
+                              ? 'bg-white/10 hover:bg-white/20 transition-all duration-200' 
+                              : 'bg-white/5 opacity-50 cursor-not-allowed'
+                            }`}
+                          whileHover={upiId ? { 
                             scale: 1.02, 
                             backgroundColor: 'rgba(255, 255, 255, 0.2)',
                             boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-                          }}
-                          whileTap={{ scale: 0.98 }}
+                          } : {}}
+                          whileTap={upiId ? { scale: 0.98 } : {}}
                         >
                           Pay Bill
                           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -374,14 +419,6 @@ export default function BillPay({ user, masterPassword, showSuccessMessage }) {
           )}
         </motion.div>
 
-        {/* MobileNumberDialog - Using the improved component with initialValue */}
-        <MobileNumberDialog
-          isOpen={showMobileDialog}
-          onClose={() => setShowMobileDialog(false)}
-          onSubmit={handleMobileSubmit}
-          initialValue={mobileNumber || ''}
-        />
-
         {/* Error message display */}
         {error && (
           <motion.div 
@@ -392,6 +429,14 @@ export default function BillPay({ user, masterPassword, showSuccessMessage }) {
             <p className="text-white/90">{error}</p>
           </motion.div>
         )}
+
+        {/* Mobile Number Dialog */}
+        <MobileNumberDialog
+          isOpen={showMobileDialog}
+          onClose={() => setShowMobileDialog(false)}
+          onSubmit={handleMobileSubmit}
+          initialValue={mobileNumber || ''}
+        />
       </div>
     </motion.div>
   );

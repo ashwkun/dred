@@ -132,7 +132,7 @@ function ViewCards({
             });
 
             console.log("ViewCards: Successfully processed", newCards.length, "cards");
-            setCards(newCards);
+            setCardsSynchronized(newCards);
             setLoading(false);
           } catch (error) {
             console.error("Error processing cards:", error);
@@ -263,6 +263,18 @@ function ViewCards({
         </svg>
       </div>
     );
+  };
+
+  // Add this new function to synchronize internal and external state
+  const setCardsSynchronized = (newCards) => {
+    // Update internal state
+    setInternalCards(newCards);
+    
+    // Also update external state if available
+    if (typeof externalSetCards === 'function') {
+      console.log('ViewCards: Synchronizing with external state:', newCards.length, 'cards');
+      externalSetCards(newCards);
+    }
   };
 
   if (loading) {
