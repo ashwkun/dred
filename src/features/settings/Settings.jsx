@@ -8,7 +8,7 @@ import { BiCog } from 'react-icons/bi';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { SuccessAnimation } from '../../components/SuccessAnimation';
 
-function Settings({ user, masterPassword }) {
+function Settings({ user, masterPassword, showSuccessMessage }) {
   const { themes, currentTheme, setCurrentTheme, currentThemeData } = useTheme();
   const [showDeleteCards, setShowDeleteCards] = useState(false);
   const [showThemes, setShowThemes] = useState(false);
@@ -111,8 +111,8 @@ function Settings({ user, masterPassword }) {
           await deleteDoc(cardRef);
           setCards(cards.filter(card => card.id !== cardId));
           
-          // Use SuccessAnimation instead of dialog
-          handleSuccess('Card deleted successfully!');
+          // Use the global success message
+          showSuccessMessage('Card deleted successfully!');
           closeDialog(); // Ensure dialog closes after success
         } catch (error) {
           console.error('Error deleting card:', error);
@@ -213,7 +213,8 @@ function Settings({ user, masterPassword }) {
       
       await batch.commit();
       
-      handleSuccess('Card order updated successfully!');
+      // Use the global success message
+      showSuccessMessage('Card order updated successfully!');
     } catch (error) {
       console.error('Error saving card order:', error);
       setDialog({
@@ -339,7 +340,10 @@ function Settings({ user, masterPassword }) {
                 {Object.entries(themes).map(([key, theme]) => (
                   <button
                     key={key}
-                    onClick={() => setCurrentTheme(key)}
+                    onClick={() => {
+                      setCurrentTheme(key);
+                      showSuccessMessage(`Theme changed to ${theme.name}`);
+                    }}
                     className={`p-4 rounded-xl border transition-all ${
                       currentTheme === key
                         ? `border-${currentThemeData.accent}/40 bg-${currentThemeData.accent}/20`

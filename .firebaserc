@@ -1,5 +1,19 @@
 {
   "projects": {
-    "default": "dred-e6e59"
-  }
+    "default": "dred-e6e59",
+    "dev": "dred-e6e59"
+  },
+  "targets": {
+    "dred-e6e59": {
+      "hosting": {
+        "production": [
+          "dred-e6e59"
+        ],
+        "dev": [
+          "dred-e6e59-dev"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }

@@ -5,23 +5,29 @@ import MobileNumberDialog from './components/MobileNumberDialog';
 import CryptoJS from 'crypto-js';
 import { BiCreditCard, BiMobile, BiInfoCircle } from 'react-icons/bi';
 import { LoadingOverlay } from './components/LoadingOverlay';
-import { SuccessAnimation } from './components/SuccessAnimation';
 import { securityManager } from './utils/security';
 import { bankLogos, networkLogos } from './utils/logoMap';
-import { SUPPORTED_BILL_PAY_BANKS } from './utils/bankUtils';
+import { SUPPORTED_BILL_PAY_BANKS, hasSupportedBillPayBank } from './utils/bankUtils';
+import { motion } from 'framer-motion';
 
-export default function BillPay({ user, masterPassword }) {
+export default function BillPay({ user, masterPassword, showSuccessMessage }) {
   const [cards, setCards] = useState([]);
   const [supportedCards, setSupportedCards] = useState([]);
   const [showMobileDialog, setShowMobileDialog] = useState(false);
   const [mobileNumber, setMobileNumber] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
     const loadData = async () => {
+      // Check if user is defined before accessing properties
+      if (!user || !user.uid) {
+        console.error('BillPay: User or user.uid is undefined');
+        setError('User authentication required');
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       setError(null);
       try {
@@ -36,8 +42,6 @@ export default function BillPay({ user, masterPassword }) {
           const encryptedNumber = mobileSnapshot.docs[0].data().number;
           const decryptedNumber = CryptoJS.AES.decrypt(encryptedNumber, masterPassword).toString(CryptoJS.enc.Utf8);
           setMobileNumber(decryptedNumber);
-        } else {
-          setShowMobileDialog(true);
         }
 
         // Load cards
@@ -46,20 +50,35 @@ export default function BillPay({ user, masterPassword }) {
           where("uid", "==", user.uid)
         ));
         
-        const cardsData = cardsSnapshot.docs.map(doc => ({
-          ...doc.data(),
-          id: doc.id,
-          cardNumber: CryptoJS.AES.decrypt(doc.data().cardNumber, masterPassword).toString(CryptoJS.enc.Utf8),
-          bankName: CryptoJS.AES.decrypt(doc.data().bankName, masterPassword).toString(CryptoJS.enc.Utf8),
-          cardType: CryptoJS.AES.decrypt(doc.data().cardType, masterPassword).toString(CryptoJS.enc.Utf8),
-          theme: doc.data().theme
-        }));
+        const cardsData = cardsSnapshot.docs.map(doc => {
+          try {
+            return {
+              ...doc.data(),
+              id: doc.id,
+              cardNumber: CryptoJS.AES.decrypt(doc.data().cardNumber, masterPassword).toString(CryptoJS.enc.Utf8),
+              bankName: CryptoJS.AES.decrypt(doc.data().bankName, masterPassword).toString(CryptoJS.enc.Utf8),
+              networkName: CryptoJS.AES.decrypt(doc.data().networkName, masterPassword).toString(CryptoJS.enc.Utf8),
+              cardHolder: CryptoJS.AES.decrypt(doc.data().cardHolder, masterPassword).toString(CryptoJS.enc.Utf8),
+              theme: doc.data().theme || "#6a3de8" // Default theme if not present
+            };
+          } catch (error) {
+            console.error('Error decrypting card data:', error);
+            return null;
+          }
+        }).filter(Boolean); // Remove any null entries
         
         setCards(cardsData);
         
         // Filter supported cards
-        const supported = cardsData.filter(card => getUpiId(card) !== null);
+        const supported = cardsData.filter(card => {
+          const bankName = card.bankName.toLowerCase().trim();
+          return SUPPORTED_BILL_PAY_BANKS.some(bank => 
+            bankName.includes(bank.toLowerCase())
+          );
+        });
         setSupportedCards(supported);
+        
+        console.log(`Found ${supported.length} supported cards out of ${cardsData.length} total cards`);
       } catch (error) {
         console.error('Error loading data:', error);
         setError('Failed to load data. Please try again.');
@@ -69,9 +88,16 @@ export default function BillPay({ user, masterPassword }) {
     };
 
     loadData();
-  }, [user.uid, masterPassword]);
+  }, [user, masterPassword]);
 
   const handleMobileSubmit = async (number) => {
+    // Check if user is defined before accessing properties
+    if (!user || !user.uid) {
+      console.error('BillPay: User or user.uid is undefined');
+      setError('User authentication required');
+      return;
+    }
+    
     try {
       // Encrypt mobile number before storing
       const encryptedNumber = CryptoJS.AES.encrypt(number, masterPassword).toString();
@@ -84,9 +110,7 @@ export default function BillPay({ user, masterPassword }) {
       });
       
       setMobileNumber(number); // Store decrypted version in state
-      setSuccessMessage('Mobile number updated successfully!');
-      setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 2000);
+      showSuccessMessage('Mobile number updated successfully!');
       setShowMobileDialog(false);
     } catch (error) {
       console.error('Error saving mobile number:', error);
@@ -100,38 +124,41 @@ export default function BillPay({ user, masterPassword }) {
     const last4 = card.cardNumber.slice(-4);
     const cardNumber = card.cardNumber.replace(/\s/g, '');
     
-    switch (card.bankName.toLowerCase()) {
-      case 'axis bank':
-        return `CC.91${mobileNumber}${last4}@axisbank`;
-      case 'icici bank':
-        return `ccpay${cardNumber}@icici`;
-      case 'au small finance bank':
-        return `AUCC${mobileNumber}${last4}@AUBANK`;
-      case 'idfc bank':
-        return `${cardNumber}.cc@idfcbank`;
-      case 'amex':
-        return `AEBC${cardNumber}@SC`;
-      default:
-        return null;
+    // Normalize bank name for comparison
+    const bankLower = card.bankName.toLowerCase().trim();
+    
+    if (bankLower.includes('axis') || bankLower === 'axisbank') {
+      return `CC.91${mobileNumber}${last4}@axisbank`;
+    } else if (bankLower.includes('icici') || bankLower === 'icicibank') {
+      return `ccpay${cardNumber}@icici`;
+    } else if (bankLower.includes('au') || bankLower.includes('small finance')) {
+      return `AUCC${mobileNumber}${last4}@AUBANK`;
+    } else if (bankLower.includes('idfc')) {
+      return `${cardNumber}.cc@idfcbank`;
+    } else if (bankLower.includes('amex') || bankLower === 'american express') {
+      return `AEBC${cardNumber}@SC`;
     }
+    
+    return null;
   };
 
   const handlePayBill = (upiId) => {
     // Create UPI payment URL
     const upiUrl = `upi://pay?pa=${upiId}&pn=Credit%20Card%20Bill&tn=Credit%20Card%20Bill%20Payment`;
     window.location.href = upiUrl;
+    showSuccessMessage('Redirecting to payment app...');
   };
 
   const getSupportedBankLogo = (bankName) => {
     const normalized = bankName.toLowerCase().replace(/\s+/g, '');
     
-    if (normalized === 'axisbank') return bankLogos.axisbank.symbolSVG;
-    if (normalized === 'icicibank') return bankLogos.icicibank.symbolSVG;
-    if (normalized === 'ausmallfinancebank') return bankLogos.ausmallfinancebank.symbolSVG;
-    if (normalized === 'idfcbank' || normalized === 'idfcfirstbank') return bankLogos.idfcfirstbank.symbolSVG;
-    if (normalized === 'amex') return networkLogos.amex;
+    if (normalized.includes('axis')) return bankLogos.axisbank?.symbolSVG;
+    if (normalized.includes('icici')) return bankLogos.icicibank?.symbolSVG;
+    if (normalized.includes('au')) return bankLogos.ausmallfinancebank?.symbolSVG;
+    if (normalized.includes('idfc')) return bankLogos.idfcfirstbank?.symbolSVG;
+    if (normalized.includes('amex')) return networkLogos.amex;
     
-    return null;
+    return bankLogos.default?.symbolSVG;
   };
 
   if (loading) {
@@ -139,8 +166,13 @@ export default function BillPay({ user, masterPassword }) {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      {/* Header Section - Now matches other components with mobile optimization */}
+    <motion.div 
+      className="container mx-auto px-4 py-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
+      {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center gap-3 mb-8 md:mb-6">
         <div className="flex items-center gap-3">
           <div className="h-12 w-12 rounded-xl bg-white/10 flex items-center justify-center">
@@ -156,7 +188,12 @@ export default function BillPay({ user, masterPassword }) {
       {/* Rest of the content */}
       <div className="space-y-4">
         {/* Mobile Number Status */}
-        <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6">
+        <motion.div 
+          className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6"
+          initial={{ y: 10, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.1 }}
+        >
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center">
@@ -172,152 +209,190 @@ export default function BillPay({ user, masterPassword }) {
                 </p>
               </div>
             </div>
-            <button
+            <motion.button
               onClick={() => setShowMobileDialog(true)}
               className="w-full md:w-auto px-4 py-2 bg-white/10 hover:bg-white/20 
                 rounded-xl text-white text-sm font-medium
                 transition-all duration-200"
+              whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.15)' }}
+              whileTap={{ scale: 0.98 }}
             >
-              {mobileNumber ? 'Update' : 'Add Mobile'}
-            </button>
+              {mobileNumber ? 'Update Mobile' : 'Add Mobile'}
+            </motion.button>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Cards Section with improved mobile layout */}
-        {supportedCards.length === 0 ? (
-          <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6 md:p-8">
-            <div className="text-center mb-6">
-              <div className="w-16 h-16 rounded-full bg-white/10 mx-auto mb-4 
-                flex items-center justify-center">
-                <BiInfoCircle className="text-3xl text-white/70" />
+        {/* Cards Section */}
+        <motion.div
+          initial={{ y: 10, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.2 }}
+        >
+          {supportedCards.length === 0 ? (
+            <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6 md:p-8">
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 rounded-full bg-white/10 mx-auto mb-4 
+                  flex items-center justify-center">
+                  <BiInfoCircle className="text-3xl text-white/70" />
+                </div>
+                <p className="text-white/70 text-lg">No supported cards found</p>
+                <p className="text-white/50 mt-2">Add a credit card from a supported bank</p>
               </div>
-              <p className="text-white/70 text-lg">No supported cards found</p>
-              <p className="text-white/50 mt-2">Add a credit card from a supported bank</p>
-            </div>
-            
-            {/* Supported Banks Section */}
-            <div className="mt-8">
-              <h3 className="text-white text-center mb-4 font-medium">Supported Banks</h3>
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                {SUPPORTED_BILL_PAY_BANKS.map((bank, index) => {
-                  const logoKey = bank.toLowerCase().replace(/\s+/g, '');
-                  let logoSrc;
-                  
-                  if (logoKey === 'amex') {
-                    logoSrc = networkLogos.amex;
-                  } else {
-                    const normalizedKey = logoKey === 'icicibank' ? 'icicibank' : 
-                                      logoKey === 'axisbank' ? 'axisbank' :
-                                      logoKey === 'ausmallfinancebank' ? 'ausmallfinancebank' :
-                                      logoKey === 'idfcbank' ? 'idfcfirstbank' : null;
+              
+              {/* Supported Banks Section - Only showing logos */}
+              <div className="mt-8">
+                <h3 className="text-white text-center mb-4 font-medium">Supported Banks</h3>
+                <div className="grid grid-cols-3 md:grid-cols-5 gap-4">
+                  {SUPPORTED_BILL_PAY_BANKS.map((bank, index) => {
+                    const logoKey = bank.toLowerCase().replace(/\s+/g, '');
+                    let logoSrc;
                     
-                    logoSrc = normalizedKey ? bankLogos[normalizedKey]?.symbolSVG : bankLogos.default.symbolSVG;
-                  }
-                                      
-                  return (
-                    <div key={index} className="flex flex-col items-center p-4 bg-white/5 rounded-xl">
-                      <img 
-                        src={logoSrc} 
-                        alt={bank} 
-                        className="h-10 w-10 object-contain mb-2"
-                      />
-                      <span className="text-white/70 text-xs text-center">{bank}</span>
-                    </div>
-                  );
-                })}
+                    if (logoKey === 'amex') {
+                      logoSrc = networkLogos.amex;
+                    } else {
+                      const normalizedKey = logoKey.includes('icici') ? 'icicibank' : 
+                                        logoKey.includes('axis') ? 'axisbank' :
+                                        logoKey.includes('au') ? 'ausmallfinancebank' :
+                                        logoKey.includes('idfc') ? 'idfcfirstbank' : null;
+                      
+                      logoSrc = normalizedKey && bankLogos[normalizedKey] ? 
+                                bankLogos[normalizedKey].symbolSVG : 
+                                bankLogos.default.symbolSVG;
+                    }
+                                        
+                    return (
+                      <motion.div 
+                        key={index} 
+                        className="flex flex-col items-center p-4 bg-white/5 rounded-xl"
+                        whileHover={{ scale: 1.05, backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+                      >
+                        <img 
+                          src={logoSrc} 
+                          alt={bank} 
+                          className="h-12 w-12 object-contain"
+                        />
+                      </motion.div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {supportedCards.map(card => {
-              const upiId = getUpiId(card);
-              if (!upiId) return null;
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              {supportedCards.map((card, idx) => {
+                const upiId = getUpiId(card);
+                if (!upiId) return null;
 
-              const last4 = card.cardNumber.slice(-4);
-              const decryptedTheme = securityManager.decryptData(card.theme, masterPassword);
+                const last4 = card.cardNumber.slice(-4);
+                
+                // Use securityManager to decrypt theme if it's encrypted
+                let cardTheme;
+                try {
+                  cardTheme = typeof card.theme === 'string' && card.theme.startsWith('U2F') ? 
+                    securityManager.decryptData(card.theme, masterPassword) : 
+                    card.theme || "#6a3de8";
+                } catch (err) {
+                  console.error("Failed to decrypt card theme:", err);
+                  cardTheme = "#6a3de8"; // Fallback color
+                }
 
-              return (
-                <div 
-                  key={card.id} 
-                  className="relative overflow-hidden rounded-2xl border border-white/20"
-                >
-                  {/* Theme Layers */}
-                  <div 
-                    className="absolute inset-0"
-                    style={{ 
-                      background: decryptedTheme,
-                      opacity: 0.4,
-                    }}
-                  />
-                  <div 
-                    className="absolute inset-0"
-                    style={{ 
-                      background: `linear-gradient(120deg, ${decryptedTheme}, transparent)`,
-                      opacity: 0.3,
-                    }}
-                  />
-                  <div className="absolute inset-0 backdrop-blur-sm bg-black/5" />
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent" />
-                  <div className="absolute inset-0 shadow-[inset_0_0_100px_rgba(0,0,0,0.2)]" />
+                return (
+                  <motion.div 
+                    key={card.id} 
+                    className="relative overflow-hidden rounded-2xl border border-white/20"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 * idx }}
+                    whileHover={{ y: -5, boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.2)' }}
+                  >
+                    {/* Theme Layers */}
+                    <div 
+                      className="absolute inset-0"
+                      style={{ 
+                        background: cardTheme,
+                        opacity: 0.4,
+                      }}
+                    />
+                    <div 
+                      className="absolute inset-0"
+                      style={{ 
+                        background: `linear-gradient(120deg, ${cardTheme}, transparent)`,
+                        opacity: 0.3,
+                      }}
+                    />
+                    <div className="absolute inset-0 backdrop-blur-sm bg-black/5" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent" />
+                    <div className="absolute inset-0 shadow-[inset_0_0_100px_rgba(0,0,0,0.2)]" />
 
-                  {/* Card Content */}
-                  <div className="relative p-4">
-                    <div className="flex flex-col gap-3">
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <h3 className="text-white font-medium">
-                            {card.bankName}
-                          </h3>
-                          <span className="text-white/40 text-sm">•••• {last4}</span>
-                        </div>
-                        
-                        <p className="text-white/60 text-sm">{card.cardType}</p>
-                        
-                        {/* UPI ID */}
-                        <div className="flex items-center gap-2">
-                          <div className="px-3 py-1.5 bg-black/20 backdrop-blur-sm rounded-lg">
-                            <p className="text-white/70 text-xs font-mono">{upiId}</p>
+                    {/* Card Content */}
+                    <div className="relative p-4">
+                      <div className="flex flex-col gap-3">
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <h3 className="text-white font-medium">
+                              {card.bankName}
+                            </h3>
+                            <span className="text-white/40 text-sm">•••• {last4}</span>
+                          </div>
+                          
+                          <p className="text-white/60 text-sm">{card.networkName}</p>
+                          
+                          {/* UPI ID */}
+                          <div className="flex items-center gap-2">
+                            <div className="px-3 py-1.5 bg-black/20 backdrop-blur-sm rounded-lg">
+                              <p className="text-white/70 text-xs font-mono">{upiId}</p>
+                            </div>
                           </div>
                         </div>
+                        
+                        {/* Pay Button */}
+                        <motion.button
+                          onClick={() => handlePayBill(upiId)}
+                          className="w-full px-4 py-2.5 bg-white/10 hover:bg-white/20 
+                            rounded-xl text-white font-medium
+                            transition-all duration-200 flex items-center justify-center gap-2
+                            border border-white/10 backdrop-blur-sm"
+                          whileHover={{ 
+                            scale: 1.02, 
+                            backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                          }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          Pay Bill
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                              d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                          </svg>
+                        </motion.button>
                       </div>
-                      
-                      {/* Pay Button */}
-                      <button
-                        onClick={() => handlePayBill(upiId)}
-                        className="w-full px-4 py-2.5 bg-white/10 hover:bg-white/20 
-                          rounded-xl text-white font-medium
-                          transition-all duration-200 flex items-center justify-center gap-2
-                          border border-white/10 backdrop-blur-sm"
-                      >
-                        Pay Bill
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                            d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                        </svg>
-                      </button>
                     </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
+        </motion.div>
 
-      {/* Mobile Number Dialog */}
-      {showMobileDialog && (
-        <MobileNumberDialog 
+        {/* MobileNumberDialog - Using the improved component with initialValue */}
+        <MobileNumberDialog
+          isOpen={showMobileDialog}
           onClose={() => setShowMobileDialog(false)}
           onSubmit={handleMobileSubmit}
-          currentNumber={mobileNumber}
+          initialValue={mobileNumber || ''}
         />
-      )}
 
-      {/* Success Animation */}
-      {showSuccess && (
-        <SuccessAnimation message={successMessage} />
-      )}
-    </div>
+        {/* Error message display */}
+        {error && (
+          <motion.div 
+            className="bg-red-500/20 border border-red-500/30 rounded-xl p-4 mt-4"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <p className="text-white/90">{error}</p>
+          </motion.div>
+        )}
+      </div>
+    </motion.div>
   );
 } 

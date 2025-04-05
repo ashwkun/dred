@@ -1,7 +1,8 @@
 import React from 'react';
-import { BiCreditCard, BiAddToQueue, BiWallet as BiBillPay, BiCog } from 'react-icons/bi';
+import { motion } from 'framer-motion';
+import { BiCreditCard, BiAddToQueue, BiWallet as BiBillPay, BiCog, BiLogOut } from 'react-icons/bi';
 
-export default function MobileNav({ activePage, setActivePage, cards }) {
+export default function MobileNav({ activePage, setActivePage, cards, onSignOut }) {
   // Always show Bill Pay regardless of supported cards
   
   const navItems = [
@@ -27,28 +28,69 @@ export default function MobileNav({ activePage, setActivePage, cards }) {
     }
   ];
 
+  // Animation variants
+  const navVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { 
+      y: 0, 
+      opacity: 1,
+      transition: {
+        type: "spring",
+        damping: 20,
+        stiffness: 300,
+        delay: 0.2
+      }
+    }
+  };
+
+  const buttonVariants = {
+    hover: { scale: 1.1 },
+    tap: { scale: 0.95 }
+  };
+
   return (
     <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 pointer-events-none p-4 pb-5">
-      <div className="mx-auto max-w-[300px] pointer-events-auto">
-        <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-1 
-          flex justify-around items-center shadow-xl"
+      <motion.div 
+        className="mx-auto max-w-[300px] pointer-events-auto"
+        initial="hidden"
+        animate="visible"
+        variants={navVariants}
+      >
+        <div className="bg-black/30 backdrop-blur-xl border border-white/20 rounded-xl p-1.5 
+          flex justify-around items-center shadow-2xl"
         >
           {navItems.map(item => (
-            <button 
+            <motion.button 
               key={item.id}
               onClick={() => setActivePage(item.id)}
-              className={`flex flex-col items-center p-1 rounded-lg transition-colors ${
+              className={`flex flex-col items-center py-2 px-3 rounded-lg transition-all ${
                 activePage === item.id 
                   ? 'bg-white/20 text-white' 
                   : 'text-white/70 hover:bg-white/10'
               }`}
+              variants={buttonVariants}
+              whileHover="hover"
+              whileTap="tap"
+              animate={activePage === item.id ? { y: -2 } : { y: 0 }}
             >
-              <item.icon className="text-base" />
-              <span className="text-[9px] mt-0.5">{item.label}</span>
-            </button>
+              <item.icon className={`text-lg ${activePage === item.id ? 'scale-110' : ''}`} />
+              <span className="text-[10px] mt-1 font-medium">{item.label}</span>
+            </motion.button>
           ))}
+          
+          {/* Add Logout Button */}
+          <motion.button 
+            onClick={onSignOut}
+            className="flex flex-col items-center py-2 px-3 rounded-lg transition-all text-red-400/80 hover:bg-red-400/10"
+            variants={buttonVariants}
+            whileHover="hover"
+            whileTap="tap"
+          >
+            <BiLogOut className="text-lg" />
+            <span className="text-[10px] mt-1 font-medium">Logout</span>
+          </motion.button>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 } 

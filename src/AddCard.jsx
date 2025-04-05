@@ -8,8 +8,9 @@ import { securityManager } from './utils/security';
 import { BiAddToQueue } from 'react-icons/bi';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { retryOperation } from './utils/firestore';
+import { motion } from "framer-motion";
 
-function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
+function AddCard({ user, masterPassword, setActivePage, showSuccessMessage }) {
   const [cardHolder, setCardHolder] = useState(user?.displayName || ""); // Editable
   const [cardNumber, setCardNumber] = useState("");
   const [bankName, setBankName] = useState("");
@@ -18,7 +19,6 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
   const [expiry, setExpiry] = useState("");
   const [cvv, setCvv] = useState("");
   const [theme, setTheme] = useState("#6a3de8"); // Default theme
-  const [status, setStatus] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -128,13 +128,13 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
         await addDoc(collection(db, "cards"), encryptedCard);
       });
       
-      setShowSuccess(true);
+      // Show success message using global function
+      showSuccessMessage("Card added successfully!");
       
       // Reset form after delay
       setTimeout(() => {
-        setShowSuccess(false);
         resetForm();
-      }, 2000);
+      }, 1000);
 
     } catch (error) {
       console.error("Error adding card:", error);
@@ -173,7 +173,12 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
   };
 
   return (
-    <div className="container mx-auto px-4 py-6">
+    <motion.div 
+      className="container mx-auto px-4 py-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
       {/* Header Section */}
       <div className="flex items-center gap-3 mb-6">
         <div className="h-12 w-12 rounded-xl bg-white/10 flex items-center justify-center">
@@ -188,7 +193,12 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
       <div className="flex flex-col xl:flex-row gap-6">
         {/* Left: Form */}
         <div className="w-full xl:w-1/2">
-          <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6">
+          <motion.div 
+            className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6"
+            initial={{ y: 10, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.1 }}
+          >
             <h2 className="text-lg font-medium text-white mb-6">Card Details</h2>
             
             <form onSubmit={handleAddCard}>
@@ -196,9 +206,13 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
                 {/* Form Fields */}
                 <div className="space-y-4">
                   {error && (
-                    <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+                    <motion.div 
+                      className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg"
+                      initial={{ opacity: 0, y: -5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                    >
                       <p className="text-red-400 text-sm">{error}</p>
-                    </div>
+                    </motion.div>
                   )}
                   {/* Card Holder Name */}
                   <div>
@@ -346,7 +360,7 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
                     )}
                   </div>
 
-                  <button
+                  <motion.button
                     type="submit"
                     className="w-full mt-6 px-6 py-4 bg-primary hover:bg-primary/90 
                       rounded-xl text-white font-medium transition-all duration-200 
@@ -354,6 +368,8 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
                       disabled:opacity-50 disabled:cursor-not-allowed
                       shadow-lg shadow-primary/25"
                     disabled={isLoading || !isFormValid()}
+                    whileHover={{ scale: isFormValid() && !isLoading ? 1.02 : 1 }}
+                    whileTap={{ scale: isFormValid() && !isLoading ? 0.98 : 1 }}
                   >
                     {isLoading ? (
                       <div className="flex items-center justify-center">
@@ -365,16 +381,21 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
                     ) : (
                       'Add Card'
                     )}
-                  </button>
+                  </motion.button>
                 </div>
               </div>
             </form>
-          </div>
+          </motion.div>
         </div>
 
         {/* Right: Preview & Customization */}
         <div className="w-full xl:w-1/2">
-          <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6">
+          <motion.div 
+            className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6"
+            initial={{ y: 10, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.2 }}
+          >
             <CardCustomization
               cardHolder={cardHolder}
               cardNumber={cardNumber}
@@ -385,10 +406,10 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
               theme={theme}
               setTheme={setTheme}
             />
-          </div>
+          </motion.div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
