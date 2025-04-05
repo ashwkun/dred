@@ -1,9 +1,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { BiCreditCard, BiAddToQueue, BiWallet as BiBillPay, BiCog } from 'react-icons/bi';
+import { useTheme } from '../contexts/ThemeContext';
 
 export default function MobileNav({ activePage, setActivePage, cards, onSignOut }) {
-  // Always show Bill Pay regardless of supported cards
+  const { currentThemeData } = useTheme();
   
   const navItems = [
     {
@@ -56,14 +57,14 @@ export default function MobileNav({ activePage, setActivePage, cards, onSignOut 
         animate="visible"
         variants={navVariants}
       >
-        <div className="bg-black/30 backdrop-blur-xl border border-white/20 rounded-xl p-1.5 
-          flex justify-around items-center shadow-2xl"
+        <div className={`${currentThemeData.surfaces.primary} border border-white/20 ${currentThemeData.radius} p-1.5 
+          flex justify-around items-center ${currentThemeData.shadows}`}
         >
           {navItems.map(item => (
             <motion.button 
               key={item.id}
               onClick={() => setActivePage(item.id)}
-              className={`flex flex-col items-center py-2 px-3 rounded-lg transition-all ${
+              className={`flex flex-col items-center py-2 px-3 ${currentThemeData.radius} transition-all ${
                 activePage === item.id 
                   ? 'bg-white/20 text-white' 
                   : 'text-white/70 hover:bg-white/10'
@@ -74,7 +75,7 @@ export default function MobileNav({ activePage, setActivePage, cards, onSignOut 
               animate={activePage === item.id ? { y: -2 } : { y: 0 }}
             >
               <item.icon className={`text-lg ${activePage === item.id ? 'scale-110' : ''}`} />
-              <span className="text-[10px] mt-1 font-medium">{item.label}</span>
+              <span className={`text-[10px] mt-1 ${currentThemeData.font.heading}`}>{item.label}</span>
             </motion.button>
           ))}
         </div>

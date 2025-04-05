@@ -2,9 +2,10 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { BiCreditCard, BiAddToQueue, BiWallet as BiBillPay, BiCog, BiLogOut, BiDownload } from 'react-icons/bi';
 import logo from "../assets/logo.png";
+import { useTheme } from '../contexts/ThemeContext';
 
 export default function Sidebar({ activePage, setActivePage, cards, user, onSignOut, onInstall, isAppInstalled, deferredPrompt }) {
-  // Always show Bill Pay regardless of supported cards
+  const { currentThemeData } = useTheme();
   
   const navItems = [
     { id: 'viewCards', icon: BiCreditCard, label: 'Cards' },
@@ -40,8 +41,8 @@ export default function Sidebar({ activePage, setActivePage, cards, user, onSign
       variants={sidebarVariants}
     >
       <motion.div 
-        className="bg-black/30 backdrop-blur-xl border border-white/20 rounded-2xl 
-          h-[calc(100vh-7rem)] w-64 flex flex-col shadow-xl overflow-hidden"
+        className={`${currentThemeData.surfaces.primary} border border-white/20 ${currentThemeData.radius} 
+          h-[calc(100vh-7rem)] w-64 flex flex-col ${currentThemeData.shadows} overflow-hidden`}
       >
         {/* Logo is now hidden since we have the logo in topbar */}
         <div className="pt-2"></div>
@@ -52,7 +53,7 @@ export default function Sidebar({ activePage, setActivePage, cards, user, onSign
             <motion.button
               key={item.id}
               onClick={() => setActivePage(item.id)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl 
+              className={`w-full flex items-center gap-3 px-4 py-3 ${currentThemeData.radius} 
                 transition-all group mb-2 ${
                 activePage === item.id
                   ? 'bg-white/20 text-white'
@@ -73,7 +74,7 @@ export default function Sidebar({ activePage, setActivePage, cards, user, onSign
                   ${activePage === item.id ? 'scale-110' : ''}`} 
                 />
               </motion.div>
-              <span className="font-medium">{item.label}</span>
+              <span className={`${currentThemeData.font.heading}`}>{item.label}</span>
             </motion.button>
           ))}
         </div>
@@ -87,9 +88,9 @@ export default function Sidebar({ activePage, setActivePage, cards, user, onSign
           {deferredPrompt && (
             <motion.button
               onClick={onInstall}
-              className="w-full flex items-center gap-3 px-4 py-3 bg-white/10 
-                hover:bg-white/20 rounded-xl text-white/80 hover:text-white 
-                transition-all group"
+              className={`w-full flex items-center gap-3 px-4 py-3 ${currentThemeData.surfaces.secondary} 
+                hover:bg-white/20 ${currentThemeData.radius} text-white/80 hover:text-white 
+                transition-all group border border-white/10`}
               whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }}
               whileTap={{ scale: 0.98 }}
             >
@@ -99,25 +100,25 @@ export default function Sidebar({ activePage, setActivePage, cards, user, onSign
               >
                 <BiDownload className="text-xl" />
               </motion.div>
-              <span className="font-medium">Install App</span>
+              <span className={`${currentThemeData.font.heading}`}>Install App</span>
             </motion.button>
           )}
 
           {/* Account Info */}
           <motion.div 
-            className="p-3 rounded-xl bg-black/40 backdrop-blur-lg border border-white/10
-              shadow-inner shadow-white/5"
+            className={`p-3 ${currentThemeData.radius} ${currentThemeData.surfaces.secondary} 
+              border border-white/10 ${currentThemeData.shadows}`}
             whileHover={{ backgroundColor: 'rgba(0, 0, 0, 0.45)' }}
           >
             <div className="flex items-center gap-3 mb-3">
               <motion.img 
                 src={user.photoURL} 
                 alt="" 
-                className="w-10 h-10 rounded-xl border border-white/20"
+                className={`w-10 h-10 ${currentThemeData.radius} border border-white/20`}
                 whileHover={{ scale: 1.05, borderColor: 'rgba(255, 255, 255, 0.3)' }}
               />
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-white truncate">
+                <p className={`text-sm ${currentThemeData.font.heading} text-white truncate`}>
                   {user.displayName}
                 </p>
                 <p className="text-xs text-white/70 truncate">
@@ -128,14 +129,14 @@ export default function Sidebar({ activePage, setActivePage, cards, user, onSign
 
             <motion.button
               onClick={onSignOut}
-              className="w-full flex items-center gap-2 px-3 py-2 rounded-lg
+              className={`w-full flex items-center gap-2 px-3 py-2 ${currentThemeData.radius}
                 text-red-400/80 hover:text-red-400 hover:bg-red-400/10 
-                transition-colors"
+                transition-colors`}
               whileHover={{ backgroundColor: 'rgba(248, 113, 113, 0.1)' }}
               whileTap={{ scale: 0.98 }}
             >
               <BiLogOut className="text-lg" />
-              <span className="text-sm font-medium">Sign Out</span>
+              <span className={`text-sm ${currentThemeData.font.heading}`}>Sign Out</span>
             </motion.button>
           </motion.div>
         </motion.div>

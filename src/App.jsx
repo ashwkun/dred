@@ -24,6 +24,9 @@ import { SuccessAnimation } from "./components/SuccessAnimation";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { motion, AnimatePresence } from 'framer-motion';
 import { LoadingOverlay } from "./components/LoadingOverlay";
+// Import new theme components
+import ThemePatterns from "./components/ThemePatterns";
+import { ThemedLoading, ThemedLoadingOverlay } from "./components/LoadingAnimations";
 
 function App() {
   const [user, loading] = useAuthState(auth);
@@ -403,6 +406,8 @@ function App() {
         return "Bill Pay";
       case "settings":
         return "Settings";
+      case "howItWorks":
+        return "How It Works";
       default:
         return "Dashboard";
     }
@@ -410,7 +415,7 @@ function App() {
 
   const renderContent = () => {
     if (loading) {
-      return <LoadingOverlay message="Authenticating..." />;
+      return <ThemedLoadingOverlay message="Authenticating..." />;
     }
 
     if (!user) {
@@ -419,89 +424,117 @@ function App() {
 
     if (!masterPassword) {
       return (
-        <MasterPasswordPrompt 
-          onPasswordSubmit={setMasterPassword} 
-          user={user}
-          setActivePage={setActivePage}
-          mode={mode}
-          toggleMode={toggleMode}
-        />
+        <div className={`min-h-screen ${getBgGradient()}`}>
+          <MasterPasswordPrompt 
+            onPasswordSubmit={setMasterPassword} 
+            user={user}
+            setActivePage={setActivePage}
+            mode={mode}
+            toggleMode={toggleMode}
+          />
+        </div>
       );
     }
 
     return (
-      <>
-        {/* TopBar */}
-        <TopBar
-          title={getPageTitle()}
-          user={user}
-          showProfile={showProfile}
-          setShowProfile={setShowProfile}
-          onSignOut={handleSignOutClick}
-          onInstall={handleInstallClick}
-          isAppInstalled={isAppInstalled}
-          deferredPrompt={deferredPrompt}
-          mode={mode}
-          toggleMode={toggleMode}
-        />
-
-        {/* Sidebar (desktop) */}
-        <Sidebar
-          activePage={activePage}
-          setActivePage={changeActivePage}
-          cards={cards}
-          user={user}
-          onSignOut={handleSignOutClick}
-          onInstall={handleInstallClick}
-          isAppInstalled={isAppInstalled}
-          deferredPrompt={deferredPrompt}
-        />
-
-        {/* Main Content */}
-        <main className="md:pl-72 pt-20 pb-20 min-h-screen">
-          {activePage === "viewCards" && (
-            <ViewCards
-              user={user}
-              masterPassword={masterPassword}
-              setActivePage={setActivePage}
-              setDialog={setDialog}
-              showSuccessMessage={showSuccessMessage}
-              cards={cards}
-              setCards={setCards}
-            />
-          )}
-          {activePage === "addCard" && (
-            <AddCard 
-              user={user} 
-              masterPassword={masterPassword} 
-              setActivePage={setActivePage}
-              showSuccessMessage={showSuccessMessage}
-            />
-          )}
-          {activePage === "billPay" && (
-            <BillPay 
-              user={user} 
-              masterPassword={masterPassword}
-              showSuccessMessage={showSuccessMessage}
-            />
-          )}
-          {activePage === "settings" && (
-            <Settings 
-              user={user} 
-              masterPassword={masterPassword} 
-              setDialog={setDialog}
-              showSuccessMessage={showSuccessMessage}
-            />
-          )}
-        </main>
-
-        {/* Mobile Navigation */}
-        <MobileNav activePage={activePage} setActivePage={changeActivePage} />
-      </>
+      <div className={`min-h-screen ${getBgGradient()} ${currentThemeData.font.body}`}>
+        {/* Background pattern based on theme */}
+        <ThemePatterns />
+        
+        {/* Desktop Sidebar */}
+        <div className="hidden md:flex">
+          <Sidebar
+            activePage={activePage}
+            setActivePage={changeActivePage}
+            cards={cards}
+            user={user}
+            onSignOut={handleSignOutClick}
+            onInstall={handleInstallClick}
+            isAppInstalled={isAppInstalled}
+            deferredPrompt={deferredPrompt}
+          />
+        </div>
+        
+        {/* Content Area */}
+        <div className="md:ml-64 min-h-screen flex flex-col">
+          <TopBar
+            title={getPageTitle()}
+            user={user}
+            showProfile={showProfile}
+            setShowProfile={setShowProfile}
+            onSignOut={handleSignOutClick}
+            onInstall={handleInstallClick}
+            isAppInstalled={isAppInstalled}
+            deferredPrompt={deferredPrompt}
+            mode={mode}
+            toggleMode={toggleMode}
+          />
+          
+          <main className="flex-1 p-4 pt-20 pb-24 md:pb-4">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activePage}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                transition={{ duration: 0.2 }}
+                className="h-full"
+              >
+                {activePage === "viewCards" && (
+                  <ViewCards
+                    user={user}
+                    masterPassword={masterPassword}
+                    setActivePage={setActivePage}
+                    setDialog={setDialog}
+                    showSuccessMessage={showSuccessMessage}
+                    cards={cards}
+                    setCards={setCards}
+                  />
+                )}
+                {activePage === "addCard" && (
+                  <AddCard 
+                    user={user} 
+                    masterPassword={masterPassword} 
+                    setActivePage={setActivePage}
+                    showSuccessMessage={showSuccessMessage}
+                  />
+                )}
+                {activePage === "billPay" && (
+                  <BillPay 
+                    user={user} 
+                    masterPassword={masterPassword}
+                    showSuccessMessage={showSuccessMessage}
+                  />
+                )}
+                {activePage === "settings" && (
+                  <Settings 
+                    user={user} 
+                    masterPassword={masterPassword} 
+                    setDialog={setDialog}
+                    showSuccessMessage={showSuccessMessage}
+                  />
+                )}
+                {activePage === "howItWorks" && (
+                  <HowItWorks />
+                )}
+              </motion.div>
+            </AnimatePresence>
+          </main>
+          
+          {/* Mobile Bottom Navigation */}
+          <div className="md:hidden">
+            <MobileNav activePage={activePage} setActivePage={changeActivePage} />
+          </div>
+        </div>
+        
+        {/* Shared UI Elements */}
+        {showSuccess && <SuccessAnimation message={successMessage} />}
+        {renderDialog()}
+      </div>
     );
   };
 
-  // Log dialog renders in the JSX
+  // Render dialog component if open
   const renderDialog = () => {
     if (dialog.isOpen) {
       console.log("App.jsx: Rendering dialog:", dialog.title);
@@ -529,22 +562,7 @@ function App() {
     );
   }
 
-  return (
-    <div className={`min-h-screen ${getBgGradient()}`}>
-      {/* Render the main app flow */}
-      {renderContent()}
-      
-      {/* Global success animation */}
-      <AnimatePresence>
-        {showSuccess && (
-          <SuccessAnimation message={successMessage} />
-        )}
-      </AnimatePresence>
-      
-      {/* Dialog component */}
-      {renderDialog()}
-    </div>
-  );
+  return renderContent();
 }
 
 export default App;

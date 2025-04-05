@@ -34,7 +34,7 @@ export default function TopBar({
   return (
     <div className="fixed top-0 left-0 right-0 z-40 p-4">
       <motion.div 
-        className="bg-black/20 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg"
+        className={`${currentThemeData.surfaces.primary} border border-white/20 ${currentThemeData.radius} md:w-[calc(100%-1rem)] max-w-[1400px] mx-auto shadow-lg`}
         initial={{ y: -10, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
@@ -51,7 +51,7 @@ export default function TopBar({
                 transition={{ duration: 0.2 }}
               />
               <div className="flex flex-col">
-                <span className="text-white font-medium text-lg">Dred</span>
+                <span className={`text-white ${currentThemeData.font.heading} text-lg`}>Dred</span>
                 {title && (
                   <span className="text-white/60 text-sm hidden sm:inline-block">{title}</span>
                 )}
@@ -64,14 +64,14 @@ export default function TopBar({
               {deferredPrompt && (
                 <motion.button
                   onClick={onInstall}
-                  className="flex items-center gap-1.5 px-3 py-1.5 
-                    bg-white/10 hover:bg-white/20 rounded-xl border border-white/10 
-                    text-white/80 hover:text-white transition-all"
+                  className={`flex items-center gap-1.5 px-3 py-1.5 
+                    ${currentThemeData.surfaces.secondary} hover:bg-white/20 ${currentThemeData.radius} border border-white/10 
+                    text-white/80 hover:text-white transition-all`}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
                   <BiDownload className="text-base" />
-                  <span className="text-xs font-medium">Install</span>
+                  <span className={`text-xs ${currentThemeData.font.heading}`}>Install</span>
                 </motion.button>
               )}
 
@@ -79,8 +79,8 @@ export default function TopBar({
               <div className="relative">
                 <motion.button
                   onClick={() => setShowProfile(!showProfile)}
-                  className="w-9 h-9 rounded-xl overflow-hidden border border-white/20 
-                    hover:border-white/40 transition-colors"
+                  className={`w-9 h-9 ${currentThemeData.radius} overflow-hidden border border-white/20 
+                    hover:border-white/40 transition-colors`}
                   whileHover={{ scale: 1.05, borderColor: 'rgba(255, 255, 255, 0.4)' }}
                   whileTap={{ scale: 0.95 }}
                 >
@@ -94,16 +94,16 @@ export default function TopBar({
                 {/* Profile Dropdown */}
                 {showProfile && (
                   <motion.div 
-                    className="absolute right-0 top-full mt-2 w-56 
-                      bg-black/30 backdrop-blur-xl rounded-xl border border-white/20
-                      shadow-lg overflow-hidden z-50"
+                    className={`absolute right-0 top-full mt-2 w-56 
+                      ${currentThemeData.surfaces.primary} ${currentThemeData.radius} border border-white/20
+                      ${currentThemeData.shadows} overflow-hidden z-50`}
                     initial={{ opacity: 0, y: 5, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <div className="backdrop-blur-xl">
+                    <div>
                       <div className="px-4 py-3 border-b border-white/10">
-                        <p className="text-sm font-medium text-white">{user.displayName}</p>
+                        <p className={`text-sm ${currentThemeData.font.heading} text-white`}>{user.displayName}</p>
                         <p className="text-xs text-white/70 truncate">{user.email}</p>
                       </div>
                       <div className="py-1">
