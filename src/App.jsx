@@ -1,33 +1,39 @@
 // App.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "./firebase";
 import Auth from "./Auth";
 import MasterPasswordPrompt from "./MasterPasswordPrompt";
 import ViewCards from "./ViewCards";
 import AddCard from "./AddCard";
-import ExpenseTracker from './ExpenseTracker';
 import Settings from "./features/settings/Settings";
 import logo from "./assets/logo.png";
 import { RiAddCircleLine, RiCreditCardLine } from 'react-icons/ri';
-import { BiCreditCard, BiAddToQueue, BiLogOut, BiCog } from 'react-icons/bi';
+import { BiCreditCard, BiAddToQueue, BiWallet as BiBillPay, BiCog, BiLogOut, BiSun, BiMoon } from 'react-icons/bi';
 import { useTheme } from './contexts/ThemeContext';
 import Sidebar from "./components/Sidebar";
 import MobileNav from "./components/MobileNav";
-import { collection, getDocs, query, where, doc, updateDoc } from "firebase/firestore";
+import HowItWorks from "./components/HowItWorks";
+import { collection, getDocs, query, where, doc, updateDoc, onSnapshot } from "firebase/firestore";
 import CryptoJS from "crypto-js";
-import { db, checkFirebaseConnection } from "./firebase";
+import { db } from "./firebase";
 import BillPay from "./BillPay";
 import TopBar from "./components/TopBar";
 import Dialog from "./components/Dialog";
-import InsightsView from "./components/InsightsView";
-import ErrorBoundary from './components/ErrorBoundary';
+import { SuccessAnimation } from "./components/SuccessAnimation";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { motion, AnimatePresence } from 'framer-motion';
+import { LoadingOverlay } from "./components/LoadingOverlay";
+// Import new theme components
+import ThemePatterns from "./components/ThemePatterns";
+import { ThemedLoading, ThemedLoadingOverlay } from "./components/LoadingAnimations";
 
 function App() {
-  const [user, setUser] = useState(null);
+  const [user, loading] = useAuthState(auth);
   const [masterPassword, setMasterPassword] = useState(null);
   const [activePage, setActivePage] = useState("viewCards");
   const [showSuccess, setShowSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("Success!");
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [isAppInstalled, setIsAppInstalled] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
@@ -42,65 +48,148 @@ function App() {
     confirmText: 'Confirm',
     cancelText: 'Cancel'
   });
-  const [userSettings, setUserSettings] = useState({
-    monthlyBudget: 0
-  });
-  const [transactions, setTransactions] = useState([]);
+  const [mode, setMode] = useState('dark');
+  
+  // Use useRef instead of closure variable to track current user ID
+  const currentUserIdRef = useRef(null);
+  // Add a flag to track password entry grace period
+  const passwordEntryTimeRef = useRef(null);
+  // Add a debounce timeout ref
+  const authDebounceRef = useRef(null);
+  // Track if we've had at least one auth state
+  const hadInitialAuthRef = useRef(false);
 
-  // Listen to auth state changes
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      console.log("Auth state changed:", currentUser ? "Logged in" : "Logged out");
-      if (currentUser) {
-        console.log("User ID:", currentUser.uid);
-        console.log("Is anonymous:", currentUser.isAnonymous);
-        console.log("Email verified:", currentUser.emailVerified);
-        currentUser.getIdToken(true).then(token => { // Force token refresh
-          console.log("Token available:", !!token);
-        }).catch(error => {
-          console.error("Token error:", error);
-        });
-        
-        // Check Firebase connection with user ID
-        checkFirebaseConnection(currentUser.uid)
-          .then(result => {
-            console.log("Firebase connection check result:", result);
-          })
-          .catch(error => {
-            console.error("Firebase connection check failed:", error);
-          });
-      }
-      setUser(currentUser || null);
-      // Only reset master password if user is null
-      if (!currentUser) {
-        setMasterPassword(null);
-      }
-    });
-    return () => unsubscribe();
-  }, []);
+  console.log(`App.jsx: Current activePage state: ${activePage}`);
 
-  // Add a useEffect to track page changes
+  // Helper function to show success message
+  const showSuccessMessage = (message = "Success!") => {
+    setSuccessMessage(message);
+    setShowSuccess(true);
+    // Auto-hide after 2 seconds
+    setTimeout(() => setShowSuccess(false), 2000);
+  };
+
+  // Completely rewritten auth state listener using ref and debounce
   useEffect(() => {
-    console.log("Active page changed to:", activePage);
-    // Check if user is authenticated when navigating to protected pages
-    if ((activePage === "addCard" || activePage === "expenses" || activePage === "settings" || activePage === "billPay") 
-        && (!user || !masterPassword)) {
-      console.log("Protected page access attempt without auth:", activePage);
-      console.log("Auth state:", { user: !!user, masterPassword: !!masterPassword });
-      
-      // Don't redirect during initial load, only if user explicitly tries to navigate
-      if (user === null && document.readyState === "complete") {
-        console.log("No user - redirecting to viewCards from", activePage);
-        setActivePage("viewCards");
-      }
-    } else if (activePage === "addCard") {
-      // Debug for AddCard page
-      console.log("Add Card page accessed with auth:", { 
-        userId: user?.uid, 
-        hasMasterPassword: !!masterPassword 
-      });
+    console.log("App.jsx: Setting up auth state listener");
+    
+    // Set the initial ref value if not already set
+    if (!currentUserIdRef.current) {
+      currentUserIdRef.current = user?.uid || null;
+      console.log(`App.jsx: Initial user ID set to: ${currentUserIdRef.current}`);
     }
-  }, [activePage, user, masterPassword]);
+    
+    const handleAuthStateChange = (authUser) => {
+      // Clear any pending debounced auth state handler
+      if (authDebounceRef.current) {
+        console.log("App.jsx: Clearing previous debounced auth handler");
+        clearTimeout(authDebounceRef.current);
+      }
+      
+      // Set a timeout to debounce the auth state change
+      authDebounceRef.current = setTimeout(() => {
+        const newUserId = authUser?.uid || null;
+        const prevUserId = currentUserIdRef.current;
+        
+        console.log(`App.jsx: Auth state change (debounced): 
+          Previous ID: ${prevUserId}, 
+          New ID: ${newUserId}, 
+          In grace period: ${Boolean(passwordEntryTimeRef.current)}
+        `);
+        
+        // If this is the first auth state after app load, don't reset the password
+        if (!hadInitialAuthRef.current) {
+          console.log("App.jsx: First auth state change, not resetting password");
+          hadInitialAuthRef.current = true;
+          currentUserIdRef.current = newUserId;
+          return;
+        }
+        
+        // Check if we're in the grace period after password entry (10 seconds)
+        const inGracePeriod = passwordEntryTimeRef.current && 
+          (Date.now() - passwordEntryTimeRef.current < 10000);
+        
+        // Only reset password if:
+        // 1. The user is changing (not a refresh/reauth of same user)
+        // 2. We're not in the grace period after setting a password
+        // 3. We're not going from null to a user (initial auth)
+        if (prevUserId !== newUserId && 
+            !inGracePeriod && 
+            prevUserId !== null && 
+            newUserId !== prevUserId) {
+          console.log("App.jsx: User changed, resetting master password");
+          setMasterPassword(null);
+        } else {
+          console.log(`App.jsx: No need to reset password - same user: ${prevUserId === newUserId}, 
+            in grace period: ${inGracePeriod}, 
+            initial auth: ${prevUserId === null}`);
+        }
+        
+        // Always update the ref to the current user
+        currentUserIdRef.current = newUserId;
+      }, 500); // 500ms debounce delay
+    };
+    
+    // Set up the Firebase auth state listener
+    const unsubscribe = onAuthStateChanged(auth, handleAuthStateChange);
+    
+    // Cleanup function
+    return () => {
+      console.log("App.jsx: Cleaning up auth state listener");
+      if (authDebounceRef.current) {
+        clearTimeout(authDebounceRef.current);
+      }
+      unsubscribe();
+    };
+  }, []); // No dependencies - only run once on mount
+
+  // Add a special handler for master password changes to track them
+  useEffect(() => {
+    if (masterPassword) {
+      console.log("App.jsx: Master password set, starting grace period");
+      passwordEntryTimeRef.current = Date.now();
+    }
+  }, [masterPassword]);
+
+  // Add detailed user debugging logs
+  useEffect(() => {
+    if (loading) {
+      console.log("App.jsx: Auth state is still loading...");
+    } else if (user) {
+      console.log("App.jsx: User is authenticated:", { uid: user.uid, email: user.email });
+    } else {
+      console.log("App.jsx: No authenticated user");
+    }
+  }, [user, loading]);
+
+  // Add session timeout handler
+  useEffect(() => {
+    // Handle session timeout event (occurs after inactivity)
+    const handleSessionTimeout = (e) => {
+      console.log("Session timeout detected");
+      // Don't sign out immediately if the user is active in the app
+      // Instead, check if they've been inactive or are in the middle of an operation
+      if (activePage === "addCard" || activePage === "viewCards") {
+        console.log("User is active in app, preventing auto-logout");
+        // Prevent auto-logout
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
+      
+      // Otherwise proceed with signing out
+      signOut(auth).then(() => {
+        console.log("User signed out due to inactivity");
+      });
+    };
+    
+    window.addEventListener('session-timeout', handleSessionTimeout);
+    
+    // Cleanup 
+    return () => {
+      window.removeEventListener('session-timeout', handleSessionTimeout);
+    };
+  }, [activePage]);
 
   useEffect(() => {
     // Check if app is installed
@@ -149,32 +238,74 @@ function App() {
 
   // Add this effect to load cards
   useEffect(() => {
-    const loadCards = async () => {
-      if (!user || !masterPassword) return;
+    let unsubscribe = null;
+    
+    const loadCards = () => {
+      if (!user || !masterPassword) {
+        console.log("App.jsx: Not loading cards, user or masterPassword is missing", { 
+          hasUser: !!user, 
+          hasMasterPassword: !!masterPassword 
+        });
+        return;
+      }
       
+      console.log("App.jsx: Setting up cards listener for user", user.uid);
       try {
         const q = query(
           collection(db, "cards"),
           where("uid", "==", user.uid)
         );
         
-        const snapshot = await getDocs(q);
-        const cardsData = snapshot.docs.map(doc => ({
-          ...doc.data(),
-          id: doc.id,
-          bankName: CryptoJS.AES.decrypt(doc.data().bankName, masterPassword).toString(CryptoJS.enc.Utf8)
-        }));
-        
-        setCards(cardsData);
+        // Use onSnapshot instead of getDocs for real-time updates
+        unsubscribe = onSnapshot(q, (snapshot) => {
+          console.log(`App.jsx: Received snapshot with ${snapshot.docs.length} cards from Firestore`);
+          
+          if (snapshot.empty) {
+            console.log("App.jsx: No cards found for this user");
+            setCards([]);
+            return;
+          }
+          
+          try {
+            const cardsData = snapshot.docs.map(doc => {
+              try {
+                return {
+                  ...doc.data(),
+                  id: doc.id
+                };
+              } catch (err) {
+                console.error("Error processing card data:", err);
+                return { id: doc.id, error: "Failed to process card data" };
+              }
+            });
+            
+            console.log(`App.jsx: Setting ${cardsData.length} cards to state`);
+            setCards(cardsData);
+          } catch (error) {
+            console.error('Error processing cards snapshot:', error);
+          }
+        }, (error) => {
+          console.error('Error in cards listener:', error);
+        });
       } catch (error) {
-        console.error('Error loading cards:', error);
+        console.error('Error setting up cards listener:', error);
       }
     };
 
     loadCards();
-  }, [user, masterPassword]);
+    
+    return () => {
+      if (unsubscribe) {
+        console.log("App.jsx: Cleaning up cards listener");
+        unsubscribe();
+      }
+    };
+  }, [user, masterPassword]); // These are the correct dependencies
 
   const handleSignOutClick = () => {
+    console.log("App.jsx: handleSignOutClick called");
+    
+    // Show the confirmation dialog
     setDialog({
       isOpen: true,
       title: 'Sign Out',
@@ -183,8 +314,19 @@ function App() {
       cancelText: 'Cancel',
       type: 'danger',
       onConfirm: async () => {
-        await signOut(auth);
-        setDialog(prev => ({ ...prev, isOpen: false }));
+        console.log("App.jsx: User confirmed sign out, executing...");
+        // Clear the master password first
+        setMasterPassword(null);
+        // Then sign out from Firebase
+        try {
+          await signOut(auth);
+          console.log("App.jsx: Sign out successful");
+        } catch (error) {
+          console.error("App.jsx: Error signing out:", error);
+        } finally {
+          // Always close the dialog
+          setDialog(prev => ({ ...prev, isOpen: false }));
+        }
       }
     });
   };
@@ -212,22 +354,6 @@ function App() {
     });
   };
 
-  const handleSetBudget = (newBudget) => {
-    setUserSettings(prev => ({
-      ...prev,
-      monthlyBudget: newBudget
-    }));
-    
-    if (user) {
-      const userDocRef = doc(db, 'user_settings', user.uid);
-      updateDoc(userDocRef, {
-        monthlyBudget: newBudget
-      }).catch(error => {
-        console.error("Error updating budget:", error);
-      });
-    }
-  };
-
   // In App.jsx, add extra validation to ensure we always have a user ID
   const safeUserId = user?.uid || null;
   console.log("App.jsx user ID:", safeUserId);
@@ -238,125 +364,236 @@ function App() {
     console.log("App.jsx: User ID is:", user?.uid);
   }, [user]);
 
-  // If waiting for auth or not signed in → show Auth component
-  if (!user) {
-    return <Auth />;
-  }
+  const toggleMode = () => {
+    const newMode = mode === 'light' ? 'dark' : 'light';
+    setMode(newMode);
+    // Persist the mode in localStorage for future sessions
+    localStorage.setItem('dred-color-mode', newMode);
+    console.log(`App.jsx: Theme mode toggled to ${newMode}`);
+  };
 
-  // If signed in but master password not set → show Master Password prompt
-  if (!masterPassword) {
-    return <MasterPasswordPrompt setMasterPassword={setMasterPassword} user={user} />;
-  }
+  // Load saved mode preference on initial render
+  useEffect(() => {
+    const savedMode = localStorage.getItem('dred-color-mode');
+    if (savedMode) {
+      setMode(savedMode);
+      console.log(`App.jsx: Loaded saved theme mode: ${savedMode}`);
+    }
+  }, []);
 
-  // Additional debug to ensure state before rendering
-  console.log("Rendering main UI with:", {
-    userId: user?.uid,
-    hasMasterPassword: !!masterPassword,
-    activePage
-  });
+  const changeActivePage = (page) => {
+    console.log(`App.jsx: Changing active page from ${activePage} to ${page}`);
+    setActivePage(page);
+  };
 
-  return (
-    <div className={`min-h-screen bg-gradient-to-br ${currentThemeData.gradient} overflow-hidden`}>
-      <TopBar 
-        user={user}
-        onSignOut={handleSignOutClick}
-        onInstall={handleInstallClick}
-        isAppInstalled={isAppInstalled}
-        deferredPrompt={deferredPrompt}
-      />
-      
-      <Sidebar 
-        activePage={activePage} 
-        setActivePage={setActivePage}
-        cards={cards}
-        user={user}
-        onSignOut={handleSignOutClick}
-        onInstall={handleInstallClick}
-        isAppInstalled={isAppInstalled}
-        deferredPrompt={deferredPrompt}
-      />
-      
-      <MobileNav 
-        activePage={activePage} 
-        setActivePage={setActivePage}
-        cards={cards}
-      />
+  // Add an effect to log masterPassword changes
+  useEffect(() => {
+    console.log("App.jsx: masterPassword state changed:", masterPassword ? "Password is set" : "Password is NOT set");
+  }, [masterPassword]);
 
-      {/* Main Content */}
-      <main className="md:pl-72 pt-[72px] md:pt-4 min-h-screen z-10">
-        <div className="h-[calc(100vh-72px)] md:h-full overflow-y-auto overscroll-none">
-          <div className="container mx-auto p-4 pb-32 md:pb-4">
-            {activePage === "viewCards" && (
-              <ViewCards 
-                user={user} 
-                masterPassword={masterPassword}
-                setActivePage={setActivePage}
-              />
-            )}
-            {activePage === "addCard" && (
-              <AddCard 
-                user={user} 
-                masterPassword={masterPassword} 
-                setActivePage={setActivePage}
-                setShowSuccess={setShowSuccess}
-              />
-            )}
-            {activePage === "expenses" && (
-              <ExpenseTracker 
-                user={user} 
-                masterPassword={masterPassword}
-              />
-            )}
-            {activePage === "settings" && <Settings user={user} masterPassword={masterPassword} />}
-            {activePage === "billPay" && (
-              <BillPay 
-                user={user} 
-                masterPassword={masterPassword}
-              />
-            )}
-            {activePage === "insights" && (
-              <ErrorBoundary>
-                <InsightsView 
-                  transactions={transactions} 
-                  cards={cards} 
-                  monthlyBudget={userSettings.monthlyBudget} 
-                  onSetBudget={handleSetBudget} 
-                  userId={safeUserId} 
-                />
-              </ErrorBoundary>
-            )}
+  // Add an effect to log when the dialog state changes
+  useEffect(() => {
+    console.log("App.jsx: Dialog state changed:", { 
+      isOpen: dialog.isOpen, 
+      title: dialog.title,
+      hasConfirmFn: !!dialog.onConfirm 
+    });
+  }, [dialog]);
+
+  // Get the current gradient based on theme
+  const getBgGradient = () => {
+    if (currentThemeData) {
+      return `bg-gradient-to-br ${currentThemeData.gradient}`;
+    }
+    return 'bg-gradient-to-br from-gray-900 via-indigo-900 to-purple-900';
+  };
+
+  const getPageTitle = () => {
+    switch (activePage) {
+      case "viewCards":
+        return "Your Cards";
+      case "addCard":
+        return "Add Card";
+      case "billPay":
+        return "Bill Pay";
+      case "settings":
+        return "Settings";
+      case "howItWorks":
+        return "How It Works";
+      default:
+        return "Dashboard";
+    }
+  };
+
+  const renderContent = () => {
+    // Special case: Allow viewing HowItWorks without authentication
+    if (activePage === "howItWorks") {
+      return <HowItWorks setActivePage={(page) => {
+        // If user is not logged in, always go back to auth
+        if (!user) {
+          console.log("App.jsx: HowItWorks - User not logged in, returning to auth page");
+          setActivePage("auth");
+        } else {
+          console.log(`App.jsx: HowItWorks - Going to ${page}`);
+          setActivePage(page);
+        }
+      }} />;
+    }
+    
+    // If user is not logged in, show Auth screen
+    if (!user) {
+      return (
+        <Auth 
+          setUser={() => {}} // This is handled by firebase hook now
+          setActivePage={changeActivePage} 
+          mode={mode} 
+          toggleMode={toggleMode}
+        />
+      );
+    }
+
+    // If user is logged in but master password not set, show prompt
+    if (!masterPassword) {
+      return (
+        <MasterPasswordPrompt 
+          setMasterPassword={setMasterPassword} 
+          user={user} 
+          setActivePage={changeActivePage}
+          mode={mode}
+          toggleMode={toggleMode}
+          onPasswordSubmit={(password) => {
+            console.log("App.jsx: Password submitted in MasterPasswordPrompt");
+            setMasterPassword(password);
+          }}
+        />
+      );
+    }
+
+    return (
+      <div className={`min-h-screen ${getBgGradient()} ${currentThemeData.font.body}`}>
+        {/* Background pattern based on theme */}
+        <ThemePatterns />
+        
+        {/* Desktop Sidebar */}
+        <div className="hidden md:flex">
+          <Sidebar
+            activePage={activePage}
+            setActivePage={changeActivePage}
+            cards={cards}
+            user={user}
+            onSignOut={handleSignOutClick}
+            onInstall={handleInstallClick}
+            isAppInstalled={isAppInstalled}
+            deferredPrompt={deferredPrompt}
+          />
+        </div>
+        
+        {/* Content Area */}
+        <div className="md:ml-64 min-h-screen flex flex-col">
+          <TopBar
+            title={getPageTitle()}
+            user={user}
+            showProfile={showProfile}
+            setShowProfile={setShowProfile}
+            onSignOut={handleSignOutClick}
+            onInstall={handleInstallClick}
+            isAppInstalled={isAppInstalled}
+            deferredPrompt={deferredPrompt}
+            mode={mode}
+            toggleMode={toggleMode}
+          />
+          
+          <main className="flex-1 p-4 pt-20 pb-24 md:pb-4">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activePage}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                transition={{ duration: 0.2 }}
+                className="h-full"
+              >
+                {activePage === "viewCards" && (
+                  <ViewCards
+                    user={user}
+                    masterPassword={masterPassword}
+                    setActivePage={changeActivePage}
+                    setDialog={setDialog}
+                    showSuccessMessage={showSuccessMessage}
+                    cards={cards}
+                    setCards={setCards}
+                  />
+                )}
+                {activePage === "addCard" && (
+                  <AddCard 
+                    user={user} 
+                    masterPassword={masterPassword} 
+                    setActivePage={changeActivePage}
+                    showSuccessMessage={showSuccessMessage}
+                  />
+                )}
+                {activePage === "billPay" && (
+                  <BillPay 
+                    user={user} 
+                    masterPassword={masterPassword}
+                    setActivePage={changeActivePage}
+                    showSuccessMessage={showSuccessMessage}
+                  />
+                )}
+                {activePage === "settings" && (
+                  <Settings 
+                    user={user} 
+                    masterPassword={masterPassword} 
+                    setDialog={setDialog}
+                    showSuccessMessage={showSuccessMessage}
+                  />
+                )}
+              </motion.div>
+            </AnimatePresence>
+          </main>
+          
+          {/* Mobile Bottom Navigation */}
+          <div className="md:hidden">
+            <MobileNav activePage={activePage} setActivePage={changeActivePage} />
           </div>
         </div>
-      </main>
-
-      {/* Success Popup */}
-      <div 
-        className={`fixed inset-0 flex items-center justify-center z-50 transition-opacity duration-300 ${
-          showSuccess ? 'opacity-100' : 'opacity-0 pointer-events-none'
-        }`}
-      >
-        <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-6 flex flex-col items-center">
-          <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mb-4">
-            <svg className="w-8 h-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-          <p className="text-white text-lg font-medium">Card Added Successfully!</p>
-        </div>
+        
+        {/* Shared UI Elements */}
+        {showSuccess && <SuccessAnimation message={successMessage} />}
+        {renderDialog()}
       </div>
+    );
+  };
 
-      <Dialog
-        isOpen={dialog.isOpen}
-        onClose={() => setDialog({ ...dialog, isOpen: false })}
-        onConfirm={dialog.onConfirm}
-        title={dialog.title}
-        message={dialog.message}
-        confirmText={dialog.confirmText}
-        cancelText={dialog.cancelText}
-        type={dialog.type}
-      />
-    </div>
-  );
+  // Render dialog component if open
+  const renderDialog = () => {
+    if (dialog.isOpen) {
+      console.log("App.jsx: Rendering dialog:", dialog.title);
+      return (
+        <Dialog
+          isOpen={dialog.isOpen}
+          title={dialog.title}
+          message={dialog.message}
+          onConfirm={dialog.onConfirm}
+          onClose={() => setDialog(prev => ({ ...prev, isOpen: false }))}
+          type={dialog.type}
+          confirmText={dialog.confirmText}
+          cancelText={dialog.cancelText}
+        />
+      );
+    }
+    return null;
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-900 to-purple-900 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-indigo-400"></div>
+      </div>
+    );
+  }
+
+  return renderContent();
 }
 
 export default App;

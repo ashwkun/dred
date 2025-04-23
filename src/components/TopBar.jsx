@@ -1,10 +1,23 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import logo from "../assets/logo.png";
-import { BiDownload, BiLogOut } from 'react-icons/bi';
+import { BiDownload, BiLogOut, BiSun, BiMoon } from 'react-icons/bi';
+import { useTheme } from '../contexts/ThemeContext';
 
-export default function TopBar({ user, onSignOut, onInstall, isAppInstalled, deferredPrompt }) {
-  const [showProfile, setShowProfile] = useState(false);
+export default function TopBar({ 
+  title,
+  user, 
+  showProfile, 
+  setShowProfile, 
+  onSignOut, 
+  onInstall, 
+  isAppInstalled, 
+  deferredPrompt,
+  mode,
+  toggleMode
+}) {
   const profileRef = useRef(null);
+  const { currentThemeData } = useTheme();
 
   // Handle click outside to close profile dropdown
   useEffect(() => {
@@ -16,76 +29,102 @@ export default function TopBar({ user, onSignOut, onInstall, isAppInstalled, def
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [setShowProfile]);
 
   return (
-    <div className="md:hidden fixed top-0 left-0 right-0 z-40 p-4">
-      <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl">
+    <div className="fixed top-0 left-0 right-0 z-40 p-4">
+      <motion.div 
+        className={`${currentThemeData.surfaces.primary} border border-white/20 ${currentThemeData.radius} md:w-[calc(100%-.3rem)] max-w-[1400px] mx-auto shadow-lg`}
+        initial={{ y: -10, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+      >
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
-            {/* Left - Logo */}
-            <div className="flex items-center gap-2.5">
-              <img src={logo} alt="Dred" className="h-7" />
-              <span className="text-white font-medium text-lg">Dred</span>
+            {/* Left - Logo and Title */}
+            <div className="flex items-center gap-3">
+              <motion.img 
+                src={logo} 
+                alt="Dred" 
+                className="h-7"
+                whileHover={{ scale: 1.05 }}
+                transition={{ duration: 0.2 }}
+              />
+              <div className="flex flex-col">
+                <span className={`text-white ${currentThemeData.font.heading} text-lg`}>Dred</span>
+                {title && (
+                  <span className="text-white/60 text-sm hidden sm:inline-block">{title}</span>
+                )}
+              </div>
             </div>
 
             {/* Right - Actions */}
             <div className="flex items-center gap-3" ref={profileRef}>
               {/* Install Button */}
               {deferredPrompt && (
-                <button
+                <motion.button
                   onClick={onInstall}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-white/10 
-                    hover:bg-white/20 rounded-xl border border-white/10 
-                    text-white/80 hover:text-white transition-all"
+                  className={`flex items-center gap-1.5 px-3 py-1.5 
+                    ${currentThemeData.surfaces.secondary} hover:bg-white/20 ${currentThemeData.radius} border border-white/10 
+                    text-white/80 hover:text-white transition-all`}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
                   <BiDownload className="text-base" />
-                  <span className="text-xs font-medium">Install</span>
-                </button>
+                  <span className={`text-xs ${currentThemeData.font.heading}`}>Install</span>
+                </motion.button>
               )}
 
               {/* Profile Button */}
               <div className="relative">
-                <button
+                <motion.button
                   onClick={() => setShowProfile(!showProfile)}
-                  className="w-8 h-8 rounded-xl overflow-hidden border border-white/20 
-                    hover:border-white/40 transition-colors"
+                  className={`w-9 h-9 ${currentThemeData.radius} overflow-hidden border border-white/20 
+                    hover:border-white/40 transition-colors`}
+                  whileHover={{ scale: 1.05, borderColor: 'rgba(255, 255, 255, 0.4)' }}
+                  whileTap={{ scale: 0.95 }}
                 >
                   <img 
                     src={user.photoURL} 
                     alt="Profile" 
                     className="w-full h-full object-cover"
                   />
-                </button>
+                </motion.button>
 
                 {/* Profile Dropdown */}
                 {showProfile && (
-                  <div className="absolute right-0 top-full mt-2 w-48 
-                    bg-white/20 backdrop-blur-xl rounded-xl border border-white/20
-                    shadow-lg overflow-hidden z-50">
-                    <div className="bg-black/80 backdrop-blur-xl">
+                  <motion.div 
+                    className={`absolute right-0 top-full mt-2 w-56 
+                      ${currentThemeData.surfaces.primary} ${currentThemeData.radius} border border-white/20
+                      ${currentThemeData.shadows} overflow-hidden z-50`}
+                    initial={{ opacity: 0, y: 5, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <div>
                       <div className="px-4 py-3 border-b border-white/10">
-                        <p className="text-sm font-medium text-white">{user.displayName}</p>
+                        <p className={`text-sm ${currentThemeData.font.heading} text-white`}>{user.displayName}</p>
                         <p className="text-xs text-white/70 truncate">{user.email}</p>
                       </div>
                       <div className="py-1">
-                        <button
+                        <motion.button
                           onClick={onSignOut}
-                          className="w-full px-4 py-2 text-sm text-white hover:bg-white/10
-                            flex items-center gap-2 transition-colors"
+                          className="w-full px-4 py-2.5 text-sm text-red-400/90 hover:text-red-400
+                            hover:bg-red-400/10 flex items-center gap-2 transition-colors"
+                          whileHover={{ backgroundColor: 'rgba(248, 113, 113, 0.1)' }}
                         >
                           <BiLogOut className="text-lg" />
                           Sign Out
-                        </button>
+                        </motion.button>
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 )}
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 } 

@@ -7,10 +7,10 @@ import CardCustomization from "./CardCustomization";
 import { securityManager } from './utils/security';
 import { BiAddToQueue } from 'react-icons/bi';
 import { LoadingSpinner } from './components/LoadingSpinner';
-import CardScannerComponent from './components/CardScanner';
 import { retryOperation } from './utils/firestore';
+import { motion } from "framer-motion";
 
-function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
+function AddCard({ user, masterPassword, setActivePage, showSuccessMessage }) {
   const [cardHolder, setCardHolder] = useState(user?.displayName || ""); // Editable
   const [cardNumber, setCardNumber] = useState("");
   const [bankName, setBankName] = useState("");
@@ -19,53 +19,33 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
   const [expiry, setExpiry] = useState("");
   const [cvv, setCvv] = useState("");
   const [theme, setTheme] = useState("#6a3de8"); // Default theme
-  const [status, setStatus] = useState(""); // Track error, success, or loading status
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [authChecked, setAuthChecked] = useState(false);
 
-  // Add authentication check as a separate effect to run only once
-  useEffect(() => {
-    console.log("AddCard: Initial render with props:", { 
-      userExists: !!user, 
-      userId: user?.uid, 
-      hasMasterPassword: !!masterPassword 
-    });
+  // Check form validity
+  const isFormValid = () => {
+    // Check all required fields are filled
+    if (!cardNumber || !cardHolder || !bankName || !networkName || !expiry || !cvv || !cardType) {
+      return false;
+    }
     
-    // Only redirect if we've verified auth is missing
-    if (authChecked) {
-      if (!user) {
-        console.error("AddCard: No user after auth check, redirecting to viewCards");
-        setActivePage("viewCards");
-        return;
-      }
-      
-      if (!masterPassword) {
-        console.error("AddCard: No master password after auth check, redirecting to viewCards");
-        setActivePage("viewCards");
-        return;
-      }
+    // Validate card number format (15 or 16 digits for AMEX/others)
+    if (!/^\d{15,16}$/.test(cardNumber.replace(/\s/g, ''))) {
+      return false;
     }
-  }, [authChecked, user, masterPassword, setActivePage]);
-  
-  // Separate effect to do token refresh and mark auth as checked
-  useEffect(() => {
-    if (user && masterPassword) {
-      // If we have both user and masterPassword, refresh token
-      user.getIdToken(true)
-        .then(token => {
-          console.log("AddCard: Authentication token refreshed successfully");
-          setAuthChecked(true);
-        })
-        .catch(error => {
-          console.error("AddCard: Error refreshing token:", error);
-          setAuthChecked(true);
-        });
-    } else {
-      // Still mark auth as checked even if missing credentials
-      setAuthChecked(true);
+    
+    // Validate expiry format (MM/YY)
+    if (!/^(0[1-9]|1[0-2])\/([0-9]{2})$/.test(expiry)) {
+      return false;
     }
-  }, [user, masterPassword]);
+    
+    // Validate CVV format (3 or 4 digits)
+    if (!/^\d{3,4}$/.test(cvv)) {
+      return false;
+    }
+    
+    return true;
+  };
 
   useEffect(() => {
     if (user?.displayName) {
@@ -87,71 +67,53 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
     }
   };
 
-  const handleScanComplete = (cardData) => {
-    // Format card number with spaces
-    const formattedNumber = cardData.number.replace(/(\d{4})/g, '$1 ').trim();
-    setCardNumber(formattedNumber);
-    
-    // Format expiry if present (MM/YY)
-    if (cardData.expiry) {
-      const cleanExpiry = cardData.expiry.replace(/[^\d]/g, '');
-      const formattedExpiry = `${cleanExpiry.slice(0,2)}/${cleanExpiry.slice(2)}`;
-      setExpiry(formattedExpiry);
-    }
-    
-    // Set name if present
-    if (cardData.name) {
-      setCardHolder(cardData.name);
-    }
-    
-    // Set card type if detected
-    if (cardData.type) {
-      setCardType(cardData.type);
-    }
-
-    // Auto-detect bank and network based on card number
-    detectCardDetails(cardData.number);
-  };
-
   const handleAddCard = async (e) => {
-    // Prevent form default submission
-    if (e && e.preventDefault) {
-      e.preventDefault();
-    }
-    
+    if (e) e.preventDefault(); // Ensure we prevent default form submission
     setIsLoading(true);
     setError(null);
-    setStatus(""); // Clear any previous status
+
+    // Track user activity - this helps prevent session timeouts
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('activity'));
+    }
 
     try {
       await retryOperation(async () => {
         // Validate required fields
         if (!cardNumber || !cardHolder || !bankName || !networkName || !expiry || !cvv) {
-          setStatus("error");
           throw new Error("Please fill in all required fields");
         }
 
-        // Validate card number format - now allows 15 or 16 digits
+        // Validate card number format
         if (!/^\d{15,16}$/.test(cardNumber.replace(/\s/g, ''))) {
-          setStatus("error");
           throw new Error("Please enter a valid 15 or 16-digit card number");
         }
 
         // Validate expiry format (MM/YY)
         if (!/^(0[1-9]|1[0-2])\/([0-9]{2})$/.test(expiry)) {
-          setStatus("error");
           throw new Error("Please enter expiry in MM/YY format");
         }
 
-        // Validate CVV format - now allows 3 or 4 digits
+        // Validate CVV format
         if (!/^\d{3,4}$/.test(cvv)) {
-          setStatus("error");
-          throw new Error("Please enter a valid CVV (3 or 4 digits)");
+          throw new Error("Please enter a valid CVV");
+        }
+
+        // Ensure user is still valid before encrypting
+        if (!user || !user.uid) {
+          console.error("User is not defined or missing UID");
+          throw new Error("Authentication error. Please refresh and try again.");
+        }
+
+        // Check if masterPassword is still valid
+        if (!masterPassword) {
+          console.error("Master password is not defined");
+          throw new Error("Session expired. Please refresh and enter your master password again.");
         }
 
         const encryptedCard = {
           uid: user.uid,
-          cardNumber: CryptoJS.AES.encrypt(cardNumber, masterPassword).toString(),
+          cardNumber: CryptoJS.AES.encrypt(cardNumber.replace(/\s/g, ''), masterPassword).toString(),
           cardHolder: CryptoJS.AES.encrypt(cardHolder, masterPassword).toString(),
           bankName: CryptoJS.AES.encrypt(bankName, masterPassword).toString(),
           networkName: CryptoJS.AES.encrypt(networkName, masterPassword).toString(),
@@ -162,27 +124,41 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
           createdAt: serverTimestamp()
         };
 
+        console.log("Adding card for user:", user.uid);
         await addDoc(collection(db, "cards"), encryptedCard);
-        console.log("Card added successfully to Firestore");
       });
       
-      console.log("Card added successfully, showing success message");
-      // Only use the App.jsx global success animation
-      setShowSuccess(true);
+      // Show success message using global function
+      showSuccessMessage("Card added successfully!");
       
-      // Reset form after delay but stay on the same page
+      // Reset form after delay
       setTimeout(() => {
-        setShowSuccess(false);
         resetForm();
-        console.log("Form reset after successful card addition");
-      }, 2000);
+      }, 1000);
 
     } catch (error) {
       console.error("Error adding card:", error);
-      setStatus("error");
       setError(error.message || "Failed to add card. Please try again.");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Format card number with spaces (4 digits per group)
+  const formatCardNumber = (value) => {
+    const digits = value.replace(/\D/g, '');
+    // Special formatting for AMEX (15 digits: 4-6-5)
+    if (/^3[47]/.test(digits)) {
+      let formatted = '';
+      for (let i = 0; i < digits.length; i++) {
+        if (i === 4 || i === 10) formatted += ' ';
+        formatted += digits[i];
+      }
+      return formatted.trim();
+    }
+    // Standard 16-digit formatting (4-4-4-4)
+    else {
+      return digits.replace(/(\d{4})(?=\d)/g, '$1 ').trim();
     }
   };
 
@@ -197,34 +173,12 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
   };
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      {/* Error Dialog */}
-      {error && status === "error" && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setError(null)}></div>
-          <div className="bg-gray-800 rounded-xl p-6 w-full max-w-md z-10 border border-red-500/50 shadow-lg animate-fadeIn">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="h-10 w-10 rounded-full bg-red-500/20 flex items-center justify-center">
-                <span className="text-red-500 text-xl">❌</span>
-              </div>
-              <h3 className="text-lg font-medium text-white">Validation Error</h3>
-            </div>
-            <p className="text-white/80 mb-6">{error}</p>
-            <button 
-              className="w-full py-3 bg-red-500/20 hover:bg-red-500/30 rounded-lg text-white transition-colors"
-              onClick={() => {
-                setError(null);
-                setStatus("");
-              }}
-            >
-              Got it
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Success Dialog is removed */}
-
+    <motion.div 
+      className="container mx-auto px-4 py-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
       {/* Header Section */}
       <div className="flex items-center gap-3 mb-6">
         <div className="h-12 w-12 rounded-xl bg-white/10 flex items-center justify-center">
@@ -239,15 +193,27 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
       <div className="flex flex-col xl:flex-row gap-6">
         {/* Left: Form */}
         <div className="w-full xl:w-1/2">
-          <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6">
+          <motion.div 
+            className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6"
+            initial={{ y: 10, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.1 }}
+          >
             <h2 className="text-lg font-medium text-white mb-6">Card Details</h2>
             
-            <form onSubmit={(e) => handleAddCard(e)}>
+            <form onSubmit={handleAddCard}>
               <div className="space-y-6">
-                <CardScannerComponent onScanComplete={handleScanComplete} />
-                
                 {/* Form Fields */}
                 <div className="space-y-4">
+                  {error && (
+                    <motion.div 
+                      className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg"
+                      initial={{ opacity: 0, y: -5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                    >
+                      <p className="text-red-400 text-sm">{error}</p>
+                    </motion.div>
+                  )}
                   {/* Card Holder Name */}
                   <div>
                     <label className="block text-white/70 text-sm font-medium mb-2">
@@ -273,19 +239,25 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
                     </label>
                     <input
                       type="text"
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
+                      className={`w-full px-4 py-3 bg-white/5 border ${cardNumber && !/^\d{15,16}$/.test(cardNumber.replace(/\s/g, '')) ? 'border-red-400' : 'border-white/10'} rounded-xl 
                         text-white placeholder-white/30 focus:outline-none focus:ring-2 
                         focus:ring-primary/30 focus:border-transparent backdrop-blur-sm
-                        transition-all duration-200"
+                        transition-all duration-200`}
                       value={cardNumber}
                       onChange={(e) => {
-                        const value = e.target.value.replace(/\D/g, '').slice(0, 16);
-                        setCardNumber(value);
-                        detectCardDetails(value);
+                        const rawValue = e.target.value.replace(/\D/g, '').slice(0, 16);
+                        const formattedValue = formatCardNumber(rawValue);
+                        setCardNumber(formattedValue);
+                        detectCardDetails(rawValue);
                       }}
                       placeholder="•••• •••• •••• ••••"
                       required
                     />
+                    {cardNumber && !/^\d{15,16}$/.test(cardNumber.replace(/\s/g, '')) && (
+                      <p className="text-red-400 text-xs mt-1">
+                        Please enter a valid 15 or 16-digit card number
+                      </p>
+                    )}
                   </div>
 
                   {/* Bank */}
@@ -341,15 +313,27 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
                     </label>
                     <input
                       type="text"
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
+                      className={`w-full px-4 py-3 bg-white/5 border ${expiry && !/^(0[1-9]|1[0-2])\/([0-9]{2})$/.test(expiry) ? 'border-red-400' : 'border-white/10'} rounded-xl 
                         text-white placeholder-white/30 focus:outline-none focus:ring-2 
                         focus:ring-primary/30 focus:border-transparent backdrop-blur-sm
-                        transition-all duration-200"
+                        transition-all duration-200`}
                       value={expiry}
-                      onChange={(e) => setExpiry(e.target.value)}
+                      onChange={(e) => {
+                        let value = e.target.value.replace(/[^\d/]/g, '');
+                        if (value.length === 2 && !value.includes('/') && e.nativeEvent.inputType !== 'deleteContentBackward') {
+                          value += '/';
+                        }
+                        setExpiry(value);
+                      }}
                       placeholder="MM/YY"
+                      maxLength="5"
                       required
                     />
+                    {expiry && !/^(0[1-9]|1[0-2])\/([0-9]{2})$/.test(expiry) && (
+                      <p className="text-red-400 text-xs mt-1">
+                        Please enter expiry in MM/YY format
+                      </p>
+                    )}
                   </div>
 
                   {/* CVV */}
@@ -359,25 +343,33 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
                     </label>
                     <input
                       type="password"
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
+                      className={`w-full px-4 py-3 bg-white/5 border ${cvv && !/^\d{3,4}$/.test(cvv) ? 'border-red-400' : 'border-white/10'} rounded-xl 
                         text-white placeholder-white/30 focus:outline-none focus:ring-2 
                         focus:ring-primary/30 focus:border-transparent backdrop-blur-sm
-                        transition-all duration-200"
+                        transition-all duration-200`}
                       value={cvv}
-                      onChange={(e) => setCvv(e.target.value)}
+                      onChange={(e) => setCvv(e.target.value.replace(/\D/g, '').slice(0, 4))}
                       placeholder="•••"
+                      maxLength="4"
                       required
                     />
+                    {cvv && !/^\d{3,4}$/.test(cvv) && (
+                      <p className="text-red-400 text-xs mt-1">
+                        Please enter a valid 3 or 4-digit CVV
+                      </p>
+                    )}
                   </div>
 
-                  <button
+                  <motion.button
                     type="submit"
                     className="w-full mt-6 px-6 py-4 bg-primary hover:bg-primary/90 
                       rounded-xl text-white font-medium transition-all duration-200 
                       focus:outline-none focus:ring-2 focus:ring-primary/50 
                       disabled:opacity-50 disabled:cursor-not-allowed
                       shadow-lg shadow-primary/25"
-                    disabled={isLoading}
+                    disabled={isLoading || !isFormValid()}
+                    whileHover={{ scale: isFormValid() && !isLoading ? 1.02 : 1 }}
+                    whileTap={{ scale: isFormValid() && !isLoading ? 0.98 : 1 }}
                   >
                     {isLoading ? (
                       <div className="flex items-center justify-center">
@@ -389,16 +381,21 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
                     ) : (
                       'Add Card'
                     )}
-                  </button>
+                  </motion.button>
                 </div>
               </div>
             </form>
-          </div>
+          </motion.div>
         </div>
 
         {/* Right: Preview & Customization */}
         <div className="w-full xl:w-1/2">
-          <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6">
+          <motion.div 
+            className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6"
+            initial={{ y: 10, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.2 }}
+          >
             <CardCustomization
               cardHolder={cardHolder}
               cardNumber={cardNumber}
@@ -409,10 +406,10 @@ function AddCard({ user, masterPassword, setActivePage, setShowSuccess }) {
               theme={theme}
               setTheme={setTheme}
             />
-          </div>
+          </motion.div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 

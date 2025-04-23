@@ -1,3 +1,5 @@
+const defaultTheme = require('tailwindcss/defaultTheme');
+
 module.exports = {
   content: [
     "./public/**/*.html",
@@ -5,6 +7,11 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Inter', ...defaultTheme.fontFamily.sans],
+        outfit: ['Outfit', ...defaultTheme.fontFamily.sans],
+        'space-grotesk': ['Space Grotesk', ...defaultTheme.fontFamily.sans],
+      },
       colors: {
         primary: {
           DEFAULT: "#6a3de8",
@@ -34,6 +41,7 @@ module.exports = {
       },
       boxShadow: {
         glass: "0 4px 30px rgba(0, 0, 0, 0.1)",
+        neon: "0 0 5px theme('colors.fuchsia.500'), 0 0 20px theme('colors.fuchsia.500')",
       },
       container: {
         center: true,
@@ -83,6 +91,41 @@ module.exports = {
             opacity: '0.2',
           },
         },
+        wave: {
+          '0%, 100%': { height: '0.5rem' },
+          '50%': { height: '1.5rem' },
+        },
+        slide: {
+          '0%': { transform: 'translateX(-100%)' },
+          '50%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(100%)' }
+        },
+        glow: {
+          '0%, 100%': { 
+            boxShadow: '0 0 5px rgba(255,255,255,0.3), 0 0 10px rgba(255,255,255,0.1)' 
+          },
+          '50%': { 
+            boxShadow: '0 0 10px rgba(255,255,255,0.5), 0 0 20px rgba(255,255,255,0.3)' 
+          }
+        },
+        glitch: {
+          '0%, 100%': { transform: 'translate(0)' },
+          '25%': { transform: 'translate(2px, -2px)' },
+          '50%': { transform: 'translate(-2px, 2px)' },
+          '75%': { transform: 'translate(4px, -1px) scale(1.01)' }
+        },
+        fadeScale: {
+          '0%': { opacity: '0', transform: 'scale(0.95)' },
+          '100%': { opacity: '1', transform: 'scale(1)' },
+        },
+        fadeSlideLeft: {
+          '0%': { opacity: '0', transform: 'translateX(-10px)' },
+          '100%': { opacity: '1', transform: 'translateX(0)' },
+        },
+        fadeSlideRight: {
+          '0%': { opacity: '0', transform: 'translateX(10px)' },
+          '100%': { opacity: '1', transform: 'translateX(0)' },
+        },
       },
       animation: {
         'spin-slow': 'spin 3s linear infinite',
@@ -92,8 +135,42 @@ module.exports = {
         'success-pop': 'successPop 0.4s cubic-bezier(0.19, 1, 0.22, 1)',
         'fade-in': 'fadeIn 0.2s ease-out',
         'bounce-delayed': 'bounce 0.8s infinite',
+        'wave': 'wave 1s infinite ease-in-out',
+        'slide': 'slide 1.5s infinite ease-in-out',
+        'glow': 'glow 2s infinite ease-in-out',
+        'glitch': 'glitch 0.4s ease-in-out',
+        'fade-scale': 'fadeScale 0.3s ease-out',
+        'fade-slide-left': 'fadeSlideLeft 0.3s ease-out',
+        'fade-slide-right': 'fadeSlideRight 0.3s ease-out',
       }
     },
   },
+  safelist: [
+    'animate-spin',
+    'animate-pulse',
+    'animate-bounce',
+    'animate-wave',
+    'animate-slide',
+    'animate-glow',
+    'animate-fade-scale',
+    'animate-fade-slide-left',
+    'animate-fade-slide-right',
+    'font-outfit',
+    'font-space-grotesk',
+    'rounded-none',
+    'rounded-sm',
+    'rounded-md',
+    'rounded-lg',
+    'rounded-xl',
+    'rounded-2xl',
+    'rounded-3xl',
+    'rounded-full',
+    'shadow-none',
+    'shadow-sm',
+    'shadow-md',
+    'shadow-lg',
+    'shadow-xl',
+    'shadow-neon',
+  ],
   plugins: [],
 };

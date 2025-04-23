@@ -2,134 +2,64 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     // Helper functions
-    function authenticated() {
+    function isAuthenticated() {
       return request.auth != null;
     }
     
-    function emailVerified() {
-      return request.auth.token.email_verified;
-    }
-    
-    function ownedResource() {
-      return request.auth.uid == resource.data.uid;
-    }
-    
-    function ownedCard() {
+    function isOwner() {
       return request.auth.uid == resource.data.uid;
     }
     
     function isValidCard() {
-      return (
-        request.resource.data.type is string &&
-        request.resource.data.holderName is string &&
-        request.resource.data.bankName is string &&
-        request.resource.data.network is string &&
-        request.resource.data.expiry is string &&
-        request.resource.data.encryptedCardNumber is string &&
-        request.resource.data.encryptedCVV is string &&
-        request.resource.data.uid is string &&
-        request.resource.data.category is string &&
-        request.resource.data.createdAt is timestamp
-      );
+      let card = request.resource.data;
+      return card.keys().hasAll(['uid', 'cardHolder', 'cardNumber', 'bankName', 'networkName', 
+        'cardType', 'expiry', 'cvv', 'theme', 'createdAt']) &&
+        card.uid is string &&
+        card.cardHolder is string &&
+        card.cardNumber is string &&
+        card.bankName is string &&
+        card.networkName is string &&
+        card.cardType is string &&
+        card.expiry is string &&
+        card.cvv is string &&
+        card.theme is string &&
+        card.createdAt is timestamp;
     }
     
-    function isWithinRateLimit(path) {
-      return getCountFromTime(path, 60000) < 20;
+    function isWithinRateLimit() {
+      let recentWrites = getCountFromTime('cards', duration.value(1, 'MINUTES'));
+      return recentWrites < 5;
     }
-
-    function getCountFromTime(path, time) {
-      return getCount(path, time, request.time);
-    }
-
-    function getCount(path, ms, requestTime) {
-      let documents = getAfter(path, ms, requestTime);
-      return documents.size();
-    }
-
-    function getAfter(path, ms, requestTime) {
-      return path.where('timestamp', '>', requestTime - ms);
-    }
-
+    
     // Cards collection
-    match /cards/{docId} {
-      // Temporarily allow read/write without authentication for testing
-      allow read, write: if true;
-      // Original rules (commented out for now)
-      // allow read: if authenticated() && ownedCard();
-      // allow create: if authenticated() && request.resource.data.uid == request.auth.uid && isValidCard();
-      // allow update: if authenticated() && ownedCard();
-      // allow delete: if authenticated() && ownedCard();
-    }
-
-    // Transactions collection
-    match /transactions/{docId} {
-      // Temporarily allow read/write without authentication for testing
-      allow read, write: if true;
-      // Original rules (commented out for now)
-      // allow read: if authenticated() && resource.data.uid == request.auth.uid;
-      // allow create: if authenticated() && request.resource.data.uid == request.auth.uid;
-      // allow update: if authenticated() && resource.data.uid == request.auth.uid;
-      // allow delete: if authenticated() && resource.data.uid == request.auth.uid;
-    }
-
-    // Custom categories collection
-    match /custom_categories/{docId} {
-      allow read: if authenticated() && resource.data.uid == request.auth.uid;
-      allow create: if authenticated() && request.resource.data.uid == request.auth.uid;
-      allow update: if authenticated() && resource.data.uid == request.auth.uid;
-      allow delete: if authenticated() && resource.data.uid == request.auth.uid;
+    match /cards/{cardId} {
+      allow read, delete: if request.auth != null && request.auth.uid == resource.data.uid;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.uid;
+      allow update: if request.auth != null && request.auth.uid == resource.data.uid;
     }
 
     // User settings collection
-    match /user_settings/{docId} {
-      allow read: if authenticated() && resource.data.uid == request.auth.uid;
-      allow create: if authenticated() && request.resource.data.uid == request.auth.uid;
-      allow update: if authenticated() && resource.data.uid == request.auth.uid;
-      allow delete: if authenticated() && resource.data.uid == request.auth.uid;
+    match /user_settings/{userId} {
+      allow read, update: if isAuthenticated() && request.auth.uid == userId;
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      allow delete: if false;
     }
 
     // Validation strings collection
-    match /validationStrings/{docId} {
-      allow read: if authenticated() && docId == request.auth.uid;
-      allow create: if authenticated() && request.resource.data.uid == request.auth.uid;
-      allow update: if authenticated() && resource.data.uid == request.auth.uid;
-      allow delete: if authenticated() && resource.data.uid == request.auth.uid;
+    match /validationStrings/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
     }
 
-    match /userSecurity/{docId} {
-      allow read: if authenticated() && docId == request.auth.uid;
-      allow write: if authenticated() && docId == request.auth.uid;
+    match /userSecurity/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
     }
 
     // New rules for mobile_numbers collection
     match /mobile_numbers/{docId} {
-      allow read: if authenticated() && resource.data.uid == request.auth.uid;
-      allow create: if authenticated() && request.resource.data.uid == request.auth.uid;
-      allow update: if authenticated() && resource.data.uid == request.auth.uid;
-      allow delete: if authenticated() && resource.data.uid == request.auth.uid;
-    }
-
-    match /expenses/{docId} {
-      allow read: if authenticated() && resource.data.uid == request.auth.uid;
-      allow create: if authenticated() && request.resource.data.uid == request.auth.uid;
-      allow update: if authenticated() && resource.data.uid == request.auth.uid;
-      allow delete: if authenticated() && resource.data.uid == request.auth.uid;
-    }
-
-    // Rules for goals
-    match /goals/{docId} {
-      allow read: if authenticated() && resource.data.uid == request.auth.uid;
-      allow create: if authenticated() && request.resource.data.uid == request.auth.uid;
-      allow update: if authenticated() && resource.data.uid == request.auth.uid;
-      allow delete: if authenticated() && resource.data.uid == request.auth.uid;
-    }
-    
-    // Add rules for investment_goals collection
-    match /investment_goals/{docId} {
-      allow read: if authenticated() && resource.data.uid == request.auth.uid;
-      allow create: if authenticated() && request.resource.data.uid == request.auth.uid;
-      allow update: if authenticated() && resource.data.uid == request.auth.uid;
-      allow delete: if authenticated() && resource.data.uid == request.auth.uid;
+      allow read: if isAuthenticated() && isOwner();
+      allow create: if isAuthenticated() && request.resource.data.uid == request.auth.uid;
+      allow update: if isAuthenticated() && isOwner();
+      allow delete: if isAuthenticated() && isOwner();
     }
   }
 } 

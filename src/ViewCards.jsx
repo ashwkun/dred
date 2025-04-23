@@ -8,12 +8,45 @@ import { securityManager } from "./utils/security";
 import { BiCreditCard, BiCopy } from 'react-icons/bi';
 import { LoadingOverlay } from './components/LoadingOverlay';
 
-function ViewCards({ user, masterPassword, setActivePage }) {
-  const [cards, setCards] = useState([]);
+// Add default values for all props to make component more robust
+function ViewCards({ 
+  user, 
+  masterPassword, 
+  setActivePage = () => console.log("Default setActivePage called"), 
+  cards: externalCards = [], 
+  setCards: externalSetCards = () => console.log("Default setCards called")
+}) {
+  console.log('ViewCards COMPONENT RENDERED - CRITICAL DEBUG LOG');
+  console.log('ViewCards props check:', {
+    hasUser: !!user,
+    userValue: user,
+    hasMasterPassword: !!masterPassword,
+    masterPasswordValue: masterPassword ? 'exists (not showing actual value)' : null,
+    setActivePage: typeof setActivePage,
+    externalCardsLength: externalCards.length
+  });
+  
+  // Add internal state if external cards state is not provided
+  const [internalCards, setInternalCards] = useState([]);
+  
+  // Use either external or internal cards state
+  const cards = externalCards.length > 0 ? externalCards : internalCards;
+  const setCards = typeof externalSetCards === 'function' ? externalSetCards : setInternalCards;
+
   const [showDetails, setShowDetails] = useState({});
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [copyFeedback, setCopyFeedback] = useState({});
+
+  // Detailed props debugging - ADD THIS
+  console.log('ViewCards: Component rendered with props:', {
+    user: user ? { uid: user.uid, email: user.email } : 'null/undefined',
+    hasMasterPassword: !!masterPassword,
+    hasSetActivePage: typeof setActivePage === 'function',
+    hasExternalCards: externalCards.length > 0,
+    hasExternalSetCards: typeof externalSetCards === 'function',
+    usingInternalState: externalCards.length === 0
+  });
 
   // Auto-hide details after 5 seconds
   useEffect(() => {
@@ -33,8 +66,29 @@ function ViewCards({ user, masterPassword, setActivePage }) {
   }, [showDetails]);
 
   useEffect(() => {
-    if (!user) return;
+    // Enhanced null checking for user
+    if (!user) {
+      console.error("ViewCards: User is undefined, cannot fetch cards");
+      setError("Authentication issue: User information missing. Please try logging in again.");
+      setLoading(false);
+      return;
+    }
+
+    if (!user.uid) {
+      console.error("ViewCards: User.uid is missing, user object:", user);
+      setError("Authentication issue: User ID missing. Please try logging in again.");
+      setLoading(false);
+      return;
+    }
     
+    if (!masterPassword) {
+      console.error("ViewCards: Master password is missing, cannot decrypt cards");
+      setError("Authentication issue: Master password missing. Please enter your master password.");
+      setLoading(false);
+      return;
+    }
+    
+    console.log("ViewCards: Starting to fetch cards for user:", user.uid);
     setLoading(true);
     setError(null);
 
@@ -44,10 +98,27 @@ function ViewCards({ user, masterPassword, setActivePage }) {
         where("uid", "==", user.uid)
       );
       
+      console.log("ViewCards: Query created for Firestore with user ID:", user.uid);
+      
       const unsubscribe = onSnapshot(q, 
         (snapshot) => {
           try {
-            let newCards = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+            console.log("ViewCards: Got snapshot with", snapshot.docs.length, "documents");
+            
+            if (snapshot.docs.length === 0) {
+              console.log("ViewCards: No documents found for this user. This could be normal for new users.");
+              setLoading(false);
+              return;
+            }
+            
+            let newCards = snapshot.docs.map((doc) => {
+              try {
+                return { id: doc.id, ...doc.data() };
+              } catch (err) {
+                console.error("ViewCards: Error processing doc data:", err, "Doc ID:", doc.id);
+                return { id: doc.id, error: "Failed to process card data" };
+              }
+            });
             
             // Sort cards with fallback
             newCards.sort((a, b) => {
@@ -60,7 +131,8 @@ function ViewCards({ user, masterPassword, setActivePage }) {
               return 0;
             });
 
-            setCards(newCards);
+            console.log("ViewCards: Successfully processed", newCards.length, "cards");
+            setCardsSynchronized(newCards);
             setLoading(false);
           } catch (error) {
             console.error("Error processing cards:", error);
@@ -81,20 +153,27 @@ function ViewCards({ user, masterPassword, setActivePage }) {
       setError("Error loading cards. Please try refreshing.");
       setLoading(false);
     }
-  }, [user?.uid]);
+  }, [user, masterPassword]); // Changed from user?.uid to user to ensure re-run when user changes
 
   // Add console.log to debug
   useEffect(() => {
-    console.log('setActivePage:', setActivePage);
+    console.log('ViewCards: setActivePage prop is:', 
+      typeof setActivePage === 'function' ? 'a function' : typeof setActivePage);
   }, [setActivePage]);
 
   const decryptField = (encryptedValue) => {
     try {
       if (!encryptedValue) return '';
-      return securityManager.decryptData(encryptedValue, masterPassword);
+      if (!masterPassword) {
+        console.error('ViewCards: Attempted to decrypt with missing masterPassword');
+        return '[Error: Decryption key missing]';
+      }
+      
+      const decrypted = securityManager.decryptData(encryptedValue, masterPassword);
+      return decrypted;
     } catch (error) {
-      console.error('Error decrypting field:', error);
-      return '';
+      console.error('Error decrypting field:', error, 'Field type:', typeof encryptedValue);
+      return '[Decryption failed]';
     }
   };
 
@@ -102,40 +181,29 @@ function ViewCards({ user, masterPassword, setActivePage }) {
     setShowDetails(prev => ({ ...prev, [cardId]: !prev[cardId] }));
   };
 
+  // Make the handleAddCard function more robust
   const handleAddCard = (e) => {
     e.preventDefault(); // Add this to prevent any default behavior
     console.log('Add Card clicked'); // Debug log
     
-    try {
-      if (setActivePage) {
-        // Check authentication before navigation
-        if (!user || !user.uid) {
-          console.error('ViewCards: Cannot navigate to AddCard - user not authenticated');
-          return;
-        }
-        
-        if (!masterPassword) {
-          console.error('ViewCards: Cannot navigate to AddCard - master password not set');
-          return;
-        }
-        
-        console.log('ViewCards: Calling setActivePage with:', "addCard", {
-          userId: user.uid,
-          hasMasterPassword: !!masterPassword,
-          setActivePageExists: !!setActivePage
-        });
-        
-        // Use setTimeout to ensure this happens after the current event loop
-        setTimeout(() => {
-          setActivePage("addCard");
-          console.log('ViewCards: Navigation to AddCard completed');
-        }, 0);
-      } else {
-        console.error('setActivePage is undefined');
+    // Safe fallback if setActivePage is not a function
+    if (typeof setActivePage !== 'function') {
+      console.error('setActivePage is not a function, trying to navigate manually');
+      try {
+        // Try to manually change the URL or set state
+        window.history.pushState({}, "", "/#addCard");
+        window.dispatchEvent(new CustomEvent('urlchange', { detail: { page: 'addCard' } }));
+        return;
+      } catch (err) {
+        console.error('Failed to navigate manually:', err);
+        alert('Navigation error. Please try refreshing the page.');
+        return;
       }
-    } catch (error) {
-      console.error('Error in handleAddCard:', error);
     }
+    
+    // If we get here, setActivePage is a function
+    console.log('Changing page to addCard using setActivePage');
+    setActivePage("addCard");
   };
 
   const handleCopy = (e, cardNumber, cardId) => {
@@ -197,6 +265,18 @@ function ViewCards({ user, masterPassword, setActivePage }) {
     );
   };
 
+  // Add this new function to synchronize internal and external state
+  const setCardsSynchronized = (newCards) => {
+    // Update internal state
+    setInternalCards(newCards);
+    
+    // Also update external state if available
+    if (typeof externalSetCards === 'function') {
+      console.log('ViewCards: Synchronizing with external state:', newCards.length, 'cards');
+      externalSetCards(newCards);
+    }
+  };
+
   if (loading) {
     return <LoadingOverlay message="Loading your cards" />;
   }
@@ -230,14 +310,57 @@ function ViewCards({ user, masterPassword, setActivePage }) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {cards.map((card) => {
-          const decryptedTheme = decryptField(card.theme);
-          const decryptedBankName = decryptField(card.bankName);
-          const decryptedNetworkName = decryptField(card.networkName);
-          const decryptedCardType = decryptField(card.cardType);
-          const decryptedCardNumber = decryptField(card.cardNumber);
-          const decryptedCardHolder = decryptField(card.cardHolder);
-          const decryptedCVV = decryptField(card.cvv);
-          const decryptedExpiry = decryptField(card.expiry);
+          // Get the theme directly, it's not encrypted in the database
+          const cardTheme = card.theme || "#6a3de8"; // Use default theme if not present
+          const decryptedBankName = (() => {
+            try {
+              return decryptField(card.bankName) || "Bank";
+            } catch (error) {
+              console.error("Failed to decrypt bank name:", error);
+              return "Bank";
+            }
+          })();
+          const decryptedNetworkName = (() => {
+            try {
+              return decryptField(card.networkName) || "Card";
+            } catch (error) {
+              console.error("Failed to decrypt network name:", error);
+              return "Card";
+            }
+          })();
+          const decryptedCardType = card.cardType || "Card"; // Card type is stored unencrypted
+          const decryptedCardNumber = (() => {
+            try {
+              return decryptField(card.cardNumber) || "••••••••••••••••";
+            } catch (error) {
+              console.error("Failed to decrypt card number:", error);
+              return "••••••••••••••••";
+            }
+          })();
+          const decryptedCardHolder = (() => {
+            try {
+              return decryptField(card.cardHolder) || "Card Holder";
+            } catch (error) {
+              console.error("Failed to decrypt card holder:", error);
+              return "Card Holder";
+            }
+          })();
+          const decryptedCVV = (() => {
+            try {
+              return decryptField(card.cvv) || "•••";
+            } catch (error) {
+              console.error("Failed to decrypt CVV:", error);
+              return "•••";
+            }
+          })();
+          const decryptedExpiry = (() => {
+            try {
+              return decryptField(card.expiry) || "MM/YY";
+            } catch (error) {
+              console.error("Failed to decrypt expiry:", error);
+              return "MM/YY";
+            }
+          })();
           const isShowingDetails = showDetails[card.id];
 
           return (
@@ -247,7 +370,7 @@ function ViewCards({ user, masterPassword, setActivePage }) {
                 <div 
                   className="absolute inset-0"
                   style={{ 
-                    background: decryptedTheme,
+                    background: cardTheme,
                     opacity: 0.4,  // Increased from 0.15
                   }}
                 />
@@ -256,7 +379,7 @@ function ViewCards({ user, masterPassword, setActivePage }) {
                 <div 
                   className="absolute inset-0"
                   style={{ 
-                    background: `linear-gradient(120deg, ${decryptedTheme}, transparent)`,
+                    background: `linear-gradient(120deg, ${cardTheme}, transparent)`,
                     opacity: 0.3,
                   }}
                 />
@@ -281,7 +404,7 @@ function ViewCards({ user, masterPassword, setActivePage }) {
 
                   {/* Top Section */}
                   <div className="flex justify-between items-start">
-                    <div className="h-8 w-32 opacity-90">
+                    <div className="h-6 w-24 opacity-90">
                       <LogoWithFallback
                         logoName={decryptedBankName}
                         logoType="bank"
@@ -300,7 +423,7 @@ function ViewCards({ user, masterPassword, setActivePage }) {
                       transition-all duration-300 ${
                       isShowingDetails ? 'opacity-0 translate-y-4 pointer-events-none' : 'opacity-100 translate-y-0'
                     }`}>
-                      <div className="text-xl md:text-2xl text-white font-light tracking-wider font-mono text-center">
+                      <div className="text-base sm:text-lg md:text-xl text-white font-light tracking-wider font-mono text-center whitespace-nowrap overflow-hidden">
                         {decryptedCardNumber.replace(/(.{4})/g, "$1 ").trim()}
                       </div>
                       <button
