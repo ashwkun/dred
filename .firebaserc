@@ -7,7 +7,7 @@
     "dred-e6e59": {
       "hosting": {
         "production": [
-          "dredvault"
+          "dredbox"
         ],
         "dev": [
           "dred-e6e59-dev"
