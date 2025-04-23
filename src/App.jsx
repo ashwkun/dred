@@ -365,19 +365,31 @@ function App() {
   }, [user]);
 
   const toggleMode = () => {
-    setMode(prevMode => (prevMode === 'light' ? 'dark' : 'light'));
+    const newMode = mode === 'light' ? 'dark' : 'light';
+    setMode(newMode);
+    // Persist the mode in localStorage for future sessions
+    localStorage.setItem('dred-color-mode', newMode);
+    console.log(`App.jsx: Theme mode toggled to ${newMode}`);
+  };
+
+  // Load saved mode preference on initial render
+  useEffect(() => {
+    const savedMode = localStorage.getItem('dred-color-mode');
+    if (savedMode) {
+      setMode(savedMode);
+      console.log(`App.jsx: Loaded saved theme mode: ${savedMode}`);
+    }
+  }, []);
+
+  const changeActivePage = (page) => {
+    console.log(`App.jsx: Changing active page from ${activePage} to ${page}`);
+    setActivePage(page);
   };
 
   // Add an effect to log masterPassword changes
   useEffect(() => {
     console.log("App.jsx: masterPassword state changed:", masterPassword ? "Password is set" : "Password is NOT set");
   }, [masterPassword]);
-
-  // Debug setActivePage
-  const changeActivePage = (page) => {
-    console.log("App.jsx: Changing active page to:", page);
-    setActivePage(page);
-  };
 
   // Add an effect to log when the dialog state changes
   useEffect(() => {
@@ -414,25 +426,46 @@ function App() {
   };
 
   const renderContent = () => {
-    if (loading) {
-      return <ThemedLoadingOverlay message="Authenticating..." />;
+    // Special case: Allow viewing HowItWorks without authentication
+    if (activePage === "howItWorks") {
+      return <HowItWorks setActivePage={(page) => {
+        // If user is not logged in, always go back to auth
+        if (!user) {
+          console.log("App.jsx: HowItWorks - User not logged in, returning to auth page");
+          setActivePage("auth");
+        } else {
+          console.log(`App.jsx: HowItWorks - Going to ${page}`);
+          setActivePage(page);
+        }
+      }} />;
     }
-
+    
+    // If user is not logged in, show Auth screen
     if (!user) {
-      return <Auth />;
+      return (
+        <Auth 
+          setUser={() => {}} // This is handled by firebase hook now
+          setActivePage={changeActivePage} 
+          mode={mode} 
+          toggleMode={toggleMode}
+        />
+      );
     }
 
+    // If user is logged in but master password not set, show prompt
     if (!masterPassword) {
       return (
-        <div className={`min-h-screen ${getBgGradient()}`}>
-          <MasterPasswordPrompt 
-            onPasswordSubmit={setMasterPassword} 
-            user={user}
-            setActivePage={setActivePage}
-            mode={mode}
-            toggleMode={toggleMode}
-          />
-        </div>
+        <MasterPasswordPrompt 
+          setMasterPassword={setMasterPassword} 
+          user={user} 
+          setActivePage={changeActivePage}
+          mode={mode}
+          toggleMode={toggleMode}
+          onPasswordSubmit={(password) => {
+            console.log("App.jsx: Password submitted in MasterPasswordPrompt");
+            setMasterPassword(password);
+          }}
+        />
       );
     }
 
@@ -484,7 +517,7 @@ function App() {
                   <ViewCards
                     user={user}
                     masterPassword={masterPassword}
-                    setActivePage={setActivePage}
+                    setActivePage={changeActivePage}
                     setDialog={setDialog}
                     showSuccessMessage={showSuccessMessage}
                     cards={cards}
@@ -495,7 +528,7 @@ function App() {
                   <AddCard 
                     user={user} 
                     masterPassword={masterPassword} 
-                    setActivePage={setActivePage}
+                    setActivePage={changeActivePage}
                     showSuccessMessage={showSuccessMessage}
                   />
                 )}
@@ -503,6 +536,7 @@ function App() {
                   <BillPay 
                     user={user} 
                     masterPassword={masterPassword}
+                    setActivePage={changeActivePage}
                     showSuccessMessage={showSuccessMessage}
                   />
                 )}
@@ -513,9 +547,6 @@ function App() {
                     setDialog={setDialog}
                     showSuccessMessage={showSuccessMessage}
                   />
-                )}
-                {activePage === "howItWorks" && (
-                  <HowItWorks />
                 )}
               </motion.div>
             </AnimatePresence>

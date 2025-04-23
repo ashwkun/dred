@@ -326,6 +326,9 @@ export function ThemeProvider({ children }) {
     
     if (customizations.radius) {
       effectiveTheme.radius = customizations.radius;
+      
+      // Update all card-related components with the new radius
+      document.documentElement.style.setProperty('--card-radius', customizations.radius.replace('rounded-', ''));
     }
     
     if (customizations.iconSet) {
@@ -343,6 +346,20 @@ export function ThemeProvider({ children }) {
     
     if (customizations.cardStyle) {
       effectiveTheme.cardStyle = customizations.cardStyle;
+      
+      // Apply card styling to all card surfaces
+      const cardStyleTheme = Object.values(themesData).find(theme => 
+        theme.cardStyle === customizations.cardStyle
+      );
+      
+      if (cardStyleTheme) {
+        // Override the surfaces with the card style from the selected theme
+        effectiveTheme.surfaces = {
+          ...effectiveTheme.surfaces,
+          // Ensure card styles are consistently applied to all card containers
+          card: cardStyleTheme.surfaces.card
+        };
+      }
     }
     
     return effectiveTheme;

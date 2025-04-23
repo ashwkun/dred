@@ -285,7 +285,11 @@ export default function Auth({ setUser = () => {}, setActivePage, mode, toggleMo
             <motion.button 
               onClick={() => {
                 console.log("Auth.jsx: 'Learn more about security' clicked. Setting activePage to 'howItWorks'.");
-                setActivePage('howItWorks');
+                if (typeof setActivePage === 'function') {
+                  setActivePage('howItWorks');
+                } else {
+                  console.error("Auth.jsx: setActivePage is not a function");
+                }
               }}
               className={`px-4 py-2 rounded-lg ${linkButtonBg} border ${linkButtonBorder} text-sm font-medium transition-colors duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
               whileHover={{ scale: 1.02 }}

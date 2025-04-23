@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../contexts/ThemeContext';
 import { collection, query, where, getDocs, deleteDoc, doc, orderBy, writeBatch, serverTimestamp, getDoc } from "firebase/firestore";
 import { db } from "../../firebase";
@@ -9,7 +9,15 @@ import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { SuccessAnimation } from '../../components/SuccessAnimation';
 
 function Settings({ user, masterPassword, showSuccessMessage }) {
-  const { themes, currentTheme, setCurrentTheme, currentThemeData } = useTheme();
+  const { 
+    themes, 
+    currentTheme, 
+    setCurrentTheme, 
+    currentThemeData, 
+    customizations: themeCustomizations, 
+    customizeThemeElement: updateThemeElement, 
+    resetCustomizations: resetThemeCustomizations 
+  } = useTheme();
   const [showDeleteCards, setShowDeleteCards] = useState(false);
   const [showThemes, setShowThemes] = useState(false);
   const [showRefresh, setShowRefresh] = useState(false);
@@ -27,6 +35,7 @@ function Settings({ user, masterPassword, showSuccessMessage }) {
   });
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const [showMixMatch, setShowMixMatch] = useState(false);
 
   const loadCards = async () => {
     setLoading(true);
@@ -229,6 +238,16 @@ function Settings({ user, masterPassword, showSuccessMessage }) {
     }
   };
 
+  const handleCustomizeElement = (element, value) => {
+    updateThemeElement(element, value);
+    showSuccessMessage(`${element.charAt(0).toUpperCase() + element.slice(1)} updated`);
+  };
+
+  const handleResetCustomizations = () => {
+    resetThemeCustomizations();
+    showSuccessMessage('All customizations reset');
+  };
+
   return (
     <div className="container mx-auto px-4 py-6">
       {/* Header Section */}
@@ -356,6 +375,194 @@ function Settings({ user, masterPassword, showSuccessMessage }) {
                   </button>
                 ))}
               </div>
+            </div>
+          )}
+        </div>
+
+        {/* Mix & Match Theme Section */}
+        <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20">
+          <button
+            onClick={() => setShowMixMatch(!showMixMatch)}
+            className="w-full p-6 text-left flex items-center justify-between"
+          >
+            <div>
+              <h3 className="text-lg font-medium text-white">Mix & Match Theme</h3>
+              <p className="text-sm text-white/70">Customize individual theme elements</p>
+            </div>
+            <svg
+              className={`w-6 h-6 text-white/70 transition-transform ${showMixMatch ? 'rotate-180' : ''}`}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          {showMixMatch && (
+            <div className="px-6 pb-6 space-y-6">
+              {/* Font Families */}
+              <div>
+                <h4 className="text-white/80 font-medium mb-3">Typography</h4>
+                <div className="grid grid-cols-2 gap-3">
+                  {Array.from(new Set(Object.values(themes).map(theme => theme.font.family))).map((fontFamily, index) => {
+                    const fontName = fontFamily.split("'")[1] || "Default";
+                    const isActive = themeCustomizations.fontFamily === fontName;
+                    
+                    return (
+                      <button
+                        key={index}
+                        onClick={() => {
+                          handleCustomizeElement('fontFamily', fontName);
+                          showSuccessMessage(`Font updated to ${fontName}`);
+                        }}
+                        className={`p-3 rounded-lg border text-left transition-all ${
+                          isActive 
+                            ? `border-${currentThemeData.accent}/40 bg-${currentThemeData.accent}/20` 
+                            : 'border-white/10 bg-white/5 hover:bg-white/10'
+                        }`}
+                      >
+                        <span className={`text-white font-medium ${fontFamily}`}>{fontName}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Border Radius */}
+              <div>
+                <h4 className="text-white/80 font-medium mb-3">Border Radius</h4>
+                <div className="grid grid-cols-4 gap-3">
+                  {Array.from(new Set(Object.values(themes).map(theme => theme.radius))).map((radius, index) => {
+                    const radiusName = radius.replace('rounded-', '');
+                    const isActive = themeCustomizations.radius === radius;
+                    
+                    return (
+                      <button
+                        key={index}
+                        onClick={() => {
+                          handleCustomizeElement('radius', radius);
+                          showSuccessMessage(`Border radius updated`);
+                        }}
+                        className={`p-3 flex flex-col items-center justify-center transition-all ${
+                          isActive 
+                            ? `border-${currentThemeData.accent}/40 bg-${currentThemeData.accent}/20` 
+                            : 'border-white/10 bg-white/5 hover:bg-white/10'
+                        }`}
+                        style={{ borderRadius: radiusName === 'none' ? '0' : radiusName === 'sm' ? '0.125rem' : radiusName === 'md' ? '0.375rem' : radiusName === 'lg' ? '0.5rem' : radiusName === 'xl' ? '0.75rem' : radiusName === '2xl' ? '1rem' : '0.25rem' }}
+                      >
+                        <div 
+                          className={`w-10 h-10 bg-white/20 mb-2`}
+                          style={{ borderRadius: radiusName === 'none' ? '0' : radiusName === 'sm' ? '0.125rem' : radiusName === 'md' ? '0.375rem' : radiusName === 'lg' ? '0.5rem' : radiusName === 'xl' ? '0.75rem' : radiusName === '2xl' ? '1rem' : '0.25rem' }}
+                        ></div>
+                        <span className="text-white/80 text-xs">{radiusName}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              
+              {/* Background Patterns */}
+              <div>
+                <h4 className="text-white/80 font-medium mb-3">Background Pattern</h4>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {Array.from(new Set(Object.values(themes).map(theme => theme.pattern.type))).map((patternType, index) => {
+                    const isActive = themeCustomizations.pattern === patternType;
+                    const patternName = patternType === 'none' ? 'None' : patternType.charAt(0).toUpperCase() + patternType.slice(1);
+                    
+                    return (
+                      <button
+                        key={index}
+                        onClick={() => {
+                          handleCustomizeElement('pattern', patternType);
+                          showSuccessMessage(`Pattern updated to ${patternName}`);
+                        }}
+                        className={`p-3 rounded-lg border transition-all ${
+                          isActive 
+                            ? `border-${currentThemeData.accent}/40 bg-${currentThemeData.accent}/20` 
+                            : 'border-white/10 bg-white/5 hover:bg-white/10'
+                        }`}
+                      >
+                        <div className={`h-14 rounded-lg border border-white/20 mb-2 flex items-center justify-center bg-gradient-to-br ${currentThemeData.gradient}`}>
+                          {patternType === 'none' ? (
+                            <span className="text-white/40 text-sm">No Pattern</span>
+                          ) : (
+                            <div className={`w-full h-full rounded-lg`} style={{ backgroundImage: `url("/patterns/${patternType}.svg")`, backgroundSize: 'cover', opacity: 0.2 }}></div>
+                          )}
+                        </div>
+                        <p className="text-white text-sm">{patternName}</p>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              
+              {/* Card Styles */}
+              <div>
+                <h4 className="text-white/80 font-medium mb-3">Card Style</h4>
+                <div className="grid grid-cols-2 gap-3">
+                  {Array.from(new Set(Object.values(themes).map(theme => theme.cardStyle))).map((cardStyle, index) => {
+                    const isActive = themeCustomizations.cardStyle === cardStyle;
+                    const cardStyleName = cardStyle.charAt(0).toUpperCase() + cardStyle.slice(1);
+                    
+                    return (
+                      <button
+                        key={index}
+                        onClick={() => {
+                          handleCustomizeElement('cardStyle', cardStyle);
+                          showSuccessMessage(`Card style updated to ${cardStyleName}`);
+                        }}
+                        className={`p-3 rounded-lg border transition-all ${
+                          isActive 
+                            ? `border-${currentThemeData.accent}/40 bg-${currentThemeData.accent}/20` 
+                            : 'border-white/10 bg-white/5 hover:bg-white/10'
+                        }`}
+                      >
+                        <div className={`h-20 rounded-lg mb-2 flex items-center justify-center relative overflow-hidden`}>
+                          <div className={`absolute inset-0 bg-gradient-to-br ${currentThemeData.gradient} opacity-40`}></div>
+                          {cardStyle === 'classic' && (
+                            <div className="absolute inset-0 bg-black/20 backdrop-blur-sm"></div>
+                          )}
+                          {cardStyle === 'glass' && (
+                            <div className="absolute inset-0 bg-white/10 backdrop-blur-md"></div>
+                          )}
+                          {cardStyle === 'flat' && (
+                            <div className="absolute inset-0 bg-black/40"></div>
+                          )}
+                          {cardStyle === 'gradient' && (
+                            <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-white/20"></div>
+                          )}
+                          {cardStyle === 'bordered' && (
+                            <div className="absolute inset-0 border-2 border-white/30 bg-black/20"></div>
+                          )}
+                          {cardStyle === 'minimal' && (
+                            <div className="absolute inset-0 bg-black/30 border border-white/10"></div>
+                          )}
+                          {cardStyle === 'neon' && (
+                            <div className="absolute inset-0 bg-black/50 border border-purple-500/50 shadow-[0_0_15px_rgba(168,85,247,0.5)]"></div>
+                          )}
+                          {cardStyle === 'modern' && (
+                            <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-black/40"></div>
+                          )}
+                          <span className="text-white relative">{cardStyleName}</span>
+                        </div>
+                        <p className="text-white text-sm">{cardStyleName}</p>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              
+              {/* Reset Button */}
+              <button
+                onClick={() => {
+                  handleResetCustomizations();
+                  showSuccessMessage('All customizations reset');
+                }}
+                className="w-full px-4 py-3 bg-white/10 hover:bg-white/15 rounded-lg text-white transition-colors"
+              >
+                Reset to Theme Defaults
+              </button>
             </div>
           )}
         </div>

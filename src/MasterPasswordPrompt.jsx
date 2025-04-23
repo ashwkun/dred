@@ -281,7 +281,7 @@ function MasterPasswordPrompt({ setMasterPassword, user, setActivePage, mode, to
       </h2>
       <div className={`${infoCardBg} rounded-xl p-4 md:p-5 border ${infoCardBorder} text-xs md:text-sm ${secondaryTextColor} space-y-2 shadow-lg`}>
         <p className={`font-medium ${primaryTextColor} mb-1`}>Password requirements:</p>
-        <p className="text-yellow-400 mb-2">(Temporarily disabled for development)</p>
+        <p className="text-yellow-400 mb-2">(Currently Optional)</p>
         <div className="grid grid-cols-2 gap-x-4 gap-y-2 opacity-50">
           <div className="flex items-center">
             <span className={`w-1.5 h-1.5 ${infoDotColor} rounded-full mr-2`}></span>
@@ -529,7 +529,11 @@ function MasterPasswordPrompt({ setMasterPassword, user, setActivePage, mode, to
               <motion.button 
                 onClick={() => {
                   console.log("MasterPasswordPrompt.jsx: 'Learn more about security' clicked. Setting activePage to 'howItWorks'.");
-                  setActivePage('howItWorks');
+                  if (typeof setActivePage === 'function') {
+                    setActivePage('howItWorks');
+                  } else {
+                    console.error("MasterPasswordPrompt.jsx: setActivePage is not a function");
+                  }
                 }}
                 className={`px-4 py-2 rounded-lg ${linkButtonBg} border ${linkButtonBorder} text-sm font-medium transition-colors duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
                 whileHover={{ scale: 1.02 }}
