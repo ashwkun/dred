@@ -272,7 +272,7 @@ export default function Auth({ setUser = () => {}, setActivePage, mode, toggleMo
             )}
           </motion.button>
 
-          {/* Terms Text */}
+          {/* Terms and Privacy Text */}
           <motion.p
             className={`text-xs ${tertiaryTextColor} text-center pt-2`}
             variants={itemVariants}
@@ -290,6 +290,20 @@ export default function Auth({ setUser = () => {}, setActivePage, mode, toggleMo
               className="text-indigo-400 hover:text-indigo-300 underline transition-colors duration-200"
             >
               Terms of Service
+            </button>
+            {' '}and{' '}
+            <button
+              onClick={() => {
+                console.log("Auth.jsx: 'Privacy Policy' clicked. Setting activePage to 'privacy'.");
+                if (typeof setActivePage === 'function') {
+                  setActivePage('privacy');
+                } else {
+                  console.error("Auth.jsx: setActivePage is not a function");
+                }
+              }}
+              className="text-indigo-400 hover:text-indigo-300 underline transition-colors duration-200"
+            >
+              Privacy Policy
             </button>
             .
           </motion.p>
