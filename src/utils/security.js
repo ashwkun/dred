@@ -132,24 +132,75 @@ class SecurityManager {
     return this.lockoutUntil && Date.now() < this.lockoutUntil;
   }
 
-  // Secure data encryption
+  // Strong encryption with PBKDF2, salt, and IV (v2)
   encryptData(data, key) {
     try {
-      // Just convert to string and encrypt - no JSON.stringify
       const cleanData = String(data || '');
-      return CryptoJS.AES.encrypt(cleanData, key).toString();
+      
+      // Generate random salt (128 bits)
+      const salt = CryptoJS.lib.WordArray.random(128/8);
+      
+      // Derive key using PBKDF2 (100,000 iterations, 256-bit key)
+      const derivedKey = CryptoJS.PBKDF2(key, salt, {
+        keySize: 256/32,
+        iterations: 100000
+      });
+      
+      // Generate random IV (128 bits)
+      const iv = CryptoJS.lib.WordArray.random(128/8);
+      
+      // Encrypt with AES-256-CBC
+      const encrypted = CryptoJS.AES.encrypt(cleanData, derivedKey, {
+        iv: iv,
+        mode: CryptoJS.mode.CBC,
+        padding: CryptoJS.pad.Pkcs7
+      });
+      
+      // Format: v2:salt:iv:ciphertext (all base64 encoded)
+      return `v2:${salt.toString(CryptoJS.enc.Base64)}:${iv.toString(CryptoJS.enc.Base64)}:${encrypted.toString()}`;
     } catch (error) {
       console.error('Error encrypting data:', error);
       return '';
     }
   }
 
-  // Secure data decryption
+  // Secure data decryption with backwards compatibility
   decryptData(encryptedData, key) {
     try {
-      // Just decrypt - no JSON.parse
-      return CryptoJS.AES.decrypt(encryptedData, key)
-        .toString(CryptoJS.enc.Utf8);
+      if (!encryptedData) return '';
+      
+      // Check if this is v2 format (starts with "v2:")
+      if (encryptedData.startsWith('v2:')) {
+        // Parse v2 format: v2:salt:iv:ciphertext
+        const parts = encryptedData.split(':');
+        if (parts.length !== 4) {
+          throw new Error('Invalid v2 encryption format');
+        }
+        
+        const salt = CryptoJS.enc.Base64.parse(parts[1]);
+        const iv = CryptoJS.enc.Base64.parse(parts[2]);
+        const ciphertext = parts[3];
+        
+        // Derive key using PBKDF2 with same parameters
+        const derivedKey = CryptoJS.PBKDF2(key, salt, {
+          keySize: 256/32,
+          iterations: 100000
+        });
+        
+        // Decrypt with AES-256-CBC
+        const decrypted = CryptoJS.AES.decrypt(ciphertext, derivedKey, {
+          iv: iv,
+          mode: CryptoJS.mode.CBC,
+          padding: CryptoJS.pad.Pkcs7
+        });
+        
+        return decrypted.toString(CryptoJS.enc.Utf8);
+      } else {
+        // Legacy v1 format (for backwards compatibility)
+        // This is the old weak encryption - still support it for existing data
+        return CryptoJS.AES.decrypt(encryptedData, key)
+          .toString(CryptoJS.enc.Utf8);
+      }
     } catch (error) {
       console.error('Error decrypting data:', error);
       return '';

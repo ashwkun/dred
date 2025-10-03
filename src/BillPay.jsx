@@ -46,7 +46,7 @@ export default function BillPay({ user, masterPassword, showSuccessMessage }) {
           // Decrypt mobile number
           const encryptedNumber = mobileSnapshot.docs[0].data().number;
           try {
-            const decryptedNumber = CryptoJS.AES.decrypt(encryptedNumber, masterPassword).toString(CryptoJS.enc.Utf8);
+            const decryptedNumber = securityManager.decryptData(encryptedNumber, masterPassword);
             console.log("Mobile number loaded:", decryptedNumber ? "Found" : "Empty");
             setMobileNumber(decryptedNumber);
           } catch (error) {
@@ -76,10 +76,10 @@ export default function BillPay({ user, masterPassword, showSuccessMessage }) {
             const decryptedCard = {
               ...doc.data(),
               id: doc.id,
-              cardNumber: CryptoJS.AES.decrypt(doc.data().cardNumber, masterPassword).toString(CryptoJS.enc.Utf8),
-              bankName: CryptoJS.AES.decrypt(doc.data().bankName, masterPassword).toString(CryptoJS.enc.Utf8),
-              networkName: CryptoJS.AES.decrypt(doc.data().networkName, masterPassword).toString(CryptoJS.enc.Utf8),
-              cardHolder: CryptoJS.AES.decrypt(doc.data().cardHolder, masterPassword).toString(CryptoJS.enc.Utf8),
+              cardNumber: securityManager.decryptData(doc.data().cardNumber, masterPassword),
+              bankName: securityManager.decryptData(doc.data().bankName, masterPassword),
+              networkName: securityManager.decryptData(doc.data().networkName, masterPassword),
+              cardHolder: securityManager.decryptData(doc.data().cardHolder, masterPassword),
               theme: doc.data().theme || "#6a3de8" // Default theme if not present
             };
             return decryptedCard;
@@ -124,8 +124,8 @@ export default function BillPay({ user, masterPassword, showSuccessMessage }) {
     }
     
     try {
-      // Encrypt mobile number before storing
-      const encryptedNumber = CryptoJS.AES.encrypt(number, masterPassword).toString();
+      // Encrypt mobile number before storing (using strong encryption)
+      const encryptedNumber = securityManager.encryptData(number, masterPassword);
       
       // Save to Firestore
       const docRef = doc(collection(db, "mobile_numbers"));

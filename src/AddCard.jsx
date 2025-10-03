@@ -113,12 +113,12 @@ function AddCard({ user, masterPassword, setActivePage, showSuccessMessage }) {
 
         const encryptedCard = {
           uid: user.uid,
-          cardNumber: CryptoJS.AES.encrypt(cardNumber.replace(/\s/g, ''), masterPassword).toString(),
-          cardHolder: CryptoJS.AES.encrypt(cardHolder, masterPassword).toString(),
-          bankName: CryptoJS.AES.encrypt(bankName, masterPassword).toString(),
-          networkName: CryptoJS.AES.encrypt(networkName, masterPassword).toString(),
-          expiry: CryptoJS.AES.encrypt(expiry, masterPassword).toString(),
-          cvv: CryptoJS.AES.encrypt(cvv, masterPassword).toString(),
+          cardNumber: securityManager.encryptData(cardNumber.replace(/\s/g, ''), masterPassword),
+          cardHolder: securityManager.encryptData(cardHolder, masterPassword),
+          bankName: securityManager.encryptData(bankName, masterPassword),
+          networkName: securityManager.encryptData(networkName, masterPassword),
+          expiry: securityManager.encryptData(expiry, masterPassword),
+          cvv: securityManager.encryptData(cvv, masterPassword),
           cardType: cardType,
           theme: theme,
           createdAt: serverTimestamp()

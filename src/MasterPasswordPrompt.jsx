@@ -7,6 +7,7 @@ import { securityManager } from "./utils/security";
 import LockoutTimer from "./components/LockoutTimer";
 import { motion } from 'framer-motion';
 import { BiHide, BiShow, BiLogOut, BiSun, BiMoon, BiDownload } from 'react-icons/bi';
+import { logger } from './utils/logger';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -107,7 +108,7 @@ function MasterPasswordPrompt({ setMasterPassword, user, setActivePage, mode, to
       await new Promise(r => setTimeout(r, 2000));
       
       // Set master password first
-      console.log("MasterPasswordPrompt: Setting master password:", masterPass.substring(0, 1) + "******");
+      logger.logRedacted("MasterPasswordPrompt: Setting master password:", masterPass);
       if (typeof onPasswordSubmit === 'function') {
         onPasswordSubmit(masterPass);
       }
@@ -155,7 +156,7 @@ function MasterPasswordPrompt({ setMasterPassword, user, setActivePage, mode, to
       await new Promise(r => setTimeout(r, 2000));
       
       // Set master password first
-      console.log("MasterPasswordPrompt: Setting master password after successful validation:", inputValue.substring(0, 1) + "******");
+      logger.logRedacted("MasterPasswordPrompt: Setting master password after successful validation:", inputValue);
       if (typeof onPasswordSubmit === 'function') {
         onPasswordSubmit(inputValue);
       }

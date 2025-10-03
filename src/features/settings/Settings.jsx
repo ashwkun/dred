@@ -7,6 +7,7 @@ import Dialog from '../../components/Dialog';
 import { BiCog } from 'react-icons/bi';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { SuccessAnimation } from '../../components/SuccessAnimation';
+import { securityManager } from '../../utils/security';
 
 function Settings({ user, masterPassword, showSuccessMessage }) {
   const { 
@@ -55,9 +56,9 @@ function Settings({ user, masterPassword, showSuccessMessage }) {
         try {
           return {
             id: doc.id,
-            cardType: CryptoJS.AES.decrypt(doc.data().cardType, masterPassword).toString(CryptoJS.enc.Utf8),
-            bankName: CryptoJS.AES.decrypt(doc.data().bankName, masterPassword).toString(CryptoJS.enc.Utf8),
-            cardNumber: CryptoJS.AES.decrypt(doc.data().cardNumber, masterPassword).toString(CryptoJS.enc.Utf8),
+            cardType: securityManager.decryptData(doc.data().cardType, masterPassword),
+            bankName: securityManager.decryptData(doc.data().bankName, masterPassword),
+            cardNumber: securityManager.decryptData(doc.data().cardNumber, masterPassword),
             priority: doc.data().priority,
             createdAt: doc.data().createdAt
           };

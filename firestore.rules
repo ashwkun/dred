@@ -1,7 +1,10 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Helper functions
+    // ========================
+    // HELPER FUNCTIONS
+    // ========================
+    
     function isAuthenticated() {
       return request.auth != null;
     }
@@ -10,56 +13,193 @@ service cloud.firestore {
       return request.auth.uid == resource.data.uid;
     }
     
+    function isOwnerOfNew() {
+      return request.auth.uid == request.resource.data.uid;
+    }
+    
+    // Validate encrypted data format (v2:salt:iv:ciphertext)
+    function isValidEncryptedString(str) {
+      // Check if string starts with "v2:" (new encryption) or is legacy format
+      return str is string && 
+             str.size() > 0 && 
+             str.size() < 10000 && // Max 10KB per field
+             (str.matches('^v2:.*') || str.size() > 20); // v2 format or legacy
+    }
+    
+    // Validate card structure and encrypted fields
     function isValidCard() {
       let card = request.resource.data;
       return card.keys().hasAll(['uid', 'cardHolder', 'cardNumber', 'bankName', 'networkName', 
         'cardType', 'expiry', 'cvv', 'theme', 'createdAt']) &&
+        // Basic type checks
         card.uid is string &&
-        card.cardHolder is string &&
-        card.cardNumber is string &&
-        card.bankName is string &&
-        card.networkName is string &&
+        card.uid == request.auth.uid && // CRITICAL: uid must match auth
         card.cardType is string &&
-        card.expiry is string &&
-        card.cvv is string &&
+        card.createdAt is timestamp &&
+        // Encrypted fields validation
+        isValidEncryptedString(card.cardHolder) &&
+        isValidEncryptedString(card.cardNumber) &&
+        isValidEncryptedString(card.bankName) &&
+        isValidEncryptedString(card.networkName) &&
+        isValidEncryptedString(card.expiry) &&
+        isValidEncryptedString(card.cvv) &&
+        // Theme validation (can be encrypted or plain)
         card.theme is string &&
-        card.createdAt is timestamp;
+        card.theme.size() < 1000 &&
+        // Size limits
+        card.cardType.size() < 100 &&
+        card.size() < 50000; // Max 50KB per card document
     }
     
-    function isWithinRateLimit() {
-      let recentWrites = getCountFromTime('cards', duration.value(1, 'MINUTES'));
-      return recentWrites < 5;
+    // Simple rate limiting: max 100 cards per user
+    function hasNotExceededCardLimit() {
+      return request.auth != null;
+      // Note: Can't do real-time count check on Spark plan
+      // Implement client-side limit instead
     }
     
-    // Cards collection
+    // Validate validation string
+    function isValidValidationString() {
+      let data = request.resource.data;
+      return data.keys().hasAll(['validationString']) &&
+        data.validationString is string &&
+        isValidEncryptedString(data.validationString) &&
+        data.size() < 10000;
+    }
+    
+    // Validate user security data
+    function isValidUserSecurity() {
+      let data = request.resource.data;
+      return data.failedAttempts is int &&
+             data.failedAttempts >= 0 &&
+             data.failedAttempts <= 100 &&
+             (!('lockoutUntil' in data) || data.lockoutUntil == null || data.lockoutUntil is number);
+    }
+    
+    // Validate mobile number
+    function isValidMobileNumber() {
+      let data = request.resource.data;
+      return data.keys().hasAll(['uid', 'number']) &&
+        data.uid == request.auth.uid &&
+        isValidEncryptedString(data.number) &&
+        data.size() < 5000;
+    }
+    
+    // ========================
+    // COLLECTION RULES
+    // ========================
+    
+    // Cards collection - MOST CRITICAL
     match /cards/{cardId} {
-      allow read, delete: if request.auth != null && request.auth.uid == resource.data.uid;
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.uid;
-      allow update: if request.auth != null && request.auth.uid == resource.data.uid;
+      // Read: Only owner can read
+      allow read: if isAuthenticated() && 
+                     resource.data.uid == request.auth.uid;
+      
+      // Create: Only owner, with full validation
+      allow create: if isAuthenticated() && 
+                       isOwnerOfNew() &&
+                       isValidCard() &&
+                       hasNotExceededCardLimit();
+      
+      // Update: Only owner, maintain uid, validate structure
+      allow update: if isAuthenticated() && 
+                       isOwner() &&
+                       request.resource.data.uid == resource.data.uid && // UID can't change
+                       isValidCard();
+      
+      // Delete: Only owner
+      allow delete: if isAuthenticated() && 
+                       isOwner();
     }
 
     // User settings collection
     match /user_settings/{userId} {
-      allow read, update: if isAuthenticated() && request.auth.uid == userId;
-      allow create: if isAuthenticated() && request.auth.uid == userId;
+      // Read: Only the user
+      allow read: if isAuthenticated() && 
+                     request.auth.uid == userId;
+      
+      // Create: Only the user, userId must match
+      allow create: if isAuthenticated() && 
+                       request.auth.uid == userId &&
+                       request.resource.data.size() < 100000; // Max 100KB
+      
+      // Update: Only the user, userId can't change
+      allow update: if isAuthenticated() && 
+                       request.auth.uid == userId &&
+                       request.resource.data.size() < 100000;
+      
+      // Delete: Not allowed
       allow delete: if false;
     }
 
-    // Validation strings collection
+    // Validation strings collection (master password validation)
     match /validationStrings/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      // Read: Only the user
+      allow read: if isAuthenticated() && 
+                     request.auth.uid == userId;
+      
+      // Write: Only the user, with validation
+      allow write: if isAuthenticated() && 
+                      request.auth.uid == userId &&
+                      isValidValidationString();
     }
 
+    // User security collection (failed attempts, lockout)
     match /userSecurity/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      // Read: Only the user
+      allow read: if isAuthenticated() && 
+                     request.auth.uid == userId;
+      
+      // Write: Only the user, with validation
+      allow write: if isAuthenticated() && 
+                      request.auth.uid == userId &&
+                      isValidUserSecurity();
     }
 
-    // New rules for mobile_numbers collection
+    // Mobile numbers collection
     match /mobile_numbers/{docId} {
-      allow read: if isAuthenticated() && isOwner();
-      allow create: if isAuthenticated() && request.resource.data.uid == request.auth.uid;
-      allow update: if isAuthenticated() && isOwner();
-      allow delete: if isAuthenticated() && isOwner();
+      // Read: Only owner
+      allow read: if isAuthenticated() && 
+                     isOwner();
+      
+      // Create: Only owner, with validation
+      allow create: if isAuthenticated() && 
+                       isOwnerOfNew() &&
+                       isValidMobileNumber();
+      
+      // Update: Only owner, uid can't change, with validation
+      allow update: if isAuthenticated() && 
+                       isOwner() &&
+                       request.resource.data.uid == resource.data.uid &&
+                       isValidMobileNumber();
+      
+      // Delete: Only owner
+      allow delete: if isAuthenticated() && 
+                       isOwner();
+    }
+    
+    // Transactions collection (if exists)
+    match /transactions/{transactionId} {
+      // Read: Only owner
+      allow read: if isAuthenticated() && 
+                     resource.data.uid == request.auth.uid;
+      
+      // Write: Only owner
+      allow create: if isAuthenticated() && 
+                       request.resource.data.uid == request.auth.uid &&
+                       request.resource.data.size() < 10000;
+      
+      allow update: if isAuthenticated() && 
+                       resource.data.uid == request.auth.uid &&
+                       request.resource.data.uid == request.auth.uid;
+      
+      allow delete: if isAuthenticated() && 
+                       resource.data.uid == request.auth.uid;
+    }
+    
+    // Default: Deny all other collections
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 } 

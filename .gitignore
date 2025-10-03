@@ -75,3 +75,9 @@ node_modules/
 
 # Build output
 dist/
+
+# Test utilities (may contain hardcoded credentials)
+utilities/
+
+# Security documentation (internal use only)
+docs/
