@@ -6,6 +6,9 @@
   "targets": {
     "dred-e6e59": {
       "hosting": {
+        "production": [
+          "dredbox"
+        ],
         "dev": [
           "dredbox-dev"
         ]

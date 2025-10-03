@@ -15,6 +15,7 @@ import Sidebar from "./components/Sidebar";
 import MobileNav from "./components/MobileNav";
 import HowItWorks from "./components/HowItWorks";
 import TermsAndConditions from "./components/TermsAndConditions";
+import PrivacyPolicy from "./components/PrivacyPolicy";
 import { collection, getDocs, query, where, doc, updateDoc, onSnapshot } from "firebase/firestore";
 import CryptoJS from "crypto-js";
 import { db } from "./firebase";
@@ -423,6 +424,8 @@ function App() {
         return "How It Works";
       case "terms":
         return "Terms of Service";
+      case "privacy":
+        return "Privacy Policy";
       default:
         return "Dashboard";
     }
@@ -447,6 +450,14 @@ function App() {
     if (activePage === "terms") {
       return <TermsAndConditions setActivePage={(page) => {
         console.log(`App.jsx: TermsAndConditions - Going to ${page}`);
+        setActivePage(page);
+      }} />;
+    }
+
+    // Special case: Allow viewing Privacy Policy without authentication
+    if (activePage === "privacy") {
+      return <PrivacyPolicy setActivePage={(page) => {
+        console.log(`App.jsx: PrivacyPolicy - Going to ${page}`);
         setActivePage(page);
       }} />;
     }
