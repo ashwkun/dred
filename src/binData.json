@@ -6867,43 +6867,43 @@
         "BIN": 652267,
         "Network": "Rupay",
         "Category": "CLASSIC",
-        "Bank": "Rupay PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652271,
         "Network": "Rupay",
         "Category": "CLASSIC",
-        "Bank": "Rupay PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652277,
         "Network": "Rupay",
         "Category": "CLASSIC",
-        "Bank": "Rupay PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652318,
         "Network": "Rupay",
         "Category": "CLASSIC",
-        "Bank": "Rupay PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652322,
         "Network": "Rupay",
         "Category": "CLASSIC",
-        "Bank": "Rupay PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652515,
         "Network": "Rupay",
         "Category": "CLASSIC",
-        "Bank": "Rupay SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652517,
         "Network": "Rupay",
         "Category": "CLASSIC",
-        "Bank": "Rupay SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652601,
@@ -7041,7 +7041,7 @@
         "BIN": 652857,
         "Network": "Rupay",
         "Category": "CLASSIC",
-        "Bank": "Rupay CREDIT CLASSIC"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652858,
@@ -7107,13 +7107,13 @@
         "BIN": 652868,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652869,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652870,
@@ -7143,13 +7143,13 @@
         "BIN": 652875,
         "Network": "Rupay",
         "Category": "Rupay SELECT",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652876,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652877,
@@ -7173,19 +7173,19 @@
         "BIN": 652880,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652881,
         "Network": "Rupay",
         "Category": "Rupay SELECT",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652882,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652883,
@@ -7245,7 +7245,7 @@
         "BIN": 652892,
         "Network": "Rupay",
         "Category": "Rupay SELECT",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652893,
@@ -7269,7 +7269,7 @@
         "BIN": 652896,
         "Network": "Rupay",
         "Category": "CLASSIC",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652897,
@@ -7287,7 +7287,7 @@
         "BIN": 652899,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652900,
@@ -7299,7 +7299,7 @@
         "BIN": 652901,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652902,
@@ -7311,13 +7311,13 @@
         "BIN": 652903,
         "Network": "Rupay",
         "Category": "Rupay SELECT",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652904,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652905,
@@ -7371,43 +7371,43 @@
         "BIN": 652917,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652919,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652920,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652921,
         "Network": "Rupay",
         "Category": "Rupay SELECT",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652922,
         "Network": "Rupay",
         "Category": "PERSONAL",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652923,
         "Network": "Rupay",
         "Category": "PERSONAL",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652924,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652925,
@@ -7419,307 +7419,307 @@
         "BIN": 652926,
         "Network": "Rupay",
         "Category": "PERSONAL",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652927,
         "Network": "Rupay",
         "Category": "CLASSIC",
-        "Bank": "Rupay CREDIT CLASSIC"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652928,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652929,
         "Network": "Rupay",
         "Category": "Rupay SELECT",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652930,
         "Network": "Rupay",
         "Category": "Rupay SELECT",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652931,
         "Network": "Rupay",
         "Category": "PERSONAL",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652932,
         "Network": "Rupay",
         "Category": "PERSONAL",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652933,
         "Network": "Rupay",
         "Category": "PERSONAL",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652934,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652935,
         "Network": "Rupay",
         "Category": "PERSONAL",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652936,
         "Network": "Rupay",
         "Category": "PERSONAL",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652937,
         "Network": "Rupay",
         "Category": "PERSONAL",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652938,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652939,
         "Network": "Rupay",
         "Category": "PERSONAL",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652940,
         "Network": "Rupay",
         "Category": "PERSONAL",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652941,
         "Network": "Rupay",
         "Category": "PERSONAL",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652942,
         "Network": "Rupay",
         "Category": "PERSONAL",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652943,
         "Network": "Rupay",
         "Category": "PERSONAL",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652944,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652945,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652946,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652947,
         "Network": "Rupay",
         "Category": "Rupay SELECT",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652948,
         "Network": "Rupay",
         "Category": "Rupay SELECT",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652949,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652950,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652951,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652970,
         "Network": "Rupay",
         "Category": "PERSONAL",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652971,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652972,
         "Network": "Rupay",
         "Category": "PERSONAL",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652973,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652974,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652975,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652976,
         "Network": "Rupay",
         "Category": "Rupay SELECT",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652977,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652978,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652979,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652980,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652981,
         "Network": "Rupay",
         "Category": "PERSONAL",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652982,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652983,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652984,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652985,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652986,
         "Network": "Rupay",
         "Category": "Rupay SELECT",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652987,
         "Network": "Rupay",
         "Category": "PERSONAL",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652988,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652989,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652990,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652991,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652992,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652993,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652994,
         "Network": "Rupay",
         "Category": "Rupay SELECT",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652995,
@@ -7731,25 +7731,25 @@
         "BIN": 652996,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652997,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 652998,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653000,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653001,
@@ -7779,241 +7779,241 @@
         "BIN": 653006,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653007,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653008,
         "Network": "Rupay",
         "Category": "Rupay SELECT",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653009,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653010,
         "Network": "Rupay",
         "Category": "Rupay SELECT",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653011,
         "Network": "Rupay",
         "Category": "PERSONAL",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653012,
         "Network": "Rupay",
         "Category": "PERSONAL",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653013,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653014,
         "Network": "Rupay",
         "Category": "Rupay SELECT",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653015,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653016,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653017,
         "Network": "Rupay",
         "Category": "Rupay SELECT",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653018,
         "Network": "Rupay",
         "Category": "Rupay SELECT",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653019,
         "Network": "Rupay",
         "Category": "Rupay SELECT",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653020,
         "Network": "Rupay",
         "Category": "PERSONAL",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653021,
         "Network": "Rupay",
         "Category": "PERSONAL",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653022,
         "Network": "Rupay",
         "Category": "CLASSIC",
-        "Bank": "Rupay CREDIT CLASSIC"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653023,
         "Network": "Rupay",
         "Category": "Rupay SELECT",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653024,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653025,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653026,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653027,
         "Network": "Rupay",
         "Category": "Rupay SELECT",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653028,
         "Network": "Rupay",
         "Category": "PERSONAL",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653029,
         "Network": "Rupay",
         "Category": "PERSONAL",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653030,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653031,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653032,
         "Network": "Rupay",
         "Category": "Rupay SELECT",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653033,
         "Network": "Rupay",
         "Category": "PERSONAL",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653034,
         "Network": "Rupay",
         "Category": "PERSONAL",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653035,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653036,
         "Network": "Rupay",
         "Category": "Rupay SELECT",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653037,
         "Network": "Rupay",
         "Category": "Rupay SELECT",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653038,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653039,
         "Network": "Rupay",
         "Category": "CLASSIC",
-        "Bank": "Rupay CREDIT CLASSIC"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653040,
         "Network": "Rupay",
         "Category": "PERSONAL",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653041,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653042,
         "Network": "Rupay",
         "Category": "PERSONAL",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653043,
         "Network": "Rupay",
         "Category": "PERSONAL",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653044,
         "Network": "Rupay",
         "Category": "PERSONAL",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653045,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT CLASSIC"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653046,
@@ -8025,19 +8025,19 @@
         "BIN": 653047,
         "Network": "Rupay",
         "Category": "PLATINUM",
-        "Bank": "Rupay CREDIT PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653048,
         "Network": "Rupay",
         "Category": "Rupay SELECT",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 653049,
         "Network": "Rupay",
         "Category": "Rupay SELECT",
-        "Bank": "Rupay CREDIT SUPER PLATINUM"
+        "Bank": "Unknown Bank"
     },
     {
         "BIN": 817617,
