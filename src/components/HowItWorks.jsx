@@ -1337,6 +1337,31 @@ const HowItWorks = ({ setActivePage }) => {
             </p>
           </motion.div>
         </Section>
+
+        {/* Related Pages */}
+        <motion.div
+          className="mt-8 p-6 bg-indigo-900/20 rounded-xl border border-indigo-500/30"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+        >
+          <h3 className="text-white font-semibold mb-3 text-center">Legal & Privacy Information</h3>
+          <div className="flex flex-wrap justify-center gap-3">
+            <button
+              onClick={() => setActivePage('privacy')}
+              className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg border border-white/10 text-sm transition-colors"
+            >
+              Privacy Policy
+            </button>
+            <button
+              onClick={() => setActivePage('terms')}
+              className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg border border-white/10 text-sm transition-colors"
+            >
+              Terms of Service
+            </button>
+          </div>
+        </motion.div>
       </div>
     </div>
   );

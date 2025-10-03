@@ -1,8 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { BiArrowBack, BiShieldQuarter, BiData, BiLockAlt, BiError } from 'react-icons/bi';
+import { BiArrowBack, BiShieldQuarter, BiData, BiError, BiUserCheck } from 'react-icons/bi';
 
-// Animation variants
 const sectionVariants = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
@@ -41,20 +40,12 @@ const TermsAndConditions = ({ setActivePage }) => {
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-gray-900 via-indigo-900 to-purple-900 text-white p-4 md:p-8 font-sans overflow-y-auto">
       <div className="max-w-4xl mx-auto">
-        {/* Back Button */}
         <motion.button
-          onClick={() => {
-            console.log("TermsAndConditions: Back button clicked");
-            setActivePage('auth');
-          }}
+          onClick={() => setActivePage('auth')}
           className="mb-8 inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/10 rounded-lg text-sm font-medium transition-colors duration-200"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0, transition: { duration: 0.5, ease: "easeOut" } }}
-          whileHover={{ 
-            scale: 1.05, 
-            backgroundColor: "rgba(255, 255, 255, 0.15)",
-            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)"
-          }}
+          whileHover={{ scale: 1.05, backgroundColor: "rgba(255, 255, 255, 0.15)" }}
           whileTap={{ scale: 0.95 }}
         >
           <BiArrowBack className="text-lg" />
@@ -82,96 +73,55 @@ const TermsAndConditions = ({ setActivePage }) => {
         <Section icon={BiShieldQuarter} title="Acceptance of Terms">
           <motion.div variants={itemVariants}>
             <p>
-              By accessing and using Dred ("the Service"), you accept and agree to be bound by the terms and provisions of this agreement. 
-              If you do not agree to these terms, please do not use the Service.
+              By using Dred, you accept and agree to be bound by these Terms of Service. 
+              If you do not agree, please do not use the Service.
             </p>
           </motion.div>
         </Section>
 
-        <Section icon={BiData} title="Data Collection and Usage">
+        <Section icon={BiData} title="Service Description">
           <motion.div variants={itemVariants}>
-            <p className="mb-4">
-              <strong className="text-white">What We Collect:</strong>
-            </p>
-            <ul className="list-disc list-inside space-y-2 ml-4">
-              <li>Your email address (via Google authentication)</li>
-              <li>Your profile picture (via Google authentication)</li>
-              <li>Encrypted card data that only you can decrypt</li>
-            </ul>
-          </motion.div>
-
-          <motion.div variants={itemVariants} className="mt-4">
-            <p className="mb-4">
-              <strong className="text-white">How We Use Your Data:</strong>
-            </p>
-            <ul className="list-disc list-inside space-y-2 ml-4">
-              <li>Your email and profile picture are used solely for authentication and identification purposes</li>
-              <li>We will <strong className="text-white">NOT</strong> use your email for marketing, newsletters, or any communication</li>
-              <li>We will <strong className="text-white">NOT</strong> share your email or profile picture with any third parties</li>
-              <li>Your card data is encrypted on your device before being stored and cannot be accessed by us</li>
-            </ul>
-          </motion.div>
-
-          <motion.div 
-            variants={itemVariants} 
-            className="mt-4 p-4 bg-indigo-900/30 rounded-lg border border-indigo-500/30"
-          >
-            <p className="text-indigo-200 text-sm">
-              <strong className="text-white">Privacy Commitment:</strong> Your personal information is used exclusively for providing 
-              the Service to you. We respect your privacy and will never use your data for purposes other than operating the Service.
+            <p>
+              Dred is a digital card wallet that helps you securely store and manage your payment card information. 
+              All card data is encrypted on your device before storage. For details on data handling, see our{' '}
+              <button 
+                onClick={() => setActivePage('privacy')}
+                className="text-indigo-400 hover:text-indigo-300 underline"
+              >
+                Privacy Policy
+              </button>
+              . For security details, see{' '}
+              <button 
+                onClick={() => setActivePage('howItWorks')}
+                className="text-indigo-400 hover:text-indigo-300 underline"
+              >
+                How It Works
+              </button>
+              .
             </p>
           </motion.div>
         </Section>
 
-        <Section icon={BiLockAlt} title="Security">
+        <Section icon={BiUserCheck} title="User Responsibilities">
           <motion.div variants={itemVariants}>
-            <p className="mb-4">
-              We take the security of your data seriously and have implemented industry-standard security measures:
-            </p>
+            <p className="mb-3">You are responsible for:</p>
             <ul className="list-disc list-inside space-y-2 ml-4">
-              <li>End-to-end encryption using AES-256</li>
-              <li>Your master password is never stored anywhere</li>
-              <li>All sensitive data is encrypted on your device before transmission</li>
-              <li>Firebase Firestore security rules restrict data access to authenticated users only</li>
-              <li>Account lockout mechanisms to prevent brute force attacks</li>
+              <li>Maintaining the confidentiality of your master password</li>
+              <li>All activities that occur under your account</li>
+              <li>Using the Service in compliance with all applicable laws</li>
+              <li>Not attempting to breach or test the security of the Service</li>
+              <li>The accuracy of information you provide</li>
             </ul>
-          </motion.div>
-
-          <motion.div 
-            variants={itemVariants}
-            className="mt-4 p-4 bg-yellow-900/20 rounded-lg border border-yellow-500/30"
-          >
-            <div className="flex items-start gap-3">
-              <BiError className="text-yellow-400 text-xl flex-shrink-0 mt-1" />
-              <div>
-                <p className="text-yellow-200 text-sm">
-                  <strong className="text-white">Important Notice:</strong> While we have implemented comprehensive security measures 
-                  and follow industry best practices to protect your data, no system can be 100% secure. In the unlikely event of a 
-                  data breach, we cannot be held liable for any damages or losses that may occur.
-                </p>
-              </div>
-            </div>
-          </motion.div>
-
-          <motion.div variants={itemVariants} className="mt-4">
-            <p className="text-sm text-gray-400">
-              Your master password is the key to your encrypted data. If you lose it, we cannot recover your data as we have no 
-              way to decrypt it. Please store your master password securely.
-            </p>
           </motion.div>
         </Section>
 
-        <Section icon={BiShieldQuarter} title="Limitation of Liability">
+        <Section icon={BiError} title="Limitation of Liability">
           <motion.div variants={itemVariants}>
-            <p className="mb-4">
-              To the maximum extent permitted by applicable law:
-            </p>
             <ul className="list-disc list-inside space-y-2 ml-4">
               <li>The Service is provided "as is" without warranties of any kind</li>
-              <li>We are not liable for any indirect, incidental, special, consequential, or punitive damages</li>
-              <li>We are not responsible for any data breaches, loss of data, or unauthorized access to your account</li>
+              <li>We are not liable for any damages arising from your use of the Service</li>
+              <li>We are not responsible for data breaches, loss of data, or unauthorized access</li>
               <li>You use the Service at your own risk</li>
-              <li>We do not guarantee uninterrupted or error-free service</li>
             </ul>
           </motion.div>
 
@@ -180,69 +130,67 @@ const TermsAndConditions = ({ setActivePage }) => {
             className="mt-4 p-4 bg-red-900/20 rounded-lg border border-red-500/30"
           >
             <p className="text-red-200 text-sm">
-              <strong className="text-white">Disclaimer:</strong> While every effort has been made to secure the Service and protect 
-              your data, the developer assumes no liability for any security breaches, data loss, or damages that may arise from 
-              the use of this Service.
+              <strong className="text-white">Important:</strong> While we implement strong security measures, 
+              the developer assumes no liability for security breaches, data loss, or damages arising from the use of this Service.
             </p>
           </motion.div>
         </Section>
 
-        <Section icon={BiData} title="User Responsibilities">
-          <motion.div variants={itemVariants}>
-            <p className="mb-4">
-              As a user of the Service, you are responsible for:
-            </p>
-            <ul className="list-disc list-inside space-y-2 ml-4">
-              <li>Maintaining the confidentiality of your master password</li>
-              <li>All activities that occur under your account</li>
-              <li>Notifying us immediately of any unauthorized use of your account</li>
-              <li>Using the Service in compliance with all applicable laws and regulations</li>
-              <li>Not attempting to breach or test the security of the Service</li>
-            </ul>
-          </motion.div>
-        </Section>
-
-        <Section icon={BiShieldQuarter} title="Changes to Terms">
+        <Section icon={BiShieldQuarter} title="Termination">
           <motion.div variants={itemVariants}>
             <p>
-              We reserve the right to modify these terms at any time. Changes will be effective immediately upon posting to the Service. 
-              Your continued use of the Service after any changes constitutes acceptance of the new terms.
+              We may terminate or suspend your access at any time for any reason, including breach of these Terms. 
+              You may stop using the Service at any time.
             </p>
           </motion.div>
         </Section>
 
-        <Section icon={BiData} title="Termination">
+        <Section icon={BiData} title="Changes to Terms">
           <motion.div variants={itemVariants}>
             <p>
-              We reserve the right to terminate or suspend your access to the Service at any time, without prior notice or liability, 
-              for any reason, including breach of these Terms. Upon termination, your right to use the Service will immediately cease.
+              We may modify these Terms at any time. Changes are effective immediately upon posting. 
+              Your continued use constitutes acceptance of the new Terms.
             </p>
           </motion.div>
         </Section>
 
         <Section icon={BiShieldQuarter} title="Contact">
           <motion.div variants={itemVariants}>
-            <p>
-              If you have any questions about these Terms, please contact us through the application's feedback mechanism.
-            </p>
+            <p className="mb-3">Questions about these Terms? Contact us at:</p>
+            <div className="bg-indigo-900/30 rounded-lg p-4 border border-indigo-500/30">
+              <p className="text-indigo-200">
+                <strong className="text-white">Email:</strong> aswinanand9020@gmail.com
+              </p>
+            </div>
           </motion.div>
         </Section>
 
+        {/* Related Pages */}
         <motion.div
-          className="mt-8 p-6 bg-indigo-900/20 rounded-xl border border-indigo-500/30 text-center"
+          className="mt-8 p-6 bg-indigo-900/20 rounded-xl border border-indigo-500/30"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
         >
-          <p className="text-gray-300 text-sm">
-            By continuing to use Dred, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.
-          </p>
+          <h3 className="text-white font-semibold mb-3 text-center">Related Information</h3>
+          <div className="flex flex-wrap justify-center gap-3">
+            <button
+              onClick={() => setActivePage('privacy')}
+              className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg border border-white/10 text-sm transition-colors"
+            >
+              Privacy Policy
+            </button>
+            <button
+              onClick={() => setActivePage('howItWorks')}
+              className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg border border-white/10 text-sm transition-colors"
+            >
+              How It Works & Security
+            </button>
+          </div>
         </motion.div>
 
-        {/* Back to Sign In Button at Bottom */}
         <motion.div
-          className="mt-8 text-center"
+          className="mt-4 text-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.3 }}
@@ -263,4 +211,3 @@ const TermsAndConditions = ({ setActivePage }) => {
 };
 
 export default TermsAndConditions;
-
