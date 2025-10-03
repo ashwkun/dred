@@ -106,12 +106,16 @@ const TermsAndConditions = ({ setActivePage }) => {
           <motion.div variants={itemVariants}>
             <p className="mb-3">You are responsible for:</p>
             <ul className="list-disc list-inside space-y-2 ml-4">
-              <li>Maintaining the confidentiality of your master password</li>
+              <li>Maintaining the confidentiality of your master password and account credentials (email/phone password if applicable)</li>
               <li>All activities that occur under your account</li>
               <li>Using the Service in compliance with all applicable laws</li>
               <li>Not attempting to breach or test the security of the Service</li>
-              <li>The accuracy of information you provide</li>
+              <li>The accuracy of information you provide (email, phone number, card details)</li>
+              <li>Verifying your email/phone if using email or phone authentication</li>
             </ul>
+            <p className="text-indigo-200 text-xs mt-3 p-2 bg-indigo-900/30 rounded">
+              <strong>Note:</strong> Google Sign-In is recommended for better security and easier account recovery.
+            </p>
           </motion.div>
         </Section>
 

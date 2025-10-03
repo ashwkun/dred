@@ -1,335 +1,569 @@
 import React, { useState, useEffect } from 'react';
-import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { 
+  signInWithPopup, 
+  GoogleAuthProvider,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+  sendPasswordResetEmail,
+  updateProfile
+} from "firebase/auth";
 import { auth } from "./firebase";
-import { BiLogoGoogle, BiSun, BiMoon } from 'react-icons/bi';
-import { motion } from 'framer-motion';
+import { BiLogoGoogle, BiShieldQuarter, BiEnvelope, BiLockAlt, BiChevronDown, BiChevronUp, BiUser } from 'react-icons/bi';
+import { motion, AnimatePresence } from 'framer-motion';
 
-// Animation variants
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.15,
-      delayChildren: 0.2,
-      duration: 0.5
-    }
-  }
-};
+const descriptorWords = ["Secure", "Simple", "Private"];
 
-const itemVariants = {
-  hidden: { y: 20, opacity: 0 },
-  visible: { y: 0, opacity: 1, transition: { duration: 0.5, ease: "easeOut" } }
-};
-
-const buttonVariants = {
-  hover: { scale: 1.03, transition: { duration: 0.2, ease: "easeOut" } },
-  tap: { scale: 0.97 }
-};
-
-// Word cycling animation sequence
-const descriptorWords = ["Simple", "Secure", "Smart"];
-
-// Correctly receives setActivePage as a prop, setUser is now optional
 export default function Auth({ setUser = () => {}, setActivePage, mode, toggleMode }) {
   const [isLoading, setIsLoading] = useState(false);
   const [descriptorIndex, setDescriptorIndex] = useState(0);
+  const [showOtherMethods, setShowOtherMethods] = useState(false);
+  const [authMode, setAuthMode] = useState('signin'); // 'signin' or 'signup'
+  const [waitingForVerification, setWaitingForVerification] = useState(false);
+  const [displayName, setDisplayName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [emailError, setEmailError] = useState('');
 
-  // Effect to cycle through descriptor words
   useEffect(() => {
     const interval = setInterval(() => {
       setDescriptorIndex((prevIndex) => (prevIndex + 1) % descriptorWords.length);
-    }, 2000);
-    
+    }, 2500);
     return () => clearInterval(interval);
+  }, []);
+
+
+  // Poll for email verification
+  useEffect(() => {
+    let interval;
+    if (waitingForVerification && auth.currentUser) {
+      interval = setInterval(async () => {
+        try {
+          // Reload current user to get latest verification status
+          await auth.currentUser.reload();
+          
+          if (auth.currentUser.emailVerified) {
+            // Email is verified! Force a proper refresh
+            clearInterval(interval);
+            
+            // Get a fresh token to trigger auth state update
+            await auth.currentUser.getIdToken(true);
+            
+            // Sign out and sign back in to ensure App.jsx detects the verified status
+            const email = auth.currentUser.email;
+            const currentPassword = password; // We have this from signup
+            
+            await auth.signOut();
+            await signInWithEmailAndPassword(auth, email, currentPassword);
+            
+            // Clear the waiting state
+            setWaitingForVerification(false);
+            // User will now proceed to app with verified email
+          }
+        } catch (error) {
+          // Keep waiting
+          console.log('Waiting for verification...', error);
+        }
+      }, 3000); // Check every 3 seconds
+    }
+    
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [waitingForVerification, password]);
+
+  // Handle mobile keyboard - scroll input into view
+  useEffect(() => {
+    const handleFocus = (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+        // Small delay to let keyboard appear
+        setTimeout(() => {
+          e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 300);
+      }
+    };
+
+    document.addEventListener('focus', handleFocus, true);
+    return () => document.removeEventListener('focus', handleFocus, true);
   }, []);
 
   const signInWithGoogle = async () => {
     setIsLoading(true);
     const provider = new GoogleAuthProvider();
-    
-    // Add scopes and customization to the provider
     provider.addScope('profile');
     provider.addScope('email');
-    provider.setCustomParameters({
-      prompt: 'select_account'
-    });
+    provider.setCustomParameters({ prompt: 'select_account' });
     
     try {
-      console.log("Attempting Google sign in...");
-      const result = await signInWithPopup(auth, provider);
-      console.log("Google sign in successful:", result.user);
+      await signInWithPopup(auth, provider);
     } catch (error) {
-      console.error("Error signing in with Google:", error);
-      console.error("Error code:", error.code);
-      console.error("Error message:", error.message);
-      
-      // Handle specific error cases
+      console.error("Error signing in:", error);
       if (error.code === 'auth/popup-blocked') {
         alert("Popup was blocked. Please allow popups for this website.");
-      } else if (error.code === 'auth/popup-closed-by-user') {
-        console.log("Sign-in popup was closed by the user.");
-      } else if (error.code === 'auth/cancelled-popup-request') {
-        console.log("Popup request was cancelled.");
       } else if (error.code === 'auth/network-request-failed') {
         alert("Network error. Please check your internet connection.");
-      } else {
+      } else if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
         alert("Error signing in: " + error.message);
       }
-      
       setIsLoading(false);
     }
   };
 
-  // Style definitions based on mode
-  const bgGradient = mode === 'light'
-    ? 'bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100'
-    : 'bg-gradient-to-br from-gray-900 via-indigo-900 to-purple-900';
+  const handleEmailAuth = async (e) => {
+    e.preventDefault();
+    setEmailError('');
+    setIsLoading(true);
 
-  const visualTextColor = mode === 'light' ? 'text-indigo-900/80' : 'text-indigo-200/80';
-  const visualShape1 = mode === 'light' ? 'from-purple-300 to-indigo-400 opacity-30 md:opacity-40' : 'from-purple-600 to-indigo-700 opacity-20 md:opacity-30';
-  const visualShape2 = mode === 'light' ? 'from-blue-200 to-cyan-300 opacity-30 md:opacity-40' : 'from-blue-600 to-cyan-700 opacity-20 md:opacity-30';
-  const visualShape3 = mode === 'light' ? 'from-indigo-300 to-purple-400 opacity-30 md:opacity-40' : 'from-indigo-600 to-purple-700 opacity-20 md:opacity-30';
+    try {
+      if (authMode === 'signup') {
+        if (!displayName.trim()) {
+          setEmailError('Please enter your name');
+          setIsLoading(false);
+          return;
+        }
+        
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        
+        // Set display name and default photo
+        await updateProfile(userCredential.user, {
+          displayName: displayName.trim(),
+          photoURL: `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName.trim())}&background=4f46e5&color=fff&size=200`
+        });
+        
+        await sendEmailVerification(userCredential.user);
+        
+        // Keep user signed in and show waiting screen
+        setWaitingForVerification(true);
+        setIsLoading(false);
+      } else {
+        // Sign in
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        
+        // Check if email is verified
+        if (!userCredential.user.emailVerified) {
+          await auth.signOut();
+          setEmailError('Please verify your email before signing in. Check your inbox for the verification link.');
+          setIsLoading(false);
+          return;
+        }
+        // If verified, user will be signed in automatically
+      }
+    } catch (error) {
+      console.error("Error with email auth:", error);
+      if (error.code === 'auth/email-already-in-use') {
+        setEmailError('Email already in use. Try signing in.');
+      } else if (error.code === 'auth/invalid-email') {
+        setEmailError('Invalid email address.');
+      } else if (error.code === 'auth/weak-password') {
+        setEmailError('Password should be at least 6 characters.');
+      } else if (error.code === 'auth/user-not-found') {
+        setEmailError('No account found. Try signing up.');
+      } else if (error.code === 'auth/wrong-password') {
+        setEmailError('Incorrect password.');
+      } else if (error.code === 'auth/invalid-credential') {
+        setEmailError('Invalid email or password.');
+      } else {
+        setEmailError(error.message);
+      }
+      setIsLoading(false);
+    }
+  };
 
-  const cardBg = mode === 'light' ? 'bg-white' : 'bg-black/30';
-  const cardBackdropBlur = mode === 'light' ? 'backdrop-blur-sm' : 'backdrop-blur-lg';
-  const cardBorder = mode === 'light' ? 'border-gray-200' : 'border-white/10';
-  const cardShadow = mode === 'light' ? 'shadow-xl' : 'shadow-2xl shadow-purple-900/20';
-  const primaryTextColor = mode === 'light' ? 'text-gray-900' : 'text-white';
-  const secondaryTextColor = mode === 'light' ? 'text-gray-600' : 'text-gray-300';
-  const tertiaryTextColor = mode === 'light' ? 'text-gray-500' : 'text-gray-400';
-  const featureTextColor = mode === 'light' ? 'text-gray-700' : 'text-gray-300';
+  const handleResendVerification = async () => {
+    try {
+      // Try to sign in to get the user object
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      if (!userCredential.user.emailVerified) {
+        await sendEmailVerification(userCredential.user);
+        setWaitingForVerification(true);
+        setEmailError('');
+      }
+    } catch (error) {
+      setEmailError('Unable to resend verification. Please check your credentials.');
+    }
+  };
 
-  const toggleButtonBg = mode === 'light' ? 'bg-gray-200 hover:bg-gray-300' : 'bg-gray-700/50 hover:bg-gray-600/50 border border-white/10';
-  const toggleButtonIconColor = mode === 'light' ? 'text-yellow-500' : 'text-yellow-400';
-  const toggleButtonIconColorDark = mode === 'light' ? 'text-indigo-700' : 'text-indigo-400';
+  const handleForgotPassword = async () => {
+    if (!email) {
+      alert('Please enter your email address first.');
+      return;
+    }
+    try {
+      await sendPasswordResetEmail(auth, email);
+      alert('Password reset email sent! Check your inbox.');
+    } catch (error) {
+      alert('Error: ' + error.message);
+    }
+  };
 
-  const linkButtonBg = mode === 'light' ? 'bg-indigo-50 hover:bg-indigo-100 text-indigo-700' : 'bg-indigo-900/30 hover:bg-indigo-800/40 text-indigo-300';
-  const linkButtonBorder = mode === 'light' ? 'border-indigo-200' : 'border-indigo-700';
-  
-  const highlightColor = mode === 'light' ? 'text-indigo-600' : 'text-indigo-400';
 
   return (
-    <div className={`relative min-h-screen w-full flex flex-col md:flex-row ${bgGradient} overflow-hidden font-sans`}>
-
-      {/* Theme Toggle Button */}
-      <button
-        onClick={toggleMode}
-        className={`absolute top-4 right-4 z-20 p-2 rounded-full ${toggleButtonBg} transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
-        aria-label={mode === 'light' ? "Switch to dark mode" : "Switch to light mode"}
-      >
-        {mode === 'light' ? (
-          <BiMoon className={`w-5 h-5 ${toggleButtonIconColorDark}`} />
-        ) : (
-          <BiSun className={`w-5 h-5 ${toggleButtonIconColor}`} />
-        )}
-      </button>
-
-      {/* Left Side - Visuals */}
-      <div className="relative w-full md:w-1/2 h-64 md:h-screen flex items-center justify-center overflow-hidden p-6 md:p-12">
-        {/* Background animations - reduced prominence */}
-        <motion.div
-          className={`absolute w-40 h-40 md:w-64 md:h-64 bg-gradient-to-br ${visualShape1} rounded-full filter blur-xl`}
-          animate={{ 
-            scale: [1, 1.05, 1], 
-            rotate: [0, 8, 0], 
-            x: [-5, 5, -5], 
-            y: [3, -3, 3],
-            opacity: [0.5, 0.7, 0.5] 
-          }}
-          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div
-          className={`absolute w-44 h-44 md:w-72 md:h-72 bg-gradient-to-tl ${visualShape2} rounded-full filter blur-xl`}
-          animate={{ 
-            scale: [1, 0.98, 1], 
-            rotate: [0, -5, 0], 
-            x: [8, -8, 8], 
-            y: [-6, 6, -6],
-            opacity: [0.4, 0.6, 0.4]
-          }}
-          transition={{ duration: 23, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
-        />
-        <motion.div
-          className={`absolute w-36 h-36 md:w-60 md:h-60 bg-gradient-to-tr ${visualShape3} rounded-full filter blur-xl`}
-          animate={{ 
-            scale: [1, 1.05, 1], 
-            rotate: [0, 10, 0], 
-            x: [0, -10, 0], 
-            y: [5, 0, 5],
-            opacity: [0.3, 0.5, 0.3]
-          }}
-          transition={{ duration: 19, repeat: Infinity, ease: "easeInOut", delay: 3 }}
-        />
-        
-        {/* Logo with enhanced animation */}
-        <motion.div 
-          className="relative z-10 text-center space-y-3 md:space-y-4" 
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ 
-            y: 0, 
-            opacity: 1,
-            transition: { duration: 1, ease: "easeOut" }
-          }}
-        >
+    <div className="relative min-h-screen w-full bg-gradient-to-br from-gray-900 via-indigo-900 to-purple-900 overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        {[...Array(15)].map((_, i) => (
           <motion.div
-            initial={{ scale: 0.9, opacity: 0.8 }}
-            animate={{ 
-              scale: [0.98, 1.02, 0.98], 
-              opacity: [0.9, 1, 0.9]
+            key={i}
+            className="absolute rounded-full bg-white/5"
+            style={{
+              width: Math.random() * 200 + 50,
+              height: Math.random() * 200 + 50,
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
             }}
-            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-            className="flex justify-center"
-          >
-            <img src={require('./assets/logo.png')} alt="Dred Logo" className="h-12 w-12 md:h-20 md:w-20 rounded-xl" />
-          </motion.div>
-          <motion.h2 
-            className={`text-xl md:text-2xl font-semibold ${visualTextColor}`}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 0.5 }}
-          >
-            Secure. Simple. Smart.
-          </motion.h2>
-        </motion.div>
+            animate={{
+              x: [0, Math.random() * 50 - 25],
+              y: [0, Math.random() * 50 - 25],
+              scale: [1, 1.1, 1],
+              opacity: [0.03, 0.08, 0.03],
+            }}
+            transition={{
+              duration: Math.random() * 10 + 10,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
+        ))}
       </div>
 
-      {/* Right Side - Authentication Card */}
-      <motion.div
-        className="w-full md:w-1/2 flex items-center justify-center p-6 sm:p-10 md:p-16"
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        <motion.div 
-          className={`w-full max-w-sm space-y-6 ${cardBg} ${cardBackdropBlur} rounded-2xl p-8 border ${cardBorder} ${cardShadow} z-10 relative`}
-          initial={{ y: 10 }}
-          animate={{ 
-            y: [0, -5, 0],
-            boxShadow: [
-              `0 10px 30px -5px rgba(0, 0, 0, 0.1)`,
-              `0 20px 40px -5px rgba(0, 0, 0, 0.15)`,
-              `0 10px 30px -5px rgba(0, 0, 0, 0.1)`
-            ]
+      {/* Floating Particles */}
+      {[...Array(8)].map((_, i) => (
+        <motion.div
+          key={`particle-${i}`}
+          className="absolute w-1 h-1 bg-white/40 rounded-full"
+          style={{
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
           }}
-          transition={{ 
-            duration: 6, 
-            repeat: Infinity, 
-            ease: "easeInOut" 
+          animate={{
+            y: [0, -80, 0],
+            opacity: [0, 1, 0],
           }}
-        >
-          <motion.h1
-            className={`text-2xl md:text-3xl font-bold ${primaryTextColor} text-center`}
-            variants={itemVariants}
-          >
-            Sign in to Dred
-          </motion.h1>
-          
-          {/* Description with animated word */}
-          <motion.div 
-            className="pt-2 pb-4 text-center" 
-            variants={itemVariants}
-          >
-            <p className={`${featureTextColor} text-sm md:text-base`}>
-              A{" "}
-              <motion.span
-                key={descriptorIndex}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className={`inline-block font-medium ${highlightColor}`}
-              >
-                {descriptorWords[descriptorIndex]}
-              </motion.span>
-              {" "}digital card wallet
-            </p>
-          </motion.div>
+          transition={{
+            duration: Math.random() * 4 + 3,
+            repeat: Infinity,
+            delay: Math.random() * 5,
+          }}
+        />
+      ))}
 
-          {/* Sign In Button */}
-          <motion.button
-            onClick={signInWithGoogle}
-            disabled={isLoading}
-            className={`w-full flex items-center justify-center gap-3 px-4 py-3
-                        bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700
-                        text-white font-semibold rounded-xl shadow-md hover:shadow-lg
-                        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
-                        transition-all duration-200 ease-in-out
-                        ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
-            variants={buttonVariants}
-            whileHover={!isLoading ? "hover" : ""}
-            whileTap={!isLoading ? "tap" : ""}
+      {/* Main Content - Single Column, Mobile-First */}
+      <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
+        <div className="w-full max-w-md mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="space-y-12"
           >
-            {isLoading ? (
-              <div className="flex items-center gap-2">
-                <div className="w-5 h-5 border-2 border-white/50 border-t-white rounded-full animate-spin" />
-                <span>Authenticating...</span>
+            {/* Logo & Branding */}
+            <div className="text-center space-y-3 -mt-8">
+              <div className="flex items-center justify-center gap-2.5">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl blur-lg opacity-40"></div>
+                  <img 
+                    src={require('./assets/logo.png')} 
+                    alt="Dred" 
+                    className="relative h-12 w-12 rounded-xl"
+                  />
+                </div>
+                <div className="text-left">
+                  <h1 className="text-3xl font-bold text-white">Dred</h1>
+                  <p className="text-[10px] text-indigo-300">Digital Card Wallet</p>
+                </div>
               </div>
-            ) : (
+              <p className="text-sm text-gray-300">
+                Keep your cards{' '}
+                <AnimatePresence mode="wait">
+                  <motion.span
+                    key={descriptorIndex}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.4 }}
+                    className="text-purple-400 font-semibold"
+                  >
+                    {descriptorWords[descriptorIndex]}
+                  </motion.span>
+                </AnimatePresence>
+              </p>
+            </div>
+
+            {/* Auth Card - Enhanced */}
+            <div className="relative">
+              {/* Glow */}
+              <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-2xl blur-xl" />
+              
+              {/* Card Content */}
+              <div className="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-5 space-y-4 shadow-2xl">
+              {waitingForVerification ? (
+                /* Verification Waiting Screen - Compact */
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="text-center space-y-3"
+                >
+                  <div className="flex justify-center">
+                    <div className="relative">
+                      <motion.div
+                        className="w-16 h-16 border-4 border-indigo-600/30 border-t-indigo-600 rounded-full"
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      />
+                      <BiEnvelope className="absolute inset-0 m-auto text-2xl text-indigo-400" />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <h3 className="text-lg font-bold text-white">Check Your Email</h3>
+                    <p className="text-gray-300 text-xs">
+                      Verification link sent to
+                    </p>
+                    <p className="text-indigo-300 font-semibold text-sm">
+                      {auth.currentUser?.email}
+                    </p>
+                  </div>
+
+                  <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-2.5 space-y-1.5">
+                    <p className="text-yellow-200 text-[9px] leading-relaxed">
+                      📧 Click the link to verify. Page will auto-refresh.
+                    </p>
+                    <p className="text-orange-200 text-[8px] leading-relaxed">
+                      💡 Check spam/junk if not in inbox!
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-center gap-1.5 text-[10px] text-gray-400">
+                    <motion.div
+                      className="w-1.5 h-1.5 bg-indigo-400 rounded-full"
+                      animate={{ scale: [1, 1.5, 1], opacity: [1, 0.5, 1] }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                    />
+                    <span>Waiting...</span>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={async () => {
+                        try {
+                          if (auth.currentUser && !auth.currentUser.emailVerified) {
+                            await sendEmailVerification(auth.currentUser);
+                            alert('Email resent!');
+                          }
+                        } catch (error) {
+                          alert('Error. Try again.');
+                        }
+                      }}
+                      className="flex-1 py-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-[10px] text-indigo-300 transition-colors"
+                    >
+                      Resend
+                    </button>
+                    <button
+                      onClick={async () => {
+                        setWaitingForVerification(false);
+                        await auth.signOut();
+                        setEmail('');
+                        setPassword('');
+                        setDisplayName('');
+                      }}
+                      className="flex-1 py-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-[10px] text-gray-300 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </motion.div>
+              ) : (
               <>
-                <BiLogoGoogle className="w-6 h-6" />
-                Continue with Google
+                {/* Welcome Message */}
+                <div className="text-center">
+                  <h3 className="text-xl font-bold text-white">Hi There!</h3>
+                </div>
+
+                {/* Google Sign In - Primary with Badge */}
+                <div className="space-y-2">
+                  <motion.button
+                    onClick={signInWithGoogle}
+                    disabled={isLoading}
+                    className="w-full group relative overflow-hidden"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-indigo-400 to-purple-500 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <div className="relative flex items-center justify-center gap-2.5 py-3 text-white font-semibold text-sm">
+                      {isLoading && !showOtherMethods ? (
+                        <>
+                          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          <span>Signing in...</span>
+                        </>
+                      ) : (
+                        <>
+                          <BiLogoGoogle className="text-xl" />
+                          <span>Continue with Google</span>
+                        </>
+                      )}
+                    </div>
+                  </motion.button>
+                  <div className="flex items-center justify-center gap-1.5">
+                    <span className="text-[10px] text-green-400 font-medium">✓ Recommended</span>
+                    <span className="text-[10px] text-gray-500">•</span>
+                    <span className="text-[10px] text-gray-400">Fast & Secure</span>
+                  </div>
+                </div>
+
+              {/* Divider */}
+              <div className="relative py-2">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-white/20"></div>
+                </div>
+                <div className="relative flex justify-center">
+                  <button
+                    onClick={() => setShowOtherMethods(!showOtherMethods)}
+                    className="px-3 py-1 bg-gradient-to-br from-gray-900/90 via-gray-800/90 to-gray-900/90 text-gray-300 text-[10px] rounded-full hover:bg-gray-800 transition-all inline-flex items-center gap-1.5 border border-white/20 shadow-lg"
+                  >
+                    <BiEnvelope className="text-xs" />
+                    <span>Sign in with Email</span>
+                    {showOtherMethods ? <BiChevronUp className="text-xs" /> : <BiChevronDown className="text-xs" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Email Auth */}
+              <AnimatePresence>
+                {showOtherMethods && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="space-y-3 overflow-hidden"
+                  >
+                    {/* Warning - Compact */}
+                    <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-2">
+                      <p className="text-[9px] text-yellow-300 text-center">
+                        ⚠️ Email requires verification. Google is faster.
+                      </p>
+                    </div>
+
+                    {/* Email/Password Form */}
+                    <form onSubmit={handleEmailAuth} className="space-y-2">
+                          <div className="space-y-2">
+                            {authMode === 'signup' && (
+                              <div className="relative">
+                                <BiUser className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm" />
+                                <input
+                                  type="text"
+                                  placeholder="Full Name"
+                                  value={displayName}
+                                  onChange={(e) => setDisplayName(e.target.value)}
+                                  className="w-full pl-9 pr-3 py-2.5 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 text-xs focus:outline-none focus:border-indigo-400 focus:bg-white/10 transition-all"
+                                  required
+                                />
+                              </div>
+                            )}
+                            <div className="relative">
+                              <BiEnvelope className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm" />
+                              <input
+                                type="email"
+                                placeholder="Email Address"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className="w-full pl-9 pr-3 py-2.5 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 text-xs focus:outline-none focus:border-indigo-400 focus:bg-white/10 transition-all"
+                                required
+                              />
+                            </div>
+                            <div className="relative">
+                              <BiLockAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm" />
+                              <input
+                                type="password"
+                                placeholder="Password (min 6 characters)"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="w-full pl-9 pr-3 py-2.5 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 text-xs focus:outline-none focus:border-indigo-400 focus:bg-white/10 transition-all"
+                                required
+                                minLength={6}
+                              />
+                            </div>
+                          </div>
+
+                          {emailError && (
+                            <p className="text-[10px] text-red-400 text-center">{emailError}</p>
+                          )}
+
+                          <div className="grid grid-cols-2 gap-2">
+                            <button
+                              type="submit"
+                              onClick={() => setAuthMode('signin')}
+                              disabled={isLoading}
+                              className={`py-2 rounded-lg text-xs font-medium transition-all ${
+                                authMode === 'signin' 
+                                  ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/30' 
+                                  : 'bg-white/5 hover:bg-white/10 text-gray-300'
+                              }`}
+                            >
+                              Sign In
+                            </button>
+                            <button
+                              type="submit"
+                              onClick={() => setAuthMode('signup')}
+                              disabled={isLoading}
+                              className={`py-2 rounded-lg text-xs font-medium transition-all ${
+                                authMode === 'signup' 
+                                  ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/30' 
+                                  : 'bg-white/5 hover:bg-white/10 text-gray-300'
+                              }`}
+                            >
+                              Sign Up
+                            </button>
+                          </div>
+
+                          {authMode === 'signin' && (
+                            <button
+                              type="button"
+                              onClick={handleForgotPassword}
+                              className="w-full text-[10px] text-indigo-400 hover:text-indigo-300 transition-colors"
+                            >
+                              Forgot password?
+                            </button>
+                          )}
+
+                          {authMode === 'signup' && (
+                            <p className="text-[9px] text-yellow-200 text-center">
+                              📧 You'll need to verify your email
+                            </p>
+                          )}
+                        </form>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Footer */}
+              <div className="text-center space-y-2 pt-1">
+                <p className="text-[9px] text-gray-400 leading-relaxed">
+                  By continuing, you agree to our{' '}
+                  <button onClick={() => setActivePage('terms')} className="text-indigo-400 hover:text-indigo-300 underline transition-colors">
+                    Terms
+                  </button>
+                  {' '}and{' '}
+                  <button onClick={() => setActivePage('privacy')} className="text-indigo-400 hover:text-indigo-300 underline transition-colors">
+                    Privacy Policy
+                  </button>
+                </p>
+                <button 
+                  onClick={() => setActivePage('howItWorks')} 
+                  className="text-[10px] text-indigo-300 hover:text-indigo-200 transition-colors inline-flex items-center gap-1"
+                >
+                  <BiShieldQuarter className="text-xs" />
+                  <span>Learn about security</span>
+                </button>
+              </div>
               </>
-            )}
-          </motion.button>
-
-          {/* Terms and Privacy Text */}
-          <motion.p
-            className={`text-xs ${tertiaryTextColor} text-center pt-2`}
-            variants={itemVariants}
-          >
-            By continuing, you agree to our{' '}
-            <button
-              onClick={() => {
-                console.log("Auth.jsx: 'Terms of Service' clicked. Setting activePage to 'terms'.");
-                if (typeof setActivePage === 'function') {
-                  setActivePage('terms');
-                } else {
-                  console.error("Auth.jsx: setActivePage is not a function");
-                }
-              }}
-              className="text-indigo-400 hover:text-indigo-300 underline transition-colors duration-200"
-            >
-              Terms of Service
-            </button>
-            {' '}and{' '}
-            <button
-              onClick={() => {
-                console.log("Auth.jsx: 'Privacy Policy' clicked. Setting activePage to 'privacy'.");
-                if (typeof setActivePage === 'function') {
-                  setActivePage('privacy');
-                } else {
-                  console.error("Auth.jsx: setActivePage is not a function");
-                }
-              }}
-              className="text-indigo-400 hover:text-indigo-300 underline transition-colors duration-200"
-            >
-              Privacy Policy
-            </button>
-            .
-          </motion.p>
-
-          {/* Link to How It Works - Enhanced styling */}
-          <motion.div className="text-center pt-4" variants={itemVariants}>
-            <motion.button 
-              onClick={() => {
-                console.log("Auth.jsx: 'Learn more about security' clicked. Setting activePage to 'howItWorks'.");
-                if (typeof setActivePage === 'function') {
-                  setActivePage('howItWorks');
-                } else {
-                  console.error("Auth.jsx: setActivePage is not a function");
-                }
-              }}
-              className={`px-4 py-2 rounded-lg ${linkButtonBg} border ${linkButtonBorder} text-sm font-medium transition-colors duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              Learn more about security
-            </motion.button>
+              )}
+            </div>
+            </div>
           </motion.div>
-
-        </motion.div>
-      </motion.div>
-
+        </div>
+      </div>
     </div>
   );
 }

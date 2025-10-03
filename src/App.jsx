@@ -501,8 +501,8 @@ function App() {
       }} />;
     }
     
-    // If user is not logged in, show Auth screen
-    if (!user) {
+    // If user is not logged in OR email not verified, show Auth screen
+    if (!user || !user.emailVerified) {
       return (
         <Auth 
           setUser={() => {}} // This is handled by firebase hook now

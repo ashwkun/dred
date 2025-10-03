@@ -1258,11 +1258,23 @@ const HowItWorks = ({ setActivePage }) => {
         <Section icon={BiUserCheck} title="Authentication Flow">
           <p className="text-center text-sm md:text-base mb-2">How Dred verifies your identity while keeping your data secure:</p>
           <AuthenticationFlow />
-          <motion.div variants={itemVariants} className="mt-4">
+          <motion.div variants={itemVariants} className="mt-4 space-y-3">
             <p className="text-sm">
-              <strong className="text-white">Why this approach?</strong> By using both Google for identity verification and a Master Password that only you know,
-              we combine the convenience of Google login with strong encryption only you can unlock.
+              <strong className="text-white">Why this approach?</strong> By using authentication for identity verification and a Master Password that only you know,
+              we combine the convenience of secure login with strong encryption only you can unlock.
             </p>
+            <div className="bg-green-900/20 rounded-lg p-3 border border-green-500/30">
+              <p className="text-sm text-green-200">
+                <strong className="text-white">Authentication Methods Available:</strong>
+              </p>
+              <ul className="list-disc list-inside space-y-1 ml-4 text-xs text-gray-300 mt-2">
+                <li><strong className="text-green-300">Google Sign-In (Recommended):</strong> Fast, secure, no passwords to remember, easier account recovery</li>
+                <li><strong className="text-gray-300">Email/Password:</strong> Traditional authentication requiring email verification</li>
+              </ul>
+              <p className="text-[10px] text-yellow-200 mt-2">
+                💡 Google Sign-In is recommended for better security and user experience.
+              </p>
+            </div>
           </motion.div>
         </Section>
 
@@ -1348,19 +1360,50 @@ const HowItWorks = ({ setActivePage }) => {
         >
           <h3 className="text-white font-semibold mb-3 text-center">Legal & Privacy Information</h3>
           <div className="flex flex-wrap justify-center gap-3">
-            <button
-              onClick={() => setActivePage('privacy')}
+            <motion.button
+              onClick={() => {
+                console.log("HowItWorks: Privacy Policy link clicked");
+                setActivePage('privacy');
+              }}
               className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg border border-white/10 text-sm transition-colors"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               Privacy Policy
-            </button>
-            <button
-              onClick={() => setActivePage('terms')}
+            </motion.button>
+            <motion.button
+              onClick={() => {
+                console.log("HowItWorks: Terms of Service link clicked");
+                setActivePage('terms');
+              }}
               className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg border border-white/10 text-sm transition-colors"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               Terms of Service
-            </button>
+            </motion.button>
           </div>
+        </motion.div>
+
+        {/* Back to Sign In Button */}
+        <motion.div
+          className="mt-6 text-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+        >
+          <motion.button
+            onClick={() => {
+              console.log("HowItWorks: Back to Sign In clicked");
+              setActivePage('auth');
+            }}
+            className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 
+              text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all duration-200"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            Back to Sign In
+          </motion.button>
         </motion.div>
       </div>
     </div>

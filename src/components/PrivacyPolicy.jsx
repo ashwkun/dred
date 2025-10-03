@@ -97,12 +97,14 @@ const PrivacyPolicy = ({ setActivePage }) => {
           <motion.div variants={itemVariants}>
             <div className="space-y-3">
               <div className="bg-indigo-900/20 rounded-lg p-4 border border-indigo-500/20">
-                <h3 className="font-semibold text-white mb-2">Account Data (via Google)</h3>
+                <h3 className="font-semibold text-white mb-2">Account Data</h3>
                 <ul className="list-disc list-inside space-y-1 ml-4 text-sm">
-                  <li>Email address</li>
-                  <li>Profile picture</li>
-                  <li>User ID</li>
+                  <li><strong>Via Google Sign-In (Recommended):</strong> Email address, profile picture, User ID</li>
+                  <li><strong>Via Email/Phone Sign-Up:</strong> Email address or phone number you provide</li>
                 </ul>
+                <p className="text-green-200 text-xs mt-2 p-2 bg-green-900/30 rounded">
+                  <strong>Google Sign-In is recommended:</strong> Faster authentication and better security. No passwords to remember.
+                </p>
               </div>
               
               <div className="bg-purple-900/20 rounded-lg p-4 border border-purple-500/20">
@@ -123,7 +125,8 @@ const PrivacyPolicy = ({ setActivePage }) => {
         <Section icon={BiUserCheck} title="How We Use Your Data">
           <motion.div variants={itemVariants}>
             <ul className="list-disc list-inside space-y-2 ml-4">
-              <li><strong className="text-white">Authentication:</strong> Email and profile picture identify your account</li>
+              <li><strong className="text-white">Authentication:</strong> Email, phone number, or profile picture identify your account</li>
+              <li><strong className="text-white">Verification:</strong> Email/phone used to verify your account and send password reset links (when applicable)</li>
               <li><strong className="text-white">Service:</strong> Store and retrieve your encrypted card data</li>
               <li><strong className="text-white">Support:</strong> Provide customer assistance if needed</li>
             </ul>
