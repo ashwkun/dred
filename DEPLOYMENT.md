@@ -1,0 +1,184 @@
+# Firebase Deployment Guide
+
+## Current Configuration
+- **Default Environment**: Development
+- **Default URL**: https://dredbox-dev.web.app
+- **Deploy Command**: `firebase deploy --only hosting:dev`
+
+## How to Switch Environments
+
+### To Deploy to Production (https://dredbox.web.app)
+
+1. **Edit `.firebaserc`**:
+   ```json
+   {
+     "projects": {
+       "default": "dred-e6e59",
+       "dev": "dred-e6e59"
+     },
+     "targets": {
+       "dred-e6e59": {
+         "hosting": {
+           "production": [
+             "dredbox"
+           ]
+         }
+       }
+     },
+     "etags": {}
+   }
+   ```
+
+2. **Edit `firebase.json`**:
+   ```json
+   {
+     "hosting": [
+       {
+         "target": "production",
+         "public": "dist",
+         "ignore": [
+           "firebase.json",
+           "**/.*",
+           "**/node_modules/**"
+         ],
+         "rewrites": [
+           {
+             "source": "**",
+             "destination": "/index.html"
+           }
+         ],
+         "headers": [
+           {
+             "source": "/serviceWorker.js",
+             "headers": [
+               {
+                 "key": "Cache-Control",
+                 "value": "no-cache, no-store, must-revalidate"
+               },
+               {
+                 "key": "Pragma",
+                 "value": "no-cache"
+               },
+               {
+                 "key": "Expires",
+                 "value": "0"
+               }
+             ]
+           },
+           {
+             "source": "**/*.@(jpg|jpeg|gif|png|svg|webp|js|css|eot|otf|ttf|ttc|woff|woff2|font.css)",
+             "headers": [
+               {
+                 "key": "Cache-Control",
+                 "value": "max-age=604800"
+               }
+             ]
+           },
+           {
+             "source": "**",
+             "headers": [
+               {
+                 "key": "Strict-Transport-Security",
+                 "value": "max-age=31536000; includeSubDomains"
+               },
+               {
+                 "key": "X-Frame-Options",
+                 "value": "DENY"
+               },
+               {
+                 "key": "X-Content-Type-Options",
+                 "value": "nosniff"
+               },
+               {
+                 "key": "X-XSS-Protection",
+                 "value": "1; mode=block"
+               },
+               {
+                 "key": "Referrer-Policy",
+                 "value": "strict-origin-when-cross-origin"
+               },
+               {
+                 "key": "Permissions-Policy",
+                 "value": "camera=*, microphone=()"
+               },
+               {
+                 "key": "Content-Security-Policy",
+                 "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://*.firebaseapp.com https://*.googleapis.com https://*.google.com https://*.gstatic.com https://www.recaptcha.net https://www.google-analytics.com https://www.googletagmanager.com https://cdn.jsdelivr.net https://unpkg.com; worker-src 'self' blob: https://cdn.jsdelivr.net https://unpkg.com; connect-src 'self' data: blob: https://*.firebaseapp.com https://*.googleapis.com wss://*.firebaseio.com https://*.google.com https://www.recaptcha.net https://*.gstatic.com https://www.google-analytics.com https://fonts.gstatic.com https://lh3.googleusercontent.com https://www.googletagmanager.com https://cdn.jsdelivr.net https://unpkg.com; img-src 'self' data: blob: https://*.googleusercontent.com https://*.google.com https://*.googleapis.com https://lh3.googleusercontent.com https://lh3.google.com https://www.gstatic.com; media-src 'self' mediastream: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; frame-src 'self' https://*.firebaseapp.com https://*.google.com"
+               }
+             ]
+           }
+         ]
+       }
+     ],
+     "firestore": {
+       "rules": "firestore.rules"
+     }
+   }
+   ```
+
+3. **Deploy**:
+   ```bash
+   firebase deploy --only hosting:production
+   ```
+
+### To Deploy to Development (https://dredbox-dev.web.app)
+
+1. **Edit `.firebaserc`**:
+   ```json
+   {
+     "projects": {
+       "default": "dred-e6e59",
+       "dev": "dred-e6e59"
+     },
+     "targets": {
+       "dred-e6e59": {
+         "hosting": {
+           "dev": [
+             "dredbox-dev"
+           ]
+         }
+       }
+     },
+     "etags": {}
+   }
+   ```
+
+2. **Edit `firebase.json`**:
+   ```json
+   {
+     "hosting": [
+       {
+         "target": "dev",
+         "public": "dist",
+         "ignore": [
+           "firebase.json",
+           "**/.*",
+           "**/node_modules/**"
+         ],
+         "rewrites": [
+           {
+             "source": "**",
+             "destination": "/index.html"
+           }
+         ]
+       }
+     ],
+     "firestore": {
+       "rules": "firestore.rules"
+     }
+   }
+   ```
+
+3. **Deploy**:
+   ```bash
+   firebase deploy --only hosting:dev
+   ```
+
+## Current Status
+- ✅ Development environment is active
+- ❌ Production environment is disabled
+- 🔄 All new releases go to: https://dredbox-dev.web.app
+
+## Quick Commands
+- **Deploy to Dev**: `firebase deploy --only hosting:dev`
+- **Deploy to Prod**: `firebase deploy --only hosting:production` (after switching configs) 

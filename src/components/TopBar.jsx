@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import logo from "../assets/logo.png";
 import { BiDownload, BiLogOut, BiSun, BiMoon } from 'react-icons/bi';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -43,13 +42,7 @@ export default function TopBar({
           <div className="flex items-center justify-between">
             {/* Left - Logo and Title */}
             <div className="flex items-center gap-3">
-              <motion.img 
-                src={logo} 
-                alt="Dred" 
-                className="h-7"
-                whileHover={{ scale: 1.05 }}
-                transition={{ duration: 0.2 }}
-              />
+              <img src={require('../assets/logo.png')} alt="Dred Logo" className="h-8 w-8 rounded-xl bg-gradient-to-br from-indigo-600 via-purple-600 to-indigo-700 p-1.5" />
               <div className="flex flex-col">
                 <span className={`text-white ${currentThemeData.font.heading} text-lg`}>Dred</span>
                 {title && (

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth } from "./firebase";
 import { BiLogoGoogle, BiSun, BiMoon } from 'react-icons/bi';
-import logo from "./assets/logo.png";
 import { motion } from 'framer-motion';
 
 // Animation variants
@@ -180,8 +179,9 @@ export default function Auth({ setUser = () => {}, setActivePage, mode, toggleMo
               opacity: [0.9, 1, 0.9]
             }}
             transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+            className="flex justify-center"
           >
-            <img src={logo} alt="Dred Logo" className="h-16 md:h-24 mx-auto mb-4 drop-shadow-lg" />
+            <img src={require('./assets/logo.png')} alt="Dred Logo" className="h-12 w-12 md:h-20 md:w-20 rounded-xl" />
           </motion.div>
           <motion.h2 
             className={`text-xl md:text-2xl font-semibold ${visualTextColor}`}

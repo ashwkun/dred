@@ -81,7 +81,7 @@ function CardCustomization({ cardHolder, cardNumber, bankName, networkName, expi
         <div className="absolute inset-0 backdrop-blur-sm bg-white/5" />
 
         {/* Card content */}
-        <div className="relative h-full p-6 flex flex-col justify-between">
+        <div className="relative h-full p-6 flex flex-col justify-between z-10">
           {/* Bank Logo */}
           <div className="h-6 md:h-8 w-24 md:w-32">
             <LogoWithFallback

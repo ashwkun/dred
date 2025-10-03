@@ -385,9 +385,8 @@ function ViewCards({
                 />
 
                 {/* Glassmorphic Layers */}
-                <div className="absolute inset-0 backdrop-blur-sm bg-black/5" />
+                <div className="absolute inset-0 backdrop-blur-sm bg-white/5" />
                 <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent" />
-                <div className="absolute inset-0 shadow-[inset_0_0_100px_rgba(0,0,0,0.2)]" />
                 
                 {/* Subtle Pattern Overlay */}
                 <div className="absolute inset-0 opacity-10"
@@ -398,7 +397,7 @@ function ViewCards({
                 />
 
                 {/* Card Content */}
-                <div className="relative h-full p-6 flex flex-col justify-between">
+                <div className="relative h-full p-6 flex flex-col justify-between z-10">
                   {/* Timer when showing details */}
                   {isShowingDetails && <CountdownTimer />}
 

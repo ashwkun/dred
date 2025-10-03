@@ -1,7 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { BiCreditCard, BiAddToQueue, BiWallet as BiBillPay, BiCog, BiLogOut, BiDownload } from 'react-icons/bi';
-import logo from "../assets/logo.png";
 import { useTheme } from '../contexts/ThemeContext';
 
 export default function Sidebar({ activePage, setActivePage, cards, user, onSignOut, onInstall, isAppInstalled, deferredPrompt }) {

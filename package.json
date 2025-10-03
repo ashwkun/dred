@@ -3,13 +3,19 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "parcel serve public/index.html",
-    "build": "parcel build public/index.html --public-url ./ --no-cache",
+    "build": "parcel build public/index.html --no-cache && cp public/serviceWorker.js dist/ && cp -R static dist/",
     "test": "echo \"Error: no test specified\" && exit 1",
     "deploy": "npm run build && firebase deploy --only hosting:production",
     "deploy:dev": "npm run build && firebase hosting:channel:deploy dev",
+    "deploy:dev:site": "npm run build && firebase deploy --only hosting:dev",
     "deploy:preview": "npm run build && firebase hosting:channel:deploy preview-main",
     "c": "sh scripts/deploy.sh",
     "c:dev": "sh scripts/deploy.sh --dev"
+  },
+  "parcel": {
+    "cache": false,
+    "no-source-maps": true,
+    "no-scope-hoist": true
   },
   "keywords": [],
   "author": "",

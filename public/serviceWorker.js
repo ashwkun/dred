@@ -3,9 +3,8 @@ const urlsToCache = [
   './',
   './index.html',
   './manifest.webmanifest',
-  './icons/icon-192.png',
-  './icons/icon-512.png',
-  './logo.png',
+  '/static/icons/icon-192.png',
+  '/static/icons/icon-512.png',
   './offline.html'
 ];
 
@@ -55,37 +54,51 @@ self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
       .then(response => {
+        // Return cached response if available
         if (response) {
           return response;
         }
 
-        // Clone the request - fixes the 'Failed to convert value to Response' error
-        const fetchRequest = event.request.clone();
-
-        return fetch(fetchRequest)
+        // If not in cache, try to fetch it
+        return fetch(event.request.clone())
           .then(response => {
-            // Don't cache if not a valid response
+            // Check if we received a valid response
             if (!response || response.status !== 200 || response.type !== 'basic') {
               return response;
             }
 
-            const responseToCache = response.clone();
-            caches.open(CACHE_NAME)
-              .then(cache => {
-                try {
-                  cache.put(event.request, responseToCache);
-                } catch (error) {
-                  console.error('Cache put error:', error);
-                }
-              });
+            // Clone the response for caching
+            try {
+              const responseToCache = response.clone();
+              caches.open(CACHE_NAME)
+                .then(cache => {
+                  try {
+                    cache.put(event.request, responseToCache);
+                  } catch (error) {
+                    console.error('Cache put error:', error);
+                  }
+                })
+                .catch(error => {
+                  console.error('Cache open error:', error);
+                });
+            } catch (error) {
+              console.error('Response clone error:', error);
+            }
 
             return response;
           })
           .catch(error => {
             console.error('Fetch error:', error);
+            
             // Return offline page for navigation requests
             if (event.request.mode === 'navigate') {
               return caches.match('./offline.html');
+            }
+            
+            // For image requests, you could return a fallback image
+            if (event.request.destination === 'image') {
+              // Removed fallback for logo.png, let it fail naturally if fetch fails
+              // return caches.match('./logo.png'); 
             }
             
             // For other requests, just propagate the error

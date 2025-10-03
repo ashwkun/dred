@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { signOut } from "firebase/auth";
 import { auth, db } from "./firebase";
-import logo from "./assets/logo.png";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import ValidationAnimation from "./components/ValidationAnimation";
 import { securityManager } from "./utils/security";
@@ -395,24 +394,16 @@ function MasterPasswordPrompt({ setMasterPassword, user, setActivePage, mode, to
       
       {/* Content */}
       <div className="w-full flex flex-col items-center min-h-screen py-8 z-10 relative">
-        {/* Top Logo Section - enhanced animation */}
+        {/* Top Logo Section - enhanced with DredLogo component */}
         <motion.div 
           className="relative mb-8 md:mb-12 text-center z-20"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
         >
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0.8 }}
-            animate={{ 
-              scale: [0.98, 1.02, 0.98], 
-              opacity: [0.9, 1, 0.9]
-            }}
-            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-            className="relative z-20"
-          >
-            <img src={logo} alt="Dred Logo" className="h-16 md:h-24 mx-auto mb-4 drop-shadow-lg" />
-          </motion.div>
+          <div className="flex justify-center mb-4">
+            <img src={require('./assets/logo.png')} alt="Dred Logo" className="h-20 w-20 md:h-28 md:w-28 rounded-3xl" />
+          </div>
           <motion.h1 
             className={`text-2xl md:text-3xl font-bold ${primaryTextColor} z-20 relative`}
             initial={{ opacity: 0 }}

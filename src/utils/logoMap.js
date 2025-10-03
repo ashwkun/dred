@@ -186,10 +186,10 @@ import yesbankSymbolSVG from "url:../assets/logos/yesbank/symbol.svg";
 // Bank logos mapping
 export const bankLogos = {
   amex: {
-    logoPNG: ausmallfinancebankLogoPNG,
-    logoSVG: amexLogoSVG,
-    symbolPNG: ausmallfinancebankSymbolPNG,
-    symbolSVG: ausmallfinancebankSymbolSVG,
+    logoPNG: amex,
+    logoSVG: amex,
+    symbolPNG: amex,
+    symbolSVG: amex,
   },
 
   ausmallfinancebank: {
