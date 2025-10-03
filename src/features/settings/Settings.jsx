@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../contexts/ThemeContext';
-import { collection, query, where, getDocs, deleteDoc, doc, orderBy, writeBatch, serverTimestamp, getDoc } from "firebase/firestore";
+import { collection, query, where, getDocs, deleteDoc, doc, orderBy, writeBatch, serverTimestamp, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 import CryptoJS from "crypto-js";
 import Dialog from '../../components/Dialog';
@@ -20,6 +20,7 @@ function Settings({ user, masterPassword, showSuccessMessage }) {
     resetCustomizations: resetThemeCustomizations 
   } = useTheme();
   const [showDeleteCards, setShowDeleteCards] = useState(false);
+  const [showEditCards, setShowEditCards] = useState(false);
   const [showThemes, setShowThemes] = useState(false);
   const [showRefresh, setShowRefresh] = useState(false);
   const [showReorder, setShowReorder] = useState(false);
@@ -27,6 +28,15 @@ function Settings({ user, masterPassword, showSuccessMessage }) {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [reorderLoading, setReorderLoading] = useState(false);
+  const [editingCard, setEditingCard] = useState(null);
+  const [editForm, setEditForm] = useState({
+    cardHolder: '',
+    expiry: '',
+    cvv: '',
+    theme: '',
+    cardType: ''
+  });
+  const [editLoading, setEditLoading] = useState(false);
   const [dialog, setDialog] = useState({
     isOpen: false,
     title: '',
@@ -59,6 +69,11 @@ function Settings({ user, masterPassword, showSuccessMessage }) {
             cardType: securityManager.decryptData(doc.data().cardType, masterPassword),
             bankName: securityManager.decryptData(doc.data().bankName, masterPassword),
             cardNumber: securityManager.decryptData(doc.data().cardNumber, masterPassword),
+            cardHolder: securityManager.decryptData(doc.data().cardHolder, masterPassword),
+            expiry: securityManager.decryptData(doc.data().expiry, masterPassword),
+            cvv: securityManager.decryptData(doc.data().cvv, masterPassword),
+            networkName: securityManager.decryptData(doc.data().networkName, masterPassword),
+            theme: doc.data().theme,
             priority: doc.data().priority,
             createdAt: doc.data().createdAt
           };
@@ -249,6 +264,108 @@ function Settings({ user, masterPassword, showSuccessMessage }) {
     showSuccessMessage('All customizations reset');
   };
 
+  // Edit card functions
+  const handleEditCardClick = async (card) => {
+    try {
+      // Decrypt theme if it's encrypted
+      let decryptedTheme = card.theme;
+      if (typeof card.theme === 'string' && card.theme.startsWith('U2F')) {
+        decryptedTheme = securityManager.decryptData(card.theme, masterPassword);
+      }
+
+      setEditingCard(card);
+      setEditForm({
+        cardHolder: card.cardHolder,
+        expiry: card.expiry,
+        cvv: card.cvv,
+        theme: decryptedTheme || '#6a3de8',
+        cardType: card.cardType
+      });
+    } catch (error) {
+      console.error('Error preparing card for edit:', error);
+      setDialog({
+        isOpen: true,
+        title: 'Error',
+        message: 'Failed to load card details. Please try again.',
+        type: 'danger',
+        onConfirm: closeDialog
+      });
+    }
+  };
+
+  const handleUpdateCard = async () => {
+    setEditLoading(true);
+    try {
+      // Validate expiry format (MM/YY)
+      if (!/^(0[1-9]|1[0-2])\/([0-9]{2})$/.test(editForm.expiry)) {
+        throw new Error("Please enter expiry in MM/YY format");
+      }
+
+      // Validate CVV format (3-4 digits)
+      if (!/^\d{3,4}$/.test(editForm.cvv)) {
+        throw new Error("Please enter a valid 3 or 4 digit CVV");
+      }
+
+      // Validate card holder name
+      if (!editForm.cardHolder || editForm.cardHolder.trim().length < 2) {
+        throw new Error("Please enter a valid card holder name");
+      }
+
+      // Prepare update data - re-encrypt sensitive fields
+      const updateData = {
+        cardHolder: securityManager.encryptData(editForm.cardHolder, masterPassword),
+        expiry: securityManager.encryptData(editForm.expiry, masterPassword),
+        cvv: securityManager.encryptData(editForm.cvv, masterPassword),
+        cardType: securityManager.encryptData(editForm.cardType, masterPassword),
+        theme: editForm.theme,
+        updatedAt: serverTimestamp()
+      };
+
+      // Update in Firestore
+      const cardRef = doc(db, "cards", editingCard.id);
+      await updateDoc(cardRef, updateData);
+
+      // Update local state
+      setCards(cards.map(card => 
+        card.id === editingCard.id 
+          ? { ...card, ...editForm }
+          : card
+      ));
+
+      showSuccessMessage('Card updated successfully!');
+      setEditingCard(null);
+      setEditForm({
+        cardHolder: '',
+        expiry: '',
+        cvv: '',
+        theme: '',
+        cardType: ''
+      });
+    } catch (error) {
+      console.error('Error updating card:', error);
+      setDialog({
+        isOpen: true,
+        title: 'Update Failed',
+        message: error.message || 'Failed to update card. Please try again.',
+        type: 'danger',
+        onConfirm: closeDialog
+      });
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingCard(null);
+    setEditForm({
+      cardHolder: '',
+      expiry: '',
+      cvv: '',
+      theme: '',
+      cardType: ''
+    });
+  };
+
   return (
     <div className="container mx-auto px-4 py-6">
       {/* Header Section */}
@@ -323,6 +440,78 @@ function Settings({ user, masterPassword, showSuccessMessage }) {
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
                             d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" 
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Edit Cards Section */}
+        <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20">
+          <button
+            onClick={() => {
+              setShowEditCards(!showEditCards);
+              if (!showEditCards) loadCards();
+            }}
+            className="w-full p-6 text-left flex items-center justify-between"
+          >
+            <div>
+              <h3 className="text-lg font-medium text-white">Edit Cards</h3>
+              <p className="text-sm text-white/70">Update card details</p>
+            </div>
+            <svg
+              className={`w-6 h-6 text-white/70 transition-transform ${showEditCards ? 'rotate-180' : ''}`}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          {showEditCards && (
+            <div className="px-6 pb-6">
+              {loading ? (
+                <div className="text-white/70 text-center py-4">
+                  <div className="animate-spin w-6 h-6 border-2 border-white/20 border-t-white rounded-full mx-auto mb-2"></div>
+                  Loading cards...
+                </div>
+              ) : cards.length === 0 ? (
+                <div className="bg-white/5 rounded-lg border border-white/10 p-4 text-center">
+                  <p className="text-white/70">No saved cards found</p>
+                  <button 
+                    onClick={() => setActivePage("addCard")}
+                    className="mt-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white text-sm transition-colors"
+                  >
+                    Add a Card
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {cards.map(card => (
+                    <div
+                      key={card.id}
+                      className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10"
+                    >
+                      <div>
+                        <p className="text-white font-medium">{card.cardType}</p>
+                        <p className="text-sm text-white/70">
+                          {card.bankName} •••• {card.cardNumber.slice(-4)}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => handleEditCardClick(card)}
+                        className="p-2 text-indigo-400 hover:text-indigo-300 hover:bg-indigo-500/10 rounded-lg transition-colors"
+                        title="Edit card"
+                      >
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" 
                           />
                         </svg>
                       </button>
@@ -716,6 +905,157 @@ function Settings({ user, masterPassword, showSuccessMessage }) {
         </div>
       </div>
 
+      {/* Edit Card Modal */}
+      {editingCard && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+          <div className="relative bg-black/30 backdrop-blur-xl border border-white/20 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl">
+            <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none"></div>
+            
+            {/* Header */}
+            <div className="p-6 relative z-10 border-b border-white/10">
+              <div className="flex items-start justify-between mb-4">
+                <h3 className="text-lg font-semibold text-white">Edit Card Details</h3>
+                <button
+                  onClick={handleCancelEdit}
+                  className="text-white/60 hover:text-white transition-colors p-1 rounded-full hover:bg-white/10"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <p className="text-sm text-white/70">
+                {editingCard.bankName} •••• {editingCard.cardNumber.slice(-4)}
+              </p>
+            </div>
+
+            {/* Form */}
+            <div className="p-6 relative z-10 space-y-4 max-h-[60vh] overflow-y-auto">
+              {/* Card Holder Name */}
+              <div>
+                <label className="block text-white/70 text-sm font-medium mb-2">
+                  Card Holder Name
+                </label>
+                <input
+                  type="text"
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
+                    text-white placeholder-white/30 focus:outline-none focus:ring-2 
+                    focus:ring-indigo-500/30 focus:border-transparent backdrop-blur-sm
+                    transition-all duration-200"
+                  value={editForm.cardHolder}
+                  onChange={(e) => setEditForm({ ...editForm, cardHolder: e.target.value })}
+                  placeholder="Name on card"
+                />
+              </div>
+
+              {/* Card Type */}
+              <div>
+                <label className="block text-white/70 text-sm font-medium mb-2">
+                  Card Type
+                </label>
+                <select
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
+                    text-white focus:outline-none focus:ring-2 
+                    focus:ring-indigo-500/30 focus:border-transparent backdrop-blur-sm
+                    transition-all duration-200"
+                  value={editForm.cardType}
+                  onChange={(e) => setEditForm({ ...editForm, cardType: e.target.value })}
+                >
+                  <option value="Credit Card" className="bg-gray-900">Credit Card</option>
+                  <option value="Debit Card" className="bg-gray-900">Debit Card</option>
+                </select>
+              </div>
+
+              {/* Expiry Date */}
+              <div>
+                <label className="block text-white/70 text-sm font-medium mb-2">
+                  Expiry Date (MM/YY)
+                </label>
+                <input
+                  type="text"
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
+                    text-white placeholder-white/30 focus:outline-none focus:ring-2 
+                    focus:ring-indigo-500/30 focus:border-transparent backdrop-blur-sm
+                    transition-all duration-200"
+                  value={editForm.expiry}
+                  onChange={(e) => {
+                    let value = e.target.value.replace(/\D/g, '');
+                    if (value.length >= 2) {
+                      value = value.slice(0, 2) + '/' + value.slice(2, 4);
+                    }
+                    setEditForm({ ...editForm, expiry: value });
+                  }}
+                  placeholder="MM/YY"
+                  maxLength={5}
+                />
+              </div>
+
+              {/* CVV */}
+              <div>
+                <label className="block text-white/70 text-sm font-medium mb-2">
+                  CVV
+                </label>
+                <input
+                  type="text"
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
+                    text-white placeholder-white/30 focus:outline-none focus:ring-2 
+                    focus:ring-indigo-500/30 focus:border-transparent backdrop-blur-sm
+                    transition-all duration-200"
+                  value={editForm.cvv}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, '').slice(0, 4);
+                    setEditForm({ ...editForm, cvv: value });
+                  }}
+                  placeholder="CVV"
+                  maxLength={4}
+                />
+              </div>
+
+              {/* Theme Color */}
+              <div>
+                <label className="block text-white/70 text-sm font-medium mb-2">
+                  Card Theme
+                </label>
+                <div className="flex gap-2 flex-wrap">
+                  {['#6a3de8', '#e8453d', '#3de85c', '#e8d53d', '#3d8ee8', '#e83da8', '#3de8d5', '#ff6b35'].map((color) => (
+                    <button
+                      key={color}
+                      onClick={() => setEditForm({ ...editForm, theme: color })}
+                      className={`w-10 h-10 rounded-full transition-all ${
+                        editForm.theme === color ? 'ring-2 ring-white ring-offset-2 ring-offset-gray-900 scale-110' : ''
+                      }`}
+                      style={{ backgroundColor: color }}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="border-t border-white/10 relative z-10 flex">
+              <button
+                onClick={handleCancelEdit}
+                disabled={editLoading}
+                className="flex-1 px-4 py-3.5 text-sm font-medium text-white/80
+                  hover:bg-white/10 transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleUpdateCard}
+                disabled={editLoading}
+                className="flex-1 px-4 py-3.5 text-sm font-medium transition-all shadow-sm
+                  bg-gradient-to-r from-indigo-500/30 to-purple-600/30 hover:from-indigo-500/40 
+                  hover:to-purple-600/40 text-white border-l border-white/10 disabled:opacity-50
+                  disabled:cursor-not-allowed"
+              >
+                {editLoading ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Dialog Component */}
       <Dialog
         isOpen={dialog.isOpen}
@@ -729,6 +1069,7 @@ function Settings({ user, masterPassword, showSuccessMessage }) {
       {showSuccess && <SuccessAnimation message={successMessage} />}
       
       {reorderLoading && <LoadingOverlay message="Updating card order" />}
+      {editLoading && <LoadingOverlay message="Updating card details" />}
     </div>
   );
 }
