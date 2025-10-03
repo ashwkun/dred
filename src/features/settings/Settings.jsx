@@ -66,14 +66,14 @@ function Settings({ user, masterPassword, showSuccessMessage }) {
         try {
           return {
             id: doc.id,
-            cardType: securityManager.decryptData(doc.data().cardType, masterPassword),
+            cardType: doc.data().cardType, // Plain text, not encrypted
             bankName: securityManager.decryptData(doc.data().bankName, masterPassword),
             cardNumber: securityManager.decryptData(doc.data().cardNumber, masterPassword),
             cardHolder: securityManager.decryptData(doc.data().cardHolder, masterPassword),
             expiry: securityManager.decryptData(doc.data().expiry, masterPassword),
             cvv: securityManager.decryptData(doc.data().cvv, masterPassword),
             networkName: securityManager.decryptData(doc.data().networkName, masterPassword),
-            theme: doc.data().theme,
+            theme: doc.data().theme, // Plain text, not encrypted
             priority: doc.data().priority,
             createdAt: doc.data().createdAt
           };
@@ -316,8 +316,8 @@ function Settings({ user, masterPassword, showSuccessMessage }) {
         cardHolder: securityManager.encryptData(editForm.cardHolder, masterPassword),
         expiry: securityManager.encryptData(editForm.expiry, masterPassword),
         cvv: securityManager.encryptData(editForm.cvv, masterPassword),
-        cardType: securityManager.encryptData(editForm.cardType, masterPassword),
-        theme: editForm.theme,
+        cardType: editForm.cardType, // Plain text, not encrypted
+        theme: editForm.theme, // Plain text, not encrypted
         updatedAt: serverTimestamp()
       };
 
