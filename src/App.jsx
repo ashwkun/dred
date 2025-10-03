@@ -33,7 +33,17 @@ import { ThemedLoading, ThemedLoadingOverlay } from "./components/LoadingAnimati
 function App() {
   const [user, loading] = useAuthState(auth);
   const [masterPassword, setMasterPassword] = useState(null);
-  const [activePage, setActivePage] = useState("viewCards");
+  
+  // Initialize activePage from URL hash if present
+  const getInitialPage = () => {
+    const hash = window.location.hash.slice(1); // Remove the #
+    if (hash === '/privacy') return 'privacy';
+    if (hash === '/terms') return 'terms';
+    if (hash === '/howItWorks') return 'howItWorks';
+    return user ? "viewCards" : "auth";
+  };
+  
+  const [activePage, setActivePage] = useState(getInitialPage());
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState("Success!");
   const [deferredPrompt, setDeferredPrompt] = useState(null);
@@ -62,6 +72,35 @@ function App() {
   const hadInitialAuthRef = useRef(false);
 
   console.log(`App.jsx: Current activePage state: ${activePage}`);
+
+  // Sync URL hash with activePage
+  useEffect(() => {
+    const pageToHash = {
+      'privacy': '/privacy',
+      'terms': '/terms',
+      'howItWorks': '/howItWorks'
+    };
+    
+    if (pageToHash[activePage]) {
+      window.location.hash = pageToHash[activePage];
+    } else if (activePage === 'auth') {
+      window.location.hash = '';
+    }
+  }, [activePage]);
+
+  // Listen for hash changes (browser back/forward)
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.slice(1);
+      if (hash === '/privacy') setActivePage('privacy');
+      else if (hash === '/terms') setActivePage('terms');
+      else if (hash === '/howItWorks') setActivePage('howItWorks');
+      else if (hash === '' && !user) setActivePage('auth');
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, [user]);
 
   // Helper function to show success message
   const showSuccessMessage = (message = "Success!") => {
