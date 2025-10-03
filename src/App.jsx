@@ -14,6 +14,7 @@ import { useTheme } from './contexts/ThemeContext';
 import Sidebar from "./components/Sidebar";
 import MobileNav from "./components/MobileNav";
 import HowItWorks from "./components/HowItWorks";
+import TermsAndConditions from "./components/TermsAndConditions";
 import { collection, getDocs, query, where, doc, updateDoc, onSnapshot } from "firebase/firestore";
 import CryptoJS from "crypto-js";
 import { db } from "./firebase";
@@ -420,6 +421,8 @@ function App() {
         return "Settings";
       case "howItWorks":
         return "How It Works";
+      case "terms":
+        return "Terms of Service";
       default:
         return "Dashboard";
     }
@@ -437,6 +440,14 @@ function App() {
           console.log(`App.jsx: HowItWorks - Going to ${page}`);
           setActivePage(page);
         }
+      }} />;
+    }
+
+    // Special case: Allow viewing Terms without authentication
+    if (activePage === "terms") {
+      return <TermsAndConditions setActivePage={(page) => {
+        console.log(`App.jsx: TermsAndConditions - Going to ${page}`);
+        setActivePage(page);
       }} />;
     }
     

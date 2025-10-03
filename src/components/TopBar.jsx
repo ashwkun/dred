@@ -42,7 +42,7 @@ export default function TopBar({
           <div className="flex items-center justify-between">
             {/* Left - Logo and Title */}
             <div className="flex items-center gap-3">
-              <img src={require('../assets/logo.png')} alt="Dred Logo" className="h-8 w-8 rounded-xl bg-gradient-to-br from-indigo-600 via-purple-600 to-indigo-700 p-1.5" />
+              <img src={require('../assets/logo.png')} alt="Dred Logo" className="h-8 w-8 rounded-xl" />
               <div className="flex flex-col">
                 <span className={`text-white ${currentThemeData.font.heading} text-lg`}>Dred</span>
                 {title && (

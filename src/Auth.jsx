@@ -277,7 +277,21 @@ export default function Auth({ setUser = () => {}, setActivePage, mode, toggleMo
             className={`text-xs ${tertiaryTextColor} text-center pt-2`}
             variants={itemVariants}
           >
-            By continuing, you agree to our Terms of Service.
+            By continuing, you agree to our{' '}
+            <button
+              onClick={() => {
+                console.log("Auth.jsx: 'Terms of Service' clicked. Setting activePage to 'terms'.");
+                if (typeof setActivePage === 'function') {
+                  setActivePage('terms');
+                } else {
+                  console.error("Auth.jsx: setActivePage is not a function");
+                }
+              }}
+              className="text-indigo-400 hover:text-indigo-300 underline transition-colors duration-200"
+            >
+              Terms of Service
+            </button>
+            .
           </motion.p>
 
           {/* Link to How It Works - Enhanced styling */}
