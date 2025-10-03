@@ -238,11 +238,15 @@ function App() {
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
       const isIOSInstalled = window.navigator.standalone === true;
       const isAndroidInstalled = document.referrer.includes('android-app://');
-      
-      console.log('Install check:', { isStandalone, isIOSInstalled, isAndroidInstalled });
-      setIsAppInstalled(isStandalone || isIOSInstalled || isAndroidInstalled);
+
+      const currentlyInstalled = isStandalone || isIOSInstalled || isAndroidInstalled;
+      console.log('Install check:', { isStandalone, isIOSInstalled, isAndroidInstalled, currentlyInstalled });
+
+      // Only update if the state actually changed to avoid unnecessary re-renders
+      setIsAppInstalled(prev => currentlyInstalled !== prev ? currentlyInstalled : prev);
     };
 
+    // Initial check on load
     checkInstallation();
 
     // Listen for install prompt
@@ -250,7 +254,7 @@ function App() {
       e.preventDefault();
       console.log('Install prompt detected');
       setDeferredPrompt(e);
-      setIsAppInstalled(false);
+      setIsAppInstalled(false); // Browser wants to show install, so app can't be installed
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstall);
@@ -262,7 +266,7 @@ function App() {
       setDeferredPrompt(null);
     });
 
-    // Listen for display mode changes
+    // Listen for display mode changes (when app is launched from home screen)
     const mediaQuery = window.matchMedia('(display-mode: standalone)');
     const handleDisplayModeChange = (e) => {
       console.log('Display mode changed:', e.matches);
@@ -270,10 +274,19 @@ function App() {
     };
     mediaQuery.addEventListener('change', handleDisplayModeChange);
 
+    // Listen for visibility change to recheck when user returns to tab
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        checkInstallation();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
       window.removeEventListener('appinstalled', () => {});
       mediaQuery.removeEventListener('change', handleDisplayModeChange);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
 
@@ -373,8 +386,41 @@ function App() {
   };
 
   const handleInstallClick = () => {
-    console.log('Install clicked, deferredPrompt:', deferredPrompt);
-    if (!deferredPrompt) return;
+    console.log('Install clicked, deferredPrompt:', deferredPrompt, 'isAppInstalled:', isAppInstalled);
+
+    if (isAppInstalled) {
+      // App is already installed, show a message
+      setDialog({
+        isOpen: true,
+        title: 'App Already Installed',
+        message: 'Dred is already installed on your device. You can find it on your home screen or in your app drawer.',
+        confirmText: 'OK',
+        cancelText: null,
+        type: 'default',
+        onConfirm: () => {
+          setDialog(prev => ({ ...prev, isOpen: false }));
+        }
+      });
+      return;
+    }
+
+    if (!deferredPrompt) {
+      // Browser doesn't support PWA installation
+      setDialog({
+        isOpen: true,
+        title: 'Installation Not Available',
+        message: 'Your browser doesn\'t support PWA installation, or installation is not available right now.',
+        confirmText: 'OK',
+        cancelText: null,
+        type: 'default',
+        onConfirm: () => {
+          setDialog(prev => ({ ...prev, isOpen: false }));
+        }
+      });
+      return;
+    }
+
+    // Normal installation flow
     setDialog({
       isOpen: true,
       title: 'Install Dred',
@@ -509,6 +555,10 @@ function App() {
           setActivePage={changeActivePage} 
           mode={mode} 
           toggleMode={toggleMode}
+          deferredPrompt={deferredPrompt}
+          isAppInstalled={isAppInstalled}
+          onInstall={handleInstallClick}
+          setDialog={setDialog}
         />
       );
     }
@@ -516,12 +566,16 @@ function App() {
     // If user is logged in but master password not set, show prompt
     if (!masterPassword) {
       return (
-        <MasterPasswordPrompt 
-          setMasterPassword={setMasterPassword} 
-          user={user} 
+        <MasterPasswordPrompt
+          setMasterPassword={setMasterPassword}
+          user={user}
           setActivePage={changeActivePage}
           mode={mode}
           toggleMode={toggleMode}
+          deferredPrompt={deferredPrompt}
+          isAppInstalled={isAppInstalled}
+          onInstall={handleInstallClick}
+          setDialog={setDialog}
           onPasswordSubmit={(password) => {
             console.log("App.jsx: Password submitted in MasterPasswordPrompt");
             setMasterPassword(password);
@@ -621,7 +675,6 @@ function App() {
         
         {/* Shared UI Elements */}
         {showSuccess && <SuccessAnimation message={successMessage} />}
-        {renderDialog()}
       </div>
     );
   };
@@ -654,7 +707,12 @@ function App() {
     );
   }
 
-  return renderContent();
+  return (
+    <>
+      {renderContent()}
+      {renderDialog()}
+    </>
+  );
 }
 
 export default App;

@@ -54,7 +54,7 @@ export default function TopBar({
             {/* Right - Actions */}
             <div className="flex items-center gap-3" ref={profileRef}>
               {/* Install Button */}
-              {deferredPrompt && (
+              {deferredPrompt && !isAppInstalled && (
                 <motion.button
                   onClick={onInstall}
                   className={`flex items-center gap-1.5 px-3 py-1.5 
@@ -77,11 +77,21 @@ export default function TopBar({
                   whileHover={{ scale: 1.05, borderColor: 'rgba(255, 255, 255, 0.4)' }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <img 
-                    src={user.photoURL} 
-                    alt="Profile" 
-                    className="w-full h-full object-cover"
-                  />
+                  {user.photoURL ? (
+                    <img 
+                      src={user.photoURL} 
+                      alt="Profile" 
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.parentElement.innerHTML = `<div class="w-full h-full bg-indigo-600 flex items-center justify-center text-white text-sm font-semibold">${(user.displayName || user.email || 'U')[0].toUpperCase()}</div>`;
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-indigo-600 flex items-center justify-center text-white text-sm font-semibold">
+                      {(user.displayName || user.email || 'U')[0].toUpperCase()}
+                    </div>
+                  )}
                 </motion.button>
 
                 {/* Profile Dropdown */}

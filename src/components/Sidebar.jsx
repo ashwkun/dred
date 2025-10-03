@@ -84,7 +84,7 @@ export default function Sidebar({ activePage, setActivePage, cards, user, onSign
           variants={itemVariants}
         >
           {/* Install Button */}
-          {deferredPrompt && (
+          {deferredPrompt && !isAppInstalled && (
             <motion.button
               onClick={onInstall}
               className={`w-full flex items-center gap-3 px-4 py-3 ${currentThemeData.surfaces.secondary} 
@@ -110,12 +110,25 @@ export default function Sidebar({ activePage, setActivePage, cards, user, onSign
             whileHover={{ backgroundColor: 'rgba(0, 0, 0, 0.45)' }}
           >
             <div className="flex items-center gap-3 mb-3">
-              <motion.img 
-                src={user.photoURL} 
-                alt="" 
-                className={`w-10 h-10 ${currentThemeData.radius} border border-white/20`}
-                whileHover={{ scale: 1.05, borderColor: 'rgba(255, 255, 255, 0.3)' }}
-              />
+              {user.photoURL ? (
+                <motion.img 
+                  src={user.photoURL} 
+                  alt="" 
+                  className={`w-10 h-10 ${currentThemeData.radius} border border-white/20`}
+                  whileHover={{ scale: 1.05, borderColor: 'rgba(255, 255, 255, 0.3)' }}
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    const fallback = document.createElement('div');
+                    fallback.className = `w-10 h-10 ${currentThemeData.radius} border border-white/20 bg-indigo-600 flex items-center justify-center text-white font-semibold`;
+                    fallback.textContent = (user.displayName || user.email || 'U')[0].toUpperCase();
+                    e.target.parentElement.appendChild(fallback);
+                  }}
+                />
+              ) : (
+                <div className={`w-10 h-10 ${currentThemeData.radius} border border-white/20 bg-indigo-600 flex items-center justify-center text-white font-semibold`}>
+                  {(user.displayName || user.email || 'U')[0].toUpperCase()}
+                </div>
+              )}
               <div className="flex-1 min-w-0">
                 <p className={`text-sm ${currentThemeData.font.heading} text-white truncate`}>
                   {user.displayName}

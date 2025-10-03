@@ -53,17 +53,19 @@ export default function Dialog({
           </p>
         </div>
         
-        <div className="flex border-t border-white/10">
-          <button
-            onClick={onClose}
-            className="flex-1 px-4 py-3 text-sm font-medium text-white/70 
-              hover:bg-white/10 transition-colors"
-          >
-            {cancelText}
-          </button>
+        <div className={`border-t border-white/10 ${cancelText ? 'flex' : 'flex justify-center'}`}>
+          {cancelText && (
+            <button
+              onClick={onClose}
+              className="flex-1 px-4 py-3 text-sm font-medium text-white/70
+                hover:bg-white/10 transition-colors"
+            >
+              {cancelText}
+            </button>
+          )}
           <button
             onClick={onConfirm}
-            className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${getTypeStyles()}`}
+            className={`${cancelText ? 'flex-1' : 'px-8'} px-4 py-3 text-sm font-medium transition-colors ${getTypeStyles()}`}
           >
             {confirmText}
           </button>

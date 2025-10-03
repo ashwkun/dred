@@ -5,7 +5,7 @@ import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 // Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyB-9yZNPFFsjG8JR5t9i6ZbYZ9FnbZegw8",
-  authDomain: "dredbox.web.app",
+  authDomain: "dred-e6e59.firebaseapp.com",
   projectId: "dred-e6e59",
   storageBucket: "dred-e6e59.firebasestorage.app",
   messagingSenderId: "901054214672",

@@ -97,20 +97,22 @@ export default function Dialog({
               </p>
             </div>
             
-            <div className="flex border-t border-white/10 relative z-10">
-              <motion.button
-                onClick={onClose}
-                className="flex-1 px-4 py-3.5 text-sm font-medium text-white/80 
-                  hover:bg-white/10 transition-colors"
-                whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
-                whileTap={{ scale: 0.98 }}
-              >
-                {cancelText}
-              </motion.button>
+            <div className={`border-t border-white/10 relative z-10 ${cancelText ? 'flex' : 'flex justify-center'}`}>
+              {cancelText && (
+                <motion.button
+                  onClick={onClose}
+                  className="flex-1 px-4 py-3.5 text-sm font-medium text-white/80
+                    hover:bg-white/10 transition-colors"
+                  whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  {cancelText}
+                </motion.button>
+              )}
               <motion.button
                 onClick={onConfirm}
-                className={`flex-1 px-4 py-3.5 text-sm font-medium transition-all shadow-sm 
-                  ${getTypeStyles()} border-l`}
+                className={`${cancelText ? 'flex-1' : 'px-8'} px-4 py-3.5 text-sm font-medium transition-all shadow-sm
+                  ${getTypeStyles()} ${cancelText ? 'border-l' : ''}`}
                 whileHover={{ scale: 1.02, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
                 whileTap={{ scale: 0.98 }}
               >

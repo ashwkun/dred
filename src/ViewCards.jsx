@@ -196,7 +196,17 @@ function ViewCards({
         return;
       } catch (err) {
         console.error('Failed to navigate manually:', err);
-        alert('Navigation error. Please try refreshing the page.');
+        if (setDialog) {
+          setDialog({
+            isOpen: true,
+            title: 'Navigation Error',
+            message: 'Navigation error. Please try refreshing the page.',
+            confirmText: 'OK',
+            cancelText: null,
+            type: 'danger',
+            onConfirm: () => setDialog(prev => ({ ...prev, isOpen: false }))
+          });
+        }
         return;
       }
     }

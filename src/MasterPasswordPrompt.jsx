@@ -6,7 +6,7 @@ import ValidationAnimation from "./components/ValidationAnimation";
 import { securityManager } from "./utils/security";
 import LockoutTimer from "./components/LockoutTimer";
 import { motion } from 'framer-motion';
-import { BiHide, BiShow, BiLogOut, BiSun, BiMoon } from 'react-icons/bi';
+import { BiHide, BiShow, BiLogOut, BiSun, BiMoon, BiDownload } from 'react-icons/bi';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -18,7 +18,7 @@ const itemVariants = {
   visible: { y: 0, opacity: 1, transition: { duration: 0.4, ease: "easeOut" } }
 };
 
-function MasterPasswordPrompt({ setMasterPassword, user, setActivePage, mode, toggleMode, onPasswordSubmit }) {
+function MasterPasswordPrompt({ setMasterPassword, user, setActivePage, mode, toggleMode, onPasswordSubmit, deferredPrompt, isAppInstalled, onInstall, setDialog }) {
   const [inputValue, setInputValue] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isFirstTime, setIsFirstTime] = useState(false);
@@ -197,9 +197,20 @@ function MasterPasswordPrompt({ setMasterPassword, user, setActivePage, mode, to
 
   // Add a handleSignOut function that shows confirmation first
   const handleSignOut = async () => {
-    if (window.confirm("Are you sure you want to sign out?")) {
-      console.log("MasterPasswordPrompt: User confirmed sign out");
-      await signOut(auth);
+    if (setDialog) {
+      setDialog({
+        isOpen: true,
+        title: 'Sign Out',
+        message: 'Are you sure you want to sign out?',
+        confirmText: 'Sign Out',
+        cancelText: 'Cancel',
+        type: 'danger',
+        onConfirm: async () => {
+          console.log("MasterPasswordPrompt: User confirmed sign out");
+          await signOut(auth);
+          setDialog(prev => ({ ...prev, isOpen: false }));
+        }
+      });
     }
   };
 
@@ -533,6 +544,40 @@ function MasterPasswordPrompt({ setMasterPassword, user, setActivePage, mode, to
                 Learn more about security
               </motion.button>
             </motion.div>
+          </motion.div>
+
+          {/* Install PWA - Always show based on installation status */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.4 }}
+            className="mt-4"
+          >
+            {!isAppInstalled ? (
+              /* Full install button when not installed */
+              <motion.button
+                onClick={onInstall}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white/5 hover:bg-white/10 backdrop-blur-sm border border-white/20 hover:border-indigo-400/50 rounded-xl text-white/80 hover:text-white transition-all"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <BiDownload className="text-base" />
+                <span className="text-xs font-medium">Install App</span>
+              </motion.button>
+            ) : (
+              /* Just icon in top right when installed */
+              <div className="flex justify-end">
+                <motion.button
+                  onClick={onInstall}
+                  className="flex items-center justify-center w-10 h-10 bg-white/5 hover:bg-white/10 backdrop-blur-sm border border-white/20 hover:border-indigo-400/50 rounded-full text-white/80 hover:text-white transition-all"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  title="App Installed - Click to reinstall"
+                >
+                  <BiDownload className="text-lg" />
+                </motion.button>
+              </div>
+            )}
           </motion.div>
         </div>
       </div>

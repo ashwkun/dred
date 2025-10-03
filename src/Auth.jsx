@@ -9,12 +9,12 @@ import {
   updateProfile
 } from "firebase/auth";
 import { auth } from "./firebase";
-import { BiLogoGoogle, BiShieldQuarter, BiEnvelope, BiLockAlt, BiChevronDown, BiChevronUp, BiUser } from 'react-icons/bi';
+import { BiLogoGoogle, BiShieldQuarter, BiEnvelope, BiLockAlt, BiChevronDown, BiChevronUp, BiUser, BiDownload } from 'react-icons/bi';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const descriptorWords = ["Secure", "Simple", "Private"];
 
-export default function Auth({ setUser = () => {}, setActivePage, mode, toggleMode }) {
+export default function Auth({ setUser = () => {}, setActivePage, mode, toggleMode, deferredPrompt, isAppInstalled, onInstall, setDialog }) {
   const [isLoading, setIsLoading] = useState(false);
   const [descriptorIndex, setDescriptorIndex] = useState(0);
   const [showOtherMethods, setShowOtherMethods] = useState(false);
@@ -98,12 +98,25 @@ export default function Auth({ setUser = () => {}, setActivePage, mode, toggleMo
       await signInWithPopup(auth, provider);
     } catch (error) {
       console.error("Error signing in:", error);
+      let errorMessage = '';
       if (error.code === 'auth/popup-blocked') {
-        alert("Popup was blocked. Please allow popups for this website.");
+        errorMessage = "Popup was blocked. Please allow popups for this website.";
       } else if (error.code === 'auth/network-request-failed') {
-        alert("Network error. Please check your internet connection.");
+        errorMessage = "Network error. Please check your internet connection.";
       } else if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
-        alert("Error signing in: " + error.message);
+        errorMessage = "Error signing in: " + error.message;
+      }
+      
+      if (errorMessage && setDialog) {
+        setDialog({
+          isOpen: true,
+          title: 'Sign In Error',
+          message: errorMessage,
+          confirmText: 'OK',
+          cancelText: null,
+          type: 'danger',
+          onConfirm: () => setDialog(prev => ({ ...prev, isOpen: false }))
+        });
       }
       setIsLoading(false);
     }
@@ -146,6 +159,15 @@ export default function Auth({ setUser = () => {}, setActivePage, mode, toggleMo
           setIsLoading(false);
           return;
         }
+        
+        // Ensure user has a photoURL - set one if missing
+        if (!userCredential.user.photoURL) {
+          const name = userCredential.user.displayName || userCredential.user.email.split('@')[0];
+          await updateProfile(userCredential.user, {
+            photoURL: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=4f46e5&color=fff&size=200`
+          });
+        }
+        
         // If verified, user will be signed in automatically
       }
     } catch (error) {
@@ -185,14 +207,44 @@ export default function Auth({ setUser = () => {}, setActivePage, mode, toggleMo
 
   const handleForgotPassword = async () => {
     if (!email) {
-      alert('Please enter your email address first.');
+      if (setDialog) {
+        setDialog({
+          isOpen: true,
+          title: 'Email Required',
+          message: 'Please enter your email address first.',
+          confirmText: 'OK',
+          cancelText: null,
+          type: 'default',
+          onConfirm: () => setDialog(prev => ({ ...prev, isOpen: false }))
+        });
+      }
       return;
     }
     try {
       await sendPasswordResetEmail(auth, email);
-      alert('Password reset email sent! Check your inbox.');
+      if (setDialog) {
+        setDialog({
+          isOpen: true,
+          title: 'Email Sent',
+          message: 'Password reset email sent! Check your inbox.',
+          confirmText: 'OK',
+          cancelText: null,
+          type: 'success',
+          onConfirm: () => setDialog(prev => ({ ...prev, isOpen: false }))
+        });
+      }
     } catch (error) {
-      alert('Error: ' + error.message);
+      if (setDialog) {
+        setDialog({
+          isOpen: true,
+          title: 'Error',
+          message: 'Error: ' + error.message,
+          confirmText: 'OK',
+          cancelText: null,
+          type: 'danger',
+          onConfirm: () => setDialog(prev => ({ ...prev, isOpen: false }))
+        });
+      }
     }
   };
 
@@ -348,10 +400,30 @@ export default function Auth({ setUser = () => {}, setActivePage, mode, toggleMo
                         try {
                           if (auth.currentUser && !auth.currentUser.emailVerified) {
                             await sendEmailVerification(auth.currentUser);
-                            alert('Email resent!');
+                            if (setDialog) {
+                              setDialog({
+                                isOpen: true,
+                                title: 'Email Sent',
+                                message: 'Verification email resent! Check your inbox.',
+                                confirmText: 'OK',
+                                cancelText: null,
+                                type: 'success',
+                                onConfirm: () => setDialog(prev => ({ ...prev, isOpen: false }))
+                              });
+                            }
                           }
                         } catch (error) {
-                          alert('Error. Try again.');
+                          if (setDialog) {
+                            setDialog({
+                              isOpen: true,
+                              title: 'Error',
+                              message: 'Error sending email. Try again.',
+                              confirmText: 'OK',
+                              cancelText: null,
+                              type: 'danger',
+                              onConfirm: () => setDialog(prev => ({ ...prev, isOpen: false }))
+                            });
+                          }
                         }
                       }}
                       className="flex-1 py-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-[10px] text-indigo-300 transition-colors"
@@ -561,6 +633,40 @@ export default function Auth({ setUser = () => {}, setActivePage, mode, toggleMo
               )}
             </div>
             </div>
+
+            {/* Install PWA - Always show based on installation status */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6, duration: 0.4 }}
+              className="mt-4"
+            >
+              {!isAppInstalled ? (
+                /* Full install button when not installed */
+                <motion.button
+                  onClick={onInstall}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white/5 hover:bg-white/10 backdrop-blur-sm border border-white/20 hover:border-indigo-400/50 rounded-xl text-white/80 hover:text-white transition-all"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <BiDownload className="text-base" />
+                  <span className="text-xs font-medium">Install App</span>
+                </motion.button>
+              ) : (
+                /* Just icon in top right when installed */
+                <div className="flex justify-end">
+                  <motion.button
+                    onClick={onInstall}
+                    className="flex items-center justify-center w-10 h-10 bg-white/5 hover:bg-white/10 backdrop-blur-sm border border-white/20 hover:border-indigo-400/50 rounded-full text-white/80 hover:text-white transition-all"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    title="App Installed - Click to reinstall"
+                  >
+                    <BiDownload className="text-lg" />
+                  </motion.button>
+                </div>
+              )}
+            </motion.div>
           </motion.div>
         </div>
       </div>
