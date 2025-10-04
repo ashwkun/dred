@@ -143,13 +143,17 @@ function ViewCards({
     let fullNumber = null;
     try {
       if (card.cardNumberFull) {
+        // Legacy: decrypt full card number
         fullNumber = await securityManager.decryptCardNumberFull(card.cardNumberFull, masterPassword);
       } else if (card.cardNumberFirst && card.cardNumberLast4) {
+        // New split format: decrypt both parts
         const firstSecure = await securityManager.decryptData(card.cardNumberFirst, masterPassword, true);
-        const plain = toSafeString(firstSecure, '') + card.cardNumberLast4;
+        const last4Secure = await securityManager.decryptData(card.cardNumberLast4, masterPassword, true);
+        const plain = toSafeString(firstSecure, '') + toSafeString(last4Secure, '');
         // wrap into a pseudo SecurePlaintext-like object for uniform zeroing
         fullNumber = { toString: () => plain, zero: () => {} };
         if (firstSecure && firstSecure.zero) firstSecure.zero();
+        if (last4Secure && last4Secure.zero) last4Secure.zero();
       }
       navigator.clipboard.writeText(toSafeString(fullNumber).replace(/\s/g, ''));
 
@@ -258,15 +262,7 @@ function ViewCards({
           const revealedNumber = revealedNumbers[card.id];
           const details = revealedDetails[card.id];
           // Convert SecurePlaintext to string safely
-          let fullCardNumber = null;
-          if (revealedNumber) {
-            if (card.cardNumberFirst) {
-              fullCardNumber = (toSafeString(revealedNumber, '') + (card.cardNumberLast4 || ''));
-            } else {
-              // Fallback: revealedNumber holds full number when no split exists
-              fullCardNumber = toSafeString(revealedNumber, '');
-            }
-          }
+          const fullCardNumber = revealedNumber ? toSafeString(revealedNumber, '') : null;
           const isAmexBank = /amex|american/i.test(card.bankName || '');
 
           return (
@@ -358,9 +354,9 @@ function ViewCards({
                       <div className="relative">
                         <div className={`text-base sm:text-lg md:text-xl text-white font-light tracking-wider font-mono text-center whitespace-nowrap overflow-hidden
                           transition-all duration-700 ease-out ${fullCardNumber ? 'opacity-100' : 'opacity-90'}`}>
-                          {fullCardNumber 
+                          {fullCardNumber
                             ? fullCardNumber.replace(/(.{4})/g, "$1 ").trim()
-                            : `•••• •••• •••• ${card.cardNumberLast4}`
+                            : `•••• •••• •••• ${card.cardNumberLast4Display || '••••'}`
                           }
                         </div>
                       </div>

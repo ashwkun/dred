@@ -622,7 +622,7 @@ export default function Auth({ setUser = () => {}, setActivePage, mode, toggleMo
                   </button>
                 </p>
                 <button 
-                  onClick={() => setActivePage('howItWorks')} 
+                  onClick={() => setActivePage('securityInfo')} 
                   className="text-[10px] text-indigo-300 hover:text-indigo-200 transition-colors inline-flex items-center gap-1"
                 >
                   <BiShieldQuarter className="text-xs" />

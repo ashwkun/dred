@@ -113,22 +113,17 @@ function AddCard({ user, masterPassword, setActivePage, showSuccessMessage }) {
 
         // 🔐 TIERED SECURITY: Split card number for partial decryption
         const cleanCardNumber = cardNumber.replace(/\s/g, '');
-        const isAmex = cleanCardNumber.startsWith('34') || cleanCardNumber.startsWith('37');
-        const splitPoint = isAmex ? 11 : 12; // Amex: 11+4, Others: 12+4
-        
-        const cardNumberFirst = cleanCardNumber.slice(0, splitPoint); // First 11 or 12 digits
-        const cardNumberLast4 = cleanCardNumber.slice(splitPoint);    // Last 4 digits
 
         const encryptedCard = {
           uid: user.uid,
           ...await securityManager.encryptCardNumberSplit(cleanCardNumber, masterPassword),
+          isAmex: cleanCardNumber.startsWith('34') || cleanCardNumber.startsWith('37'), // Plain boolean for UI logic
           cardHolder: await securityManager.encryptData(cardHolder, masterPassword),
           bankName: await securityManager.encryptData(bankName, masterPassword),
           networkName: await securityManager.encryptData(networkName, masterPassword),
           expiry: await securityManager.encryptData(expiry, masterPassword),
           cvv: await securityManager.encryptData(cvv, masterPassword),
           cardName: await securityManager.encryptData(cardName, masterPassword),
-          isAmex: isAmex, // Plain boolean for UI logic
           theme: theme,
           createdAt: serverTimestamp()
         };

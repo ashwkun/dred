@@ -283,12 +283,14 @@ function Settings({ user, masterPassword, showSuccessMessage, cards: encryptedCa
       // Fallback: if only cardNumberFull exists, decrypt full and format
       let fullCardNumber = '';
       try {
-        if (card.cardNumberFirst) {
+        if (card.cardNumberFirst && card.cardNumberLast4) {
           const decryptedFirstSecure = await securityManager.decryptData(card.cardNumberFirst, masterPassword, true);
+          const decryptedLast4Secure = await securityManager.decryptData(card.cardNumberLast4, masterPassword, true);
           const decryptedFirst = toSafeString(decryptedFirstSecure, '');
+          const decryptedLast4 = toSafeString(decryptedLast4Secure, '');
           if (decryptedFirstSecure && decryptedFirstSecure.zero) decryptedFirstSecure.zero();
-          const last4 = card.cardNumberLast4 || '';
-          fullCardNumber = (decryptedFirst + last4).replace(/(\d{4})/g, '$1 ').trim();
+          if (decryptedLast4Secure && decryptedLast4Secure.zero) decryptedLast4Secure.zero();
+          fullCardNumber = (decryptedFirst + decryptedLast4).replace(/(\d{4})/g, '$1 ').trim();
         } else if (card.cardNumberFull) {
           const fullSecure = await securityManager.decryptData(card.cardNumberFull, masterPassword, true);
           const full = toSafeString(fullSecure, '');
@@ -486,7 +488,7 @@ function Settings({ user, masterPassword, showSuccessMessage, cards: encryptedCa
                       <div>
                         <p className="text-white font-medium">{card.cardName}</p>
                         <p className="text-sm text-white/70">
-                          {card.bankName} •••• {card.cardNumberLast4}
+                          {card.bankName} •••• {card.cardNumberLast4Display || card.cardNumberLast4}
                         </p>
                       </div>
                       <button
@@ -557,7 +559,7 @@ function Settings({ user, masterPassword, showSuccessMessage, cards: encryptedCa
                       <div>
                         <p className="text-white font-medium">{card.cardName}</p>
                         <p className="text-sm text-white/70">
-                          {card.bankName} •••• {card.cardNumberLast4}
+                          {card.bankName} •••• {card.cardNumberLast4Display || card.cardNumberLast4}
                         </p>
                       </div>
                       <button
@@ -981,7 +983,7 @@ function Settings({ user, masterPassword, showSuccessMessage, cards: encryptedCa
                 </button>
               </div>
               <p className="text-sm text-white/70">
-                {editingCard.bankName} •••• {editingCard.cardNumberLast4 || '••••'}
+                {editingCard.bankName} •••• {editingCard.cardNumberLast4Display || editingCard.cardNumberLast4 || '••••'}
               </p>
             </div>
 

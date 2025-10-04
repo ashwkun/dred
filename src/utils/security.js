@@ -134,6 +134,11 @@ class SecurePlaintextManager {
     }
   }
   
+  // Convenience: create and register from a string/Uint8Array/ArrayBuffer
+  create(value) {
+    return this.register(new SecurePlaintext(value));
+  }
+
   // Register a new SecurePlaintext instance
   register(securePlaintext) {
     this.registry.add(securePlaintext);
@@ -411,12 +416,17 @@ class SecurityManager {
     return this.lockoutUntil && Date.now() < this.lockoutUntil;
   }
 
-  // Encrypt card number as split fields
+  // Encrypt card number as split fields (first 11/12 + last 4)
   async encryptCardNumberSplit(cardNumber, masterPassword) {
-    const last4 = cardNumber.slice(-4);
+    const isAmex = cardNumber.startsWith('34') || cardNumber.startsWith('37');
+    const splitPoint = isAmex ? 11 : 12; // Amex: 11+4, Others: 12+4
+    
+    const cardNumberFirst = cardNumber.slice(0, splitPoint);
+    const cardNumberLast4 = cardNumber.slice(splitPoint);
+    
     return {
-      cardNumberLast4: await this.encryptData(last4, masterPassword),
-      cardNumberFull: await this.encryptData(cardNumber, masterPassword)
+      cardNumberFirst: await this.encryptData(cardNumberFirst, masterPassword),
+      cardNumberLast4: await this.encryptData(cardNumberLast4, masterPassword)
     };
   }
 

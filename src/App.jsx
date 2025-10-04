@@ -30,7 +30,7 @@ const ViewCards = lazy(() => import("./ViewCards"));
 const AddCard = lazy(() => import("./AddCard"));
 const Settings = lazy(() => import("./features/settings/Settings"));
 const BillPay = lazy(() => import("./BillPay"));
-const HowItWorks = lazy(() => import("./components/HowItWorks"));
+const SecurityInfo = lazy(() => import("./components/SecurityInfo"));
 const TermsAndConditions = lazy(() => import("./components/TermsAndConditions"));
 const PrivacyPolicy = lazy(() => import("./components/PrivacyPolicy"));
 
@@ -43,7 +43,7 @@ function App() {
     const hash = window.location.hash.slice(1); // Remove the #
     if (hash === '/privacy') return 'privacy';
     if (hash === '/terms') return 'terms';
-    if (hash === '/howItWorks') return 'howItWorks';
+    if (hash === '/security') return 'securityInfo';
     return user ? "viewCards" : "auth";
   };
   
@@ -82,7 +82,7 @@ function App() {
     const pageToHash = {
       'privacy': '/privacy',
       'terms': '/terms',
-      'howItWorks': '/howItWorks'
+      'securityInfo': '/security'
     };
     
     if (pageToHash[activePage]) {
@@ -98,7 +98,7 @@ function App() {
       const hash = window.location.hash.slice(1);
       if (hash === '/privacy') setActivePage('privacy');
       else if (hash === '/terms') setActivePage('terms');
-      else if (hash === '/howItWorks') setActivePage('howItWorks');
+      else if (hash === '/security') setActivePage('securityInfo');
       else if (hash === '' && !user) setActivePage('auth');
     };
 
@@ -522,8 +522,8 @@ function App() {
         return "Bill Pay";
       case "settings":
         return "Settings";
-      case "howItWorks":
-        return "How It Works";
+      case "securityInfo":
+        return "Security Information";
       case "terms":
         return "Terms of Service";
       case "privacy":
@@ -534,17 +534,17 @@ function App() {
   };
 
   const renderContent = () => {
-    // Special case: Allow viewing HowItWorks without authentication
-    if (activePage === "howItWorks") {
+    // Special case: Allow viewing SecurityInfo without authentication
+    if (activePage === "securityInfo") {
       return (
         <Suspense fallback={<LoadingOverlay message="Loading..." />}>
-          <HowItWorks setActivePage={(page) => {
+          <SecurityInfo setActivePage={(page) => {
             // If user is not logged in, always go back to auth
             if (!user) {
-              secureLog.debug("App.jsx: HowItWorks - User not logged in, returning to auth page");
+              secureLog.debug("App.jsx: SecurityInfo - User not logged in, returning to auth page");
               setActivePage("auth");
             } else {
-              secureLog.debug(`App.jsx: HowItWorks - Going to ${page}`);
+              secureLog.debug(`App.jsx: SecurityInfo - Going to ${page}`);
               setActivePage(page);
             }
           }} />

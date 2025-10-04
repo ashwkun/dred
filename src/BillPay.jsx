@@ -179,14 +179,24 @@ export default function BillPay({ user, masterPassword, showSuccessMessage, card
   // Returns SecurePlaintext that will be auto-zeroed
   const decryptFullCardNumber = async (card) => {
     try {
-      const firstSecure = await securityManager.decryptData(card.cardNumberFirst, masterPassword, true);
-      // Convert to string immediately for UPI ID generation, then let it be zeroed
-      const first = toSafeString(firstSecure, '');
-      // Zero the SecurePlaintext after use
-      if (firstSecure && firstSecure.zero) {
-        firstSecure.zero();
+      if (card.cardNumberFirst && card.cardNumberLast4) {
+        // Split format: decrypt both parts
+        const firstSecure = await securityManager.decryptData(card.cardNumberFirst, masterPassword, true);
+        const last4Secure = await securityManager.decryptData(card.cardNumberLast4, masterPassword, true);
+        const first = toSafeString(firstSecure, '');
+        const last4 = toSafeString(last4Secure, '');
+        // Zero the SecurePlaintext after use
+        if (firstSecure && firstSecure.zero) firstSecure.zero();
+        if (last4Secure && last4Secure.zero) last4Secure.zero();
+        return first + last4;
+      } else if (card.cardNumberFull) {
+        // Legacy: decrypt full card number
+        const fullSecure = await securityManager.decryptData(card.cardNumberFull, masterPassword, true);
+        const full = toSafeString(fullSecure, '');
+        if (fullSecure && fullSecure.zero) fullSecure.zero();
+        return full;
       }
-      return first + card.cardNumberLast4;
+      return '';
     } catch (error) {
       secureLog.error('Error decrypting full card number:', error);
       return null;

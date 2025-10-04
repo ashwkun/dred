@@ -1,6 +1,7 @@
 // usePartialDecrypt.js - Minimal decryption (metadata + last 4 only)
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { securityManager, securePlaintextManager } from '../utils/security';
+import { toSafeString } from '../utils/securePlaintextHelpers';
 import { shouldLog } from '../utils/env';
 import { secureLog } from '../utils/secureLogger';
 
@@ -89,10 +90,11 @@ export function usePartialDecrypt(cards, masterPassword) {
         cardName: await decryptField(card.cardName, "Card"),
         bankName: await decryptField(card.bankName, "Bank"),
         networkName: await decryptField(card.networkName, "Card"),
-        cardNumberLast4: await decryptField(card.cardNumberLast4, "••••"),
+        cardNumberLast4Display: await decryptField(card.cardNumberLast4, "••••"), // Decrypted for display
         cardHolder: await decryptField(card.cardHolder, "Card Holder"),
         // ❌ Do NOT decrypt these (keep encrypted for reveal-on-demand)
         cardNumberFirst: card.cardNumberFirst, // Keep encrypted
+        cardNumberLast4: card.cardNumberLast4, // Keep encrypted (needed for full reveal)
         cardNumberFull: card.cardNumberFull, // Keep encrypted (fallback path)
         cvv: card.cvv, // Keep encrypted
         expiry: card.expiry, // Keep encrypted
@@ -175,9 +177,42 @@ export function useRevealCardNumber(masterPassword) {
     if (!masterPassword || !card) return null;
 
     try {
-      // Prefer split: decrypt first digits. Fallback to full if split missing.
-      const source = card.cardNumberFirst || card.cardNumberFull;
-      const securePlaintext = await securityManager.decryptData(String(source), masterPassword, true);
+      let securePlaintext;
+      
+      if (card.cardNumberFull) {
+        // Legacy/full format: decrypt full card number on demand
+        securePlaintext = await securityManager.decryptData(card.cardNumberFull, masterPassword, true);
+      } else if (card.cardNumberFirst) {
+        // Split format: decrypt first part; use already decrypted last4 if available
+        const firstSecure = await securityManager.decryptData(card.cardNumberFirst, masterPassword, true);
+        const firstPart = toSafeString(firstSecure, '');
+
+        // Prefer already-decrypted last4 from partial cards
+        let last4Part = (typeof card.cardNumberLast4Display === 'string' && /\d{4}/.test(card.cardNumberLast4Display))
+          ? card.cardNumberLast4Display
+          : '';
+
+        // If not available, decrypt encrypted last4
+        if (!last4Part && card.cardNumberLast4) {
+          const last4Secure = await securityManager.decryptData(card.cardNumberLast4, masterPassword, true);
+          last4Part = toSafeString(last4Secure, '');
+          if (last4Secure && last4Secure.zero) last4Secure.zero();
+        }
+
+        if (!firstPart || !last4Part) {
+          return null;
+        }
+
+        const fullNumber = firstPart + last4Part;
+
+        // Create and register a SecurePlaintext for the combined number
+        securePlaintext = securePlaintextManager.create(fullNumber);
+
+        // Zero the first part plaintext
+        if (firstSecure && firstSecure.zero) firstSecure.zero();
+      } else {
+        return null;
+      }
       
       // Zero old plaintext if exists
       if (securePlaintextsRef.current[cardId]) {

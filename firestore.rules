@@ -21,7 +21,7 @@ service cloud.firestore {
       allow create: if isOwner(request.resource.data.uid) &&
                        request.resource.data.keys().hasAll([
                          'cardNumberLast4',
-                         'cardNumberFull',
+                         'cardNumberFirst',
                          'cvv',
                          'expiry',
                          'bankName',
@@ -30,7 +30,7 @@ service cloud.firestore {
                          'cardName'
                        ]) &&
                        request.resource.data.cardNumberLast4 is string &&
-                       request.resource.data.cardNumberFull is string;
+                       request.resource.data.cardNumberFirst is string;
 
       // Allow update if user owns the card
       allow update: if isOwner(resource.data.uid) &&
