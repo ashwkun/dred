@@ -7,8 +7,10 @@ import { BiCog } from 'react-icons/bi';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { SuccessAnimation } from '../../components/SuccessAnimation';
 import { securityManager } from '../../utils/security';
+import { usePartialDecrypt } from '../../hooks/usePartialDecrypt';
+import { toSafeString } from '../../utils/securePlaintextHelpers';
 
-function Settings({ user, masterPassword, showSuccessMessage, decryptedCards = [], setActivePage }) {
+function Settings({ user, masterPassword, showSuccessMessage, cards: encryptedCards = [], setActivePage }) {
   const { 
     themes, 
     currentTheme, 
@@ -33,7 +35,8 @@ function Settings({ user, masterPassword, showSuccessMessage, decryptedCards = [
     expiry: '',
     cvv: '',
     theme: '',
-    cardName: ''
+    cardName: '',
+    cardNumber: ''
   });
   const [editLoading, setEditLoading] = useState(false);
   const [dialog, setDialog] = useState({
@@ -47,11 +50,14 @@ function Settings({ user, masterPassword, showSuccessMessage, decryptedCards = [
   const [successMessage, setSuccessMessage] = useState('');
   const [showMixMatch, setShowMixMatch] = useState(false);
 
+  // 🔐 TIERED SECURITY: Partial decryption (metadata + last 4 only)
+  const { partialCards, isDecrypting } = usePartialDecrypt(encryptedCards, masterPassword);
+
   const loadCards = async () => {
     setLoading(true);
     try {
-      // Use pre-decrypted cards from parent for speed
-      let cardsData = Array.isArray(decryptedCards) ? [...decryptedCards] : [];
+      // Use partial-decrypted cards from hook (metadata + last 4)
+      let cardsData = Array.isArray(partialCards) ? [...partialCards] : [];
 
       // Sort with fallbacks
       cardsData.sort((a, b) => {
@@ -243,13 +249,49 @@ function Settings({ user, masterPassword, showSuccessMessage, decryptedCards = [
         decryptedTheme = await securityManager.decryptData(card.theme, masterPassword);
       }
 
-      setEditingCard(card);
+      // Decrypt card number (combine first + last 4) using SecurePlaintext
+      // Note: partialCards has cardNumberLast4 already decrypted, cardNumberFirst still encrypted
+      let fullCardNumber = '';
+      try {
+        if (card.cardNumberFirst) {
+          // cardNumberFirst is still encrypted - decrypt as SecurePlaintext, cardNumberLast4 is already decrypted
+          const decryptedFirstSecure = await securityManager.decryptData(card.cardNumberFirst, masterPassword, true);
+          const decryptedFirst = toSafeString(decryptedFirstSecure, '');
+          // Zero after use
+          if (decryptedFirstSecure && decryptedFirstSecure.zero) {
+            decryptedFirstSecure.zero();
+          }
+          const last4 = card.cardNumberLast4 || ''; // Already decrypted by partialDecrypt hook
+          fullCardNumber = (decryptedFirst + last4).replace(/(\d{4})/g, '$1 ').trim();
+        } else {
+          fullCardNumber = '';
+        }
+      } catch (decryptError) {
+        console.warn('Could not decrypt card number, using placeholder:', decryptError);
+        fullCardNumber = '';
+      }
+
+      // Decrypt only the fields that are still encrypted (cvv and expiry) using SecurePlaintext
+      // partialCards already has: cardName, bankName, cardHolder, cardNumberLast4 decrypted
+      const decryptedExpirySecure = await securityManager.decryptData(card.expiry, masterPassword);
+      const decryptedCvvSecure = await securityManager.decryptData(card.cvv, masterPassword, true);
+      
+      const decryptedExpiry = toSafeString(decryptedExpirySecure, '');
+      const decryptedCvv = toSafeString(decryptedCvvSecure, '');
+      
+      // Zero CVV after extracting string
+      if (decryptedCvvSecure && decryptedCvvSecure.zero) {
+        decryptedCvvSecure.zero();
+      }
+
+      setEditingCard(card); // card already has decrypted metadata from partialCards
       setEditForm({
-        cardHolder: card.cardHolder,
-        expiry: card.expiry,
-        cvv: card.cvv,
+        cardHolder: card.cardHolder, // Already decrypted by partialDecrypt
+        expiry: decryptedExpiry, // Still encrypted, needs decryption
+        cvv: decryptedCvv, // Still encrypted, needs decryption
         theme: decryptedTheme || '#6a3de8',
-        cardName: card.cardName
+        cardName: card.cardName, // Already decrypted by partialDecrypt
+        cardNumber: fullCardNumber
       });
     } catch (error) {
       console.error('Error preparing card for edit:', error);
@@ -266,6 +308,12 @@ function Settings({ user, masterPassword, showSuccessMessage, decryptedCards = [
   const handleUpdateCard = async () => {
     setEditLoading(true);
     try {
+      // Validate card number
+      const cleanCardNumber = editForm.cardNumber.replace(/\s/g, '');
+      if (!/^\d{13,19}$/.test(cleanCardNumber)) {
+        throw new Error("Please enter a valid card number (13-19 digits)");
+      }
+
       // Validate expiry format (MM/YY)
       if (!/^(0[1-9]|1[0-2])\/([0-9]{2})$/.test(editForm.expiry)) {
         throw new Error("Please enter expiry in MM/YY format");
@@ -281,12 +329,18 @@ function Settings({ user, masterPassword, showSuccessMessage, decryptedCards = [
         throw new Error("Please enter a valid card holder name");
       }
 
+      // Split card number into first digits and last 4
+      const cardNumberFirst = cleanCardNumber.slice(0, -4);
+      const cardNumberLast4 = cleanCardNumber.slice(-4);
+
       // Prepare update data - re-encrypt sensitive fields
       const updateData = {
         cardHolder: await securityManager.encryptData(editForm.cardHolder, masterPassword),
         expiry: await securityManager.encryptData(editForm.expiry, masterPassword),
         cvv: await securityManager.encryptData(editForm.cvv, masterPassword),
         cardName: await securityManager.encryptData(editForm.cardName, masterPassword),
+        cardNumberFirst: await securityManager.encryptData(cardNumberFirst, masterPassword),
+        cardNumberLast4: await securityManager.encryptData(cardNumberLast4, masterPassword),
         theme: editForm.theme, // Plain text, not encrypted
         updatedAt: serverTimestamp()
       };
@@ -309,7 +363,8 @@ function Settings({ user, masterPassword, showSuccessMessage, decryptedCards = [
         expiry: '',
         cvv: '',
         theme: '',
-        cardName: ''
+        cardName: '',
+        cardNumber: ''
       });
     } catch (error) {
       console.error('Error updating card:', error);
@@ -375,7 +430,7 @@ function Settings({ user, masterPassword, showSuccessMessage, decryptedCards = [
 
           {showDeleteCards && (
             <div className="px-6 pb-6">
-              {loading ? (
+              {(loading || isDecrypting) ? (
                 <div className="text-white/70 text-center py-4">
                   <div className="animate-spin w-6 h-6 border-2 border-white/20 border-t-white rounded-full mx-auto mb-2"></div>
                   Loading cards...
@@ -400,7 +455,7 @@ function Settings({ user, masterPassword, showSuccessMessage, decryptedCards = [
                       <div>
                         <p className="text-white font-medium">{card.cardName}</p>
                         <p className="text-sm text-white/70">
-                          {card.bankName} •••• {card.cardNumber.slice(-4)}
+                          {card.bankName} •••• {card.cardNumberLast4}
                         </p>
                       </div>
                       <button
@@ -446,7 +501,7 @@ function Settings({ user, masterPassword, showSuccessMessage, decryptedCards = [
 
           {showEditCards && (
             <div className="px-6 pb-6">
-              {loading ? (
+              {(loading || isDecrypting) ? (
                 <div className="text-white/70 text-center py-4">
                   <div className="animate-spin w-6 h-6 border-2 border-white/20 border-t-white rounded-full mx-auto mb-2"></div>
                   Loading cards...
@@ -471,7 +526,7 @@ function Settings({ user, masterPassword, showSuccessMessage, decryptedCards = [
                       <div>
                         <p className="text-white font-medium">{card.cardName}</p>
                         <p className="text-sm text-white/70">
-                          {card.bankName} •••• {card.cardNumber.slice(-4)}
+                          {card.bankName} •••• {card.cardNumberLast4}
                         </p>
                       </div>
                       <button
@@ -841,7 +896,7 @@ function Settings({ user, masterPassword, showSuccessMessage, decryptedCards = [
                         <div>
                           <p className="text-white font-medium">{card.cardName}</p>
                           <p className="text-sm text-white/70">
-                            {card.bankName} •••• {card.cardNumber.slice(-4)}
+                            {card.bankName} •••• {card.cardNumberLast4}
                           </p>
                         </div>
                       </div>
@@ -895,7 +950,7 @@ function Settings({ user, masterPassword, showSuccessMessage, decryptedCards = [
                 </button>
               </div>
               <p className="text-sm text-white/70">
-                {editingCard.bankName} •••• {editingCard.cardNumber.slice(-4)}
+                {editingCard.bankName} •••• {editingCard.cardNumberLast4 || '••••'}
               </p>
             </div>
 
@@ -932,6 +987,30 @@ function Settings({ user, masterPassword, showSuccessMessage, decryptedCards = [
                   value={editForm.cardName}
                   onChange={(e) => setEditForm({ ...editForm, cardName: e.target.value })}
                   placeholder="Platinum, TATA Neu, My Zone etc"
+                />
+              </div>
+
+              {/* Card Number */}
+              <div>
+                <label className="block text-white/70 text-sm font-medium mb-2">
+                  Card Number
+                </label>
+                <input
+                  type="text"
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
+                    text-white placeholder-white/30 focus:outline-none focus:ring-2 
+                    focus:ring-indigo-500/30 focus:border-transparent backdrop-blur-sm
+                    transition-all duration-200 font-mono"
+                  value={editForm.cardNumber}
+                  onChange={(e) => {
+                    let value = e.target.value.replace(/\s/g, '').replace(/\D/g, '');
+                    if (value.length > 16) value = value.slice(0, 16);
+                    // Format with spaces every 4 digits
+                    const formatted = value.replace(/(\d{4})/g, '$1 ').trim();
+                    setEditForm({ ...editForm, cardNumber: formatted });
+                  }}
+                  placeholder="1234 5678 9012 3456"
+                  maxLength={19}
                 />
               </div>
 

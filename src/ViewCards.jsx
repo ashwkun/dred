@@ -1,11 +1,12 @@
 // ViewCards.jsx
-import React, { useEffect, useState, useMemo, useCallback, memo } from "react";
+import React, { useEffect, useState, useCallback, memo } from "react";
 import { db } from "./firebase";
 import { collection, query, where, orderBy, onSnapshot, deleteDoc, doc } from "firebase/firestore";
 import LogoWithFallback from "./LogoWithFallback";
-import { securityManager } from "./utils/security";
-import { BiCreditCard, BiCopy } from 'react-icons/bi';
+import { BiCreditCard } from 'react-icons/bi';
 import { LoadingOverlay } from './components/LoadingOverlay';
+import { usePartialDecrypt, useRevealCardNumber, useRevealDetails } from './hooks/usePartialDecrypt';
+import { toSafeString } from './utils/securePlaintextHelpers';
 
 // Add default values for all props to make component more robust
 function ViewCards({ 
@@ -13,8 +14,7 @@ function ViewCards({
   masterPassword, 
   setActivePage = () => console.log("Default setActivePage called"), 
   cards: externalCards = [], 
-  setCards: externalSetCards = () => console.log("Default setCards called"),
-  decryptedCards: preDecrypted = null
+  setCards: externalSetCards = () => console.log("Default setCards called")
 }) {
   console.log('ViewCards COMPONENT RENDERED - CRITICAL DEBUG LOG');
   console.log('ViewCards props check:', {
@@ -95,9 +95,29 @@ function ViewCards({
       typeof setActivePage === 'function' ? 'a function' : typeof setActivePage);
   }, [setActivePage]);
 
-  const handleViewDetails = useCallback((cardId) => {
-    setShowDetails(prev => ({ ...prev, [cardId]: !prev[cardId] }));
-  }, []);
+  // 🔐 TIERED SECURITY: Partial decrypt (metadata + last 4 only)
+  const { partialCards, isDecrypting } = usePartialDecrypt(cards, masterPassword);
+  
+  // Separate reveal hooks for card number and CVV/expiry
+  const { revealedNumbers, revealNumber, hideNumber } = useRevealCardNumber(masterPassword);
+  const { revealedDetails, revealDetails, hideDetails } = useRevealDetails(masterPassword);
+
+  const handleViewDetails = useCallback(async (cardId, card) => {
+    // Use callback form to access current state without adding dependency
+    setShowDetails(prev => {
+      const isCurrentlyShowing = prev[cardId];
+      
+      if (isCurrentlyShowing) {
+        // Hide details and clear decrypted CVV/expiry
+        hideDetails(cardId);
+        return { ...prev, [cardId]: false };
+      } else {
+        // Show details and decrypt CVV/expiry
+        revealDetails(cardId, card);
+        return { ...prev, [cardId]: true };
+      }
+    });
+  }, [hideDetails, revealDetails]);
 
   // Make the handleAddCard function more robust
   const handleAddCard = useCallback((e) => {
@@ -142,7 +162,7 @@ function ViewCards({
         setCopyFeedback(prev => ({ ...prev, [cardId]: true }));
         setTimeout(() => {
           setCopyFeedback(prev => ({ ...prev, [cardId]: false }));
-        }, 1500);
+        }, 800);
       });
   }, []);
 
@@ -194,27 +214,7 @@ function ViewCards({
     );
   });
 
-
-  // 🚀 PERFORMANCE: Prefer pre-decrypted data from App.jsx if available
-  const decryptedCards = useMemo(() => {
-    if (Array.isArray(preDecrypted)) {
-      return preDecrypted;
-    }
-    // Fallback: minimal mapping without decryption (should rarely happen)
-    return (cards || []).map((card) => ({
-      id: card.id,
-      theme: card.theme || "#6a3de8",
-      cardName: 'Card',
-      bankName: 'Bank',
-      networkName: 'Card',
-      cardNumber: '••••••••••••••••',
-      cardHolder: 'Card Holder',
-      cvv: '•••',
-      expiry: 'MM/YY',
-    }));
-  }, [preDecrypted, cards]);
-
-  if (loading) {
+  if (loading || isDecrypting) {
     return <LoadingOverlay message="Loading your cards" />;
   }
 
@@ -246,8 +246,14 @@ function ViewCards({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        {decryptedCards.map((card) => {
+        {partialCards.map((card) => {
           const isShowingDetails = showDetails[card.id];
+          const revealedNumber = revealedNumbers[card.id];
+          const details = revealedDetails[card.id];
+          // Convert SecurePlaintext to string safely
+          const fullCardNumber = revealedNumber 
+            ? toSafeString(revealedNumber, '') + card.cardNumberLast4 
+            : null;
 
           return (
             <div key={card.id} className="group">
@@ -303,46 +309,106 @@ function ViewCards({
 
                   {/* Middle Section - Card Number/Details */}
                   <div className="relative flex flex-col items-center justify-center h-20">
-                    {/* Card Number with Copy */}
-                    <div className={`absolute inset-0 flex flex-col items-center justify-center gap-2
+                    {/* Card Number with Reveal & Copy */}
+                    <div className={`absolute inset-0 flex flex-col items-center justify-center gap-3
                       transition-all duration-300 ${
                       isShowingDetails ? 'opacity-0 translate-y-4 pointer-events-none' : 'opacity-100 translate-y-0'
                     }`}>
-                      <div className="text-base sm:text-lg md:text-xl text-white font-light tracking-wider font-mono text-center whitespace-nowrap overflow-hidden">
-                        {card.cardNumber.replace(/(.{4})/g, "$1 ").trim()}
+                      {/* Card Number Display - Elegant Reveal */}
+                      <div className="relative">
+                        <div className={`text-base sm:text-lg md:text-xl text-white font-light tracking-wider font-mono text-center whitespace-nowrap overflow-hidden
+                          transition-all duration-700 ease-out ${fullCardNumber ? 'opacity-100' : 'opacity-90'}`}>
+                          {fullCardNumber 
+                            ? fullCardNumber.replace(/(.{4})/g, "$1 ").trim()
+                            : `•••• •••• •••• ${card.cardNumberLast4}`
+                          }
+                        </div>
                       </div>
-                      <button
-                        onClick={(e) => handleCopy(e, card.cardNumber, card.id)}
-                        className="bg-white/5 hover:bg-white/10 p-2 rounded-lg
-                          transition-colors relative z-20 cursor-pointer
-                          md:opacity-0 md:group-hover:opacity-100"
-                        style={{ pointerEvents: 'auto' }}
-                      >
-                        <BiCopy className="w-4 h-4 text-white/70 hover:text-white" />
-                        {copyFeedback[card.id] && (
-                          <div className="absolute -top-8 left-1/2 -translate-x-1/2 
-                            bg-white/10 backdrop-blur-sm px-2 py-1 rounded-lg text-xs text-white/90
-                            border border-white/10 whitespace-nowrap z-30"
+                      
+                      {/* Action Buttons - Icon Only Minimal */}
+                      <div className="flex gap-1.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200">
+                        {/* Reveal/Hide Button - Icon Only */}
+                        <button
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            if (revealedNumber) {
+                              hideNumber(card.id);
+                            } else {
+                              await revealNumber(card.id, card);
+                            }
+                          }}
+                          className={`group/btn relative p-2 rounded-md
+                            transition-all duration-300 z-20 cursor-pointer
+                            backdrop-blur-xl bg-white/5 hover:bg-white/15
+                            border border-white/10 hover:border-white/30
+                            ${revealedNumber ? 'bg-white/10 border-white/20' : ''}`}
+                          style={{ pointerEvents: 'auto' }}
+                          title={revealedNumber ? "Hide card number" : "Reveal card number"}
+                        >
+                          {revealedNumber ? (
+                            <svg className="w-4 h-4 text-white/90 transition-transform duration-300 group-hover/btn:scale-110" 
+                              fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+                            </svg>
+                          ) : (
+                            <svg className="w-4 h-4 text-white/70 transition-transform duration-300 group-hover/btn:scale-110" 
+                              fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                          )}
+                        </button>
+                        
+                        {/* Copy Button - Icon Only with Fast Animation Feedback */}
+                        {fullCardNumber && (
+                          <button
+                            onClick={(e) => handleCopy(e, fullCardNumber, card.id)}
+                            className={`group/btn relative p-2 rounded-md
+                              backdrop-blur-xl bg-white/5 hover:bg-white/15
+                              border border-white/10 hover:border-white/30
+                              transition-all duration-200 z-20 cursor-pointer
+                              animate-in fade-in slide-in-from-bottom-2 duration-300
+                              ${copyFeedback[card.id] ? 'bg-white/15 border-white/30' : ''}`}
+                            style={{ pointerEvents: 'auto' }}
+                            title="Copy card number"
                           >
-                            Copied!
-                          </div>
+                            {copyFeedback[card.id] ? (
+                              <svg className="w-4 h-4 text-white/90 transition-all duration-150" 
+                                fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                              </svg>
+                            ) : (
+                              <svg className="w-4 h-4 text-white/70 transition-transform duration-300 group-hover/btn:scale-110" 
+                                fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+                              </svg>
+                            )}
+                          </button>
                         )}
-                      </button>
+                      </div>
                     </div>
                     
-                    {/* CVV/Expiry Section */}
+                    {/* CVV/Expiry Section - Elegant Reveal */}
                     <div className={`absolute inset-0 flex items-center justify-center
-                      transition-all duration-300 ${
+                      transition-all duration-500 ease-out ${
                       isShowingDetails ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
                     }`}>
                       <div className="flex gap-8">
                         <div className="text-center">
                           <span className="text-white/50 text-xs uppercase tracking-wider block mb-1">CVV</span>
-                          <span className="font-mono text-lg text-white/90">{card.cvv}</span>
+                          <span className={`font-mono text-lg transition-all duration-700 ease-out ${
+                            details ? 'text-white opacity-100' : 'text-white/70 opacity-90'
+                          }`}>
+                            {details ? toSafeString(details.cvv, '•••') : '•••'}
+                          </span>
                         </div>
                         <div className="text-center">
                           <span className="text-white/50 text-xs uppercase tracking-wider block mb-1">Expires</span>
-                          <span className="font-mono text-lg text-white/90">{card.expiry}</span>
+                          <span className={`font-mono text-lg transition-all duration-700 ease-out ${
+                            details ? 'text-white opacity-100' : 'text-white/70 opacity-90'
+                          }`}>
+                            {details ? details.expiry : 'MM/YY'}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -362,16 +428,38 @@ function ViewCards({
                     </div>
                   </div>
 
-                  {/* Smaller Toggle Button */}
+                  {/* CVV/Expiry Details Button - Eye Icon with Clear Label */}
                   <button
-                    onClick={() => setShowDetails(prev => ({ ...prev, [card.id]: !prev[card.id] }))}
-                    className="absolute bottom-4 left-1/2 -translate-x-1/2
-                      transition-all duration-200 px-3 py-1.5 rounded-lg 
-                      bg-white/10 backdrop-blur-md border border-white/20 
-                      text-white text-xs font-medium hover:bg-white/20
-                      md:opacity-0 md:group-hover:opacity-100"
+                    onClick={() => handleViewDetails(card.id, card)}
+                    className={`group/details absolute bottom-4 left-1/2 -translate-x-1/2
+                      transition-all duration-300 px-3 py-1.5 rounded-md 
+                      backdrop-blur-xl border
+                      flex items-center gap-1.5
+                      text-[10px] font-light tracking-wide
+                      md:opacity-0 md:group-hover:opacity-100
+                      ${isShowingDetails 
+                        ? 'bg-white/10 hover:bg-white/15 border-white/30 text-white/90' 
+                        : 'bg-white/5 hover:bg-white/15 border-white/10 hover:border-white/30 text-white/70'
+                      }`}
                   >
-                    {isShowingDetails ? 'Hide' : 'Show Details'}
+                    {isShowingDetails ? (
+                      <>
+                        <svg className="w-3.5 h-3.5 transition-transform duration-300 group-hover/details:scale-110" 
+                          fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+                        </svg>
+                        <span>Hide CVV/Expiry</span>
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-3.5 h-3.5 transition-transform duration-300 group-hover/details:scale-110" 
+                          fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <span>CVV/Expiry</span>
+                      </>
+                    )}
                   </button>
                 </div>
               </div>

@@ -53,7 +53,6 @@ function App() {
   const [showProfile, setShowProfile] = useState(false);
   const { currentThemeData } = useTheme();
   const [cards, setCards] = useState([]);
-  const [decryptedCards, setDecryptedCards] = useState([]);
   const [dialog, setDialog] = useState({
     isOpen: false,
     title: '',
@@ -350,53 +349,7 @@ function App() {
     };
   }, [user, masterPassword]); // These are the correct dependencies
 
-  // 🚀 PERFORMANCE: Pre-decrypt cards when cards or masterPassword changes (async with Web Crypto)
-  useEffect(() => {
-    const decryptCards = async () => {
-      try {
-        if (!masterPassword) {
-          setDecryptedCards([]);
-          return;
-        }
-        if (!cards || cards.length === 0) {
-          setDecryptedCards([]);
-          return;
-        }
-
-        const decryptField = async (value, fallback = "") => {
-          if (!value) return fallback;
-          try {
-            const result = await securityManager.decryptData(String(value), masterPassword);
-            return result || fallback;
-          } catch (e) {
-            console.warn("Failed to decrypt field:", e.message);
-            return fallback;
-          }
-        };
-
-        // Decrypt all cards in parallel
-        const decryptedCardsPromises = cards.map(async (card) => ({
-          id: card.id,
-          theme: card.theme || "#6a3de8",
-          cardName: await decryptField(card.cardName, "Card"),
-          bankName: await decryptField(card.bankName, "Bank"),
-          networkName: await decryptField(card.networkName, "Card"),
-          cardNumber: await decryptField(card.cardNumber, "••••••••••••••••"),
-          cardHolder: await decryptField(card.cardHolder, "Card Holder"),
-          cvv: await decryptField(card.cvv, "•••"),
-          expiry: await decryptField(card.expiry, "MM/YY"),
-        }));
-
-        const next = await Promise.all(decryptedCardsPromises);
-        setDecryptedCards(next);
-      } catch (e) {
-        console.error("Error pre-decrypting cards:", e);
-        setDecryptedCards([]);
-      }
-    };
-
-    decryptCards();
-  }, [cards, masterPassword]);
+  // 🔐 SECURITY: Removed pre-decryption - cards now decrypted on-demand with auto-clearing cache
 
   const handleSignOutClick = () => {
     console.log("App.jsx: handleSignOutClick called");
@@ -698,7 +651,7 @@ function App() {
               >
                 {activePage === "viewCards" && (
                   <Suspense fallback={<LoadingOverlay message="Loading Your Cards..." />}>
-                    <ViewCards
+                    <ViewCards 
                       user={user}
                       masterPassword={masterPassword}
                       setActivePage={changeActivePage}
@@ -706,7 +659,6 @@ function App() {
                       showSuccessMessage={showSuccessMessage}
                       cards={cards}
                       setCards={setCards}
-                      decryptedCards={decryptedCards}
                     />
                   </Suspense>
                 )}
@@ -727,7 +679,7 @@ function App() {
                       masterPassword={masterPassword}
                       setActivePage={changeActivePage}
                       showSuccessMessage={showSuccessMessage}
-                      decryptedCards={decryptedCards}
+                      cards={cards}
                     />
                   </Suspense>
                 )}
@@ -738,7 +690,7 @@ function App() {
                       masterPassword={masterPassword} 
                       setDialog={setDialog}
                       showSuccessMessage={showSuccessMessage}
-                      decryptedCards={decryptedCards}
+                      cards={cards}
                       setActivePage={changeActivePage}
                     />
                   </Suspense>

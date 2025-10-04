@@ -110,15 +110,25 @@ function AddCard({ user, masterPassword, setActivePage, showSuccessMessage }) {
           throw new Error("Session expired. Please refresh and enter your master password again.");
         }
 
+        // 🔐 TIERED SECURITY: Split card number for partial decryption
+        const cleanCardNumber = cardNumber.replace(/\s/g, '');
+        const isAmex = cleanCardNumber.startsWith('34') || cleanCardNumber.startsWith('37');
+        const splitPoint = isAmex ? 11 : 12; // Amex: 11+4, Others: 12+4
+        
+        const cardNumberFirst = cleanCardNumber.slice(0, splitPoint); // First 11 or 12 digits
+        const cardNumberLast4 = cleanCardNumber.slice(splitPoint);    // Last 4 digits
+
         const encryptedCard = {
           uid: user.uid,
-          cardNumber: await securityManager.encryptData(cardNumber.replace(/\s/g, ''), masterPassword),
+          cardNumberFirst: await securityManager.encryptData(cardNumberFirst, masterPassword),
+          cardNumberLast4: await securityManager.encryptData(cardNumberLast4, masterPassword),
           cardHolder: await securityManager.encryptData(cardHolder, masterPassword),
           bankName: await securityManager.encryptData(bankName, masterPassword),
           networkName: await securityManager.encryptData(networkName, masterPassword),
           expiry: await securityManager.encryptData(expiry, masterPassword),
           cvv: await securityManager.encryptData(cvv, masterPassword),
           cardName: await securityManager.encryptData(cardName, masterPassword),
+          isAmex: isAmex, // Plain boolean for UI logic
           theme: theme,
           createdAt: serverTimestamp()
         };
@@ -167,7 +177,6 @@ function AddCard({ user, masterPassword, setActivePage, showSuccessMessage }) {
     setExpiry("");
     setBankName("");
     setNetworkName("");
-    setCardType("");
     setTheme("#6a3de8");
   };
 
