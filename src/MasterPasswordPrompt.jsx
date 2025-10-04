@@ -532,9 +532,11 @@ function MasterPasswordPrompt({ setMasterPassword, user, setActivePage, mode, to
             <motion.div className="text-center pt-4 md:pt-5" variants={itemVariants}>
               <motion.button 
                 onClick={() => {
-                  secureLog.debug("MasterPasswordPrompt.jsx: 'Learn more about security' clicked. Setting activePage to 'howItWorks'.");
+                  secureLog.debug("MasterPasswordPrompt.jsx: 'Learn more about security' clicked. Navigating to SecurityInfo.");
                   if (typeof setActivePage === 'function') {
-                    setActivePage('howItWorks');
+                    setActivePage('securityInfo');
+                    // Sync URL hash for deep-linking
+                    try { window.location.hash = '/security'; } catch (_) {}
                   } else {
                     secureLog.error("MasterPasswordPrompt.jsx: setActivePage is not a function");
                   }
