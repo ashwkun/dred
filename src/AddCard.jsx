@@ -19,6 +19,10 @@ function AddCard({ user, masterPassword, setActivePage, showSuccessMessage }) {
   const [expiry, setExpiry] = useState("");
   const [cvv, setCvv] = useState("");
   const [theme, setTheme] = useState("#6a3de8"); // Default theme
+  // Bill tracking (optional)
+  const [billTrackingEnabled, setBillTrackingEnabled] = useState(false);
+  const [billGenDay, setBillGenDay] = useState(5); // 1-28 recommended
+  const [billDueOffsetDays, setBillDueOffsetDays] = useState(15); // default 15
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -128,6 +132,13 @@ function AddCard({ user, masterPassword, setActivePage, showSuccessMessage }) {
           createdAt: serverTimestamp()
         };
 
+        // Attach bill tracking fields if enabled
+        if (billTrackingEnabled) {
+          encryptedCard.billGenDay = Number(billGenDay) || 5;
+          encryptedCard.billDueOffsetDays = Number(billDueOffsetDays) || 15;
+          encryptedCard.lastPaidCycleKey = null;
+        }
+
         secureLog.debug("Adding card for user:", user.uid);
         await addDoc(collection(db, "cards"), encryptedCard);
       });
@@ -173,6 +184,9 @@ function AddCard({ user, masterPassword, setActivePage, showSuccessMessage }) {
     setBankName("");
     setNetworkName("");
     setTheme("#6a3de8");
+    setBillTrackingEnabled(false);
+    setBillGenDay(5);
+    setBillDueOffsetDays(15);
   };
 
   return (
@@ -360,6 +374,48 @@ function AddCard({ user, masterPassword, setActivePage, showSuccessMessage }) {
                       <p className="text-red-400 text-xs mt-1">
                         Please enter a valid 3 or 4-digit CVV
                       </p>
+                    )}
+                  </div>
+
+                  {/* Bill Tracking (Optional) */}
+                  <div className="mt-4 pt-4 border-t border-white/10">
+                    <div className="flex items-center justify-between">
+                      <label className="text-white/80 text-sm font-medium">Enable Bill Tracking</label>
+                      <button type="button"
+                        onClick={() => setBillTrackingEnabled(!billTrackingEnabled)}
+                        className={`px-3 py-1.5 rounded-lg text-xs border transition-colors ${billTrackingEnabled ? 'bg-white/15 border-white/30 text-white' : 'bg-white/5 border-white/10 text-white/70'}`}
+                      >
+                        {billTrackingEnabled ? 'On' : 'Off'}
+                      </button>
+                    </div>
+                    {billTrackingEnabled && (
+                      <div className="grid grid-cols-2 gap-3 mt-3">
+                        <div>
+                          <label className="block text-white/70 text-xs mb-1">Bill Generation Day</label>
+                          <select
+                            className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary/30"
+                            value={billGenDay}
+                            onChange={(e) => setBillGenDay(Number(e.target.value))}
+                          >
+                            {Array.from({ length: 28 }, (_, i) => i + 1).map(d => (
+                              <option key={d} value={d}>{d}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-white/70 text-xs mb-1">Due Offset (days)</label>
+                          <select
+                            className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary/30"
+                            value={billDueOffsetDays}
+                            onChange={(e) => setBillDueOffsetDays(Number(e.target.value))}
+                          >
+                            {Array.from({ length: 16 }, (_, i) => i + 10).map(d => (
+                              <option key={d} value={d}>{d}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <p className="col-span-2 text-xs text-white/60">Due date will be calculated as: gen day + offset.</p>
+                      </div>
                     )}
                   </div>
 

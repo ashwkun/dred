@@ -152,7 +152,7 @@ export default function BillPay({ user, masterPassword, showSuccessMessage, card
   const getMaskedUpiId = (card, mobile) => {
     if (!mobile) return null;
     
-    const last4 = card.cardNumberLast4;
+    const last4 = card.cardNumberLast4Display || '••••';
     const bankNormalized = (card.bankName || '').toLowerCase().replace(/\s+/g, '');
     
     // Generate masked card number placeholder (12 or 11 bullets depending on Amex)
@@ -209,7 +209,7 @@ export default function BillPay({ user, masterPassword, showSuccessMessage, card
       return null;
     }
     
-    const last4 = card.cardNumberLast4;
+    const last4 = card.cardNumberLast4Display || '••••';
     const fullCardNumber = await decryptFullCardNumber(card);
     if (!fullCardNumber) {
       return null;
@@ -421,7 +421,7 @@ export default function BillPay({ user, masterPassword, showSuccessMessage, card
                 const isRevealed = !!revealedUpiIds[card.id];
                 
                 // Show the card even if UPI ID can't be generated yet
-                const last4 = card.cardNumberLast4;
+                const last4 = card.cardNumberLast4Display || '••••';
                 
                 // Theme is already plain text from partial decryption
                 const cardTheme = card.theme || "#6a3de8";

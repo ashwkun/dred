@@ -11,6 +11,9 @@
         ],
         "dev": [
           "dredbox-dev"
+        ],
+        "default": [
+          "dred-e6e59"
         ]
       }
     }

@@ -86,6 +86,10 @@ export function usePartialDecrypt(cards, masterPassword) {
         id: card.id,
         theme: card.theme || "#6a3de8",
         isAmex: card.isAmex || false,
+        // Bill tracking (plain)
+        billGenDay: card.billGenDay || null,
+        billDueOffsetDays: card.billDueOffsetDays || null,
+        lastPaidCycleKey: card.lastPaidCycleKey || null,
         // ✅ Decrypt these (non-sensitive metadata)
         cardName: await decryptField(card.cardName, "Card"),
         bankName: await decryptField(card.bankName, "Bank"),
@@ -325,9 +329,9 @@ export function useRevealDetails(masterPassword) {
       let expiry = "MM/YY";
       try {
         expiry = await securityManager.decryptData(String(card.expiry), masterPassword) || "MM/YY";
-      } catch (e) {
+        } catch (e) {
         // Silently fallback to placeholder
-      }
+        }
 
       const details = {
         cvv: cvvSecurePlaintext,

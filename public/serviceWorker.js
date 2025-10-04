@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dred-v2-longpolling';
+const CACHE_NAME = 'dred-v5-google-bypass';
 const urlsToCache = [
   './',
   './index.html',
@@ -32,13 +32,22 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  // Skip Google Analytics, Firebase APIs, and other known problematic external services
-  if (event.request.url.includes('google-analytics.com') || 
-      event.request.url.includes('googletagmanager.com') ||
-      event.request.url.includes('overbridgenet.com') ||
-      event.request.url.includes('firestore.googleapis.com') ||
-      event.request.url.includes('firebaseio.com') ||
-      event.request.url.includes('googleapis.com')) {
+  const url = event.request.url;
+  
+  // Skip ALL external Google/Firebase services - let browser handle them directly
+  // This prevents CSP violations and OAuth issues
+  if (url.includes('google-analytics.com') || 
+      url.includes('googletagmanager.com') ||
+      url.includes('overbridgenet.com') ||
+      url.includes('firestore.googleapis.com') ||
+      url.includes('firebaseio.com') ||
+      url.includes('googleapis.com') ||
+      url.includes('google.com') ||
+      url.includes('gstatic.com') ||
+      url.includes('googleusercontent.com') ||  // Google profile images
+      url.includes('firebaseapp.com/__') ||
+      url.includes('accounts.google.com')) {
+    // Don't handle these requests at all - let them go directly to network
     return;
   }
 

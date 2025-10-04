@@ -1,6 +1,6 @@
 {
   "name": "dred",
-  "version": "1.5.0",
+  "version": "2.0.0",
   "scripts": {
     "dev": "parcel serve public/index.html",
     "build": "parcel build public/index.html --no-cache && cp public/serviceWorker.js dist/ && cp -R static dist/",

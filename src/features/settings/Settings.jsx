@@ -929,7 +929,7 @@ function Settings({ user, masterPassword, showSuccessMessage, cards: encryptedCa
                         <div>
                           <p className="text-white font-medium">{card.cardName}</p>
                           <p className="text-sm text-white/70">
-                            {card.bankName} •••• {card.cardNumberLast4}
+                            {card.bankName} •••• {card.cardNumberLast4Display || '••••'}
                           </p>
                         </div>
                       </div>

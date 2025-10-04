@@ -142,7 +142,11 @@ module.exports = {
         'fade-scale': 'fadeScale 0.3s ease-out',
         'fade-slide-left': 'fadeSlideLeft 0.3s ease-out',
         'fade-slide-right': 'fadeSlideRight 0.3s ease-out',
-      }
+      },
+      // 3D card flip utilities
+      perspective: {
+        '1000': '1000px',
+      },
     },
   },
   safelist: [
