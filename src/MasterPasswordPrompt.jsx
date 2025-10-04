@@ -7,6 +7,8 @@ import { securityManager } from "./utils/security";
 import LockoutTimer from "./components/LockoutTimer";
 import { motion } from 'framer-motion';
 import { BiHide, BiShow, BiLogOut, BiSun, BiMoon, BiDownload } from 'react-icons/bi';
+import { logger } from './utils/logger';
+import { secureLog } from './utils/secureLogger';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -34,7 +36,7 @@ function MasterPasswordPrompt({ setMasterPassword, user, setActivePage, mode, to
 
   // Log user info for debugging
   useEffect(() => {
-    console.log("MasterPasswordPrompt: User state:", user ? `User with ID ${user.uid}` : "No user");
+    secureLog.debug("MasterPasswordPrompt: User state:", user ? `User with ID ${user.uid}` : "No user");
   }, [user]);
 
   useEffect(() => {
@@ -42,7 +44,7 @@ function MasterPasswordPrompt({ setMasterPassword, user, setActivePage, mode, to
     if (user && user.uid) {
       checkFirstTimeUser();
     } else {
-      console.warn("MasterPasswordPrompt: User or user.uid is undefined, skipping first-time check");
+      secureLog.warn("MasterPasswordPrompt: User or user.uid is undefined, skipping first-time check");
       // Default to first-time if we can't verify
       setIsFirstTime(true);
     }
@@ -52,7 +54,7 @@ function MasterPasswordPrompt({ setMasterPassword, user, setActivePage, mode, to
     try {
       // Guard against null user
       if (!user || !user.uid) {
-        console.error("Error checking first time user: User or user.uid is undefined");
+        secureLog.error("Error checking first time user: User or user.uid is undefined");
         setIsFirstTime(true);
         return;
       }
@@ -61,7 +63,7 @@ function MasterPasswordPrompt({ setMasterPassword, user, setActivePage, mode, to
       const validationDoc = await getDoc(validationRef);
       setIsFirstTime(!validationDoc.exists());
     } catch (error) {
-      console.error("Error checking first time user:", error);
+      secureLog.error("Error checking first time user:", error);
       setIsFirstTime(true);
     }
   };
@@ -96,7 +98,7 @@ function MasterPasswordPrompt({ setMasterPassword, user, setActivePage, mode, to
         throw new Error("User not authenticated. Please refresh and try again.");
       }
 
-      const validationString = securityManager.createValidationString(masterPass, validationSentence);
+      const validationString = await securityManager.createValidationString(masterPass, validationSentence);
       await setDoc(doc(db, "validationStrings", user.uid), {
         validationString,
         createdAt: new Date(),
@@ -107,7 +109,7 @@ function MasterPasswordPrompt({ setMasterPassword, user, setActivePage, mode, to
       await new Promise(r => setTimeout(r, 2000));
       
       // Set master password first
-      console.log("MasterPasswordPrompt: Setting master password:", masterPass.substring(0, 1) + "******");
+      logger.logRedacted("MasterPasswordPrompt: Setting master password:", masterPass);
       if (typeof onPasswordSubmit === 'function') {
         onPasswordSubmit(masterPass);
       }
@@ -116,11 +118,11 @@ function MasterPasswordPrompt({ setMasterPassword, user, setActivePage, mode, to
       }
       
       // Wait for state to update before navigation
-      console.log("MasterPasswordPrompt: Waiting before navigating to viewCards");
+      secureLog.debug("MasterPasswordPrompt: Waiting before navigating to viewCards");
       await new Promise(r => setTimeout(r, 300));
       
       // Then navigate
-      console.log("MasterPasswordPrompt: First-time setup complete, navigating to viewCards");
+      secureLog.debug("MasterPasswordPrompt: First-time setup complete, navigating to viewCards");
       if (typeof setActivePage === 'function') {
         setActivePage('viewCards');
       }
@@ -155,7 +157,7 @@ function MasterPasswordPrompt({ setMasterPassword, user, setActivePage, mode, to
       await new Promise(r => setTimeout(r, 2000));
       
       // Set master password first
-      console.log("MasterPasswordPrompt: Setting master password after successful validation:", inputValue.substring(0, 1) + "******");
+      logger.logRedacted("MasterPasswordPrompt: Setting master password after successful validation:", inputValue);
       if (typeof onPasswordSubmit === 'function') {
         onPasswordSubmit(inputValue);
       }
@@ -164,11 +166,11 @@ function MasterPasswordPrompt({ setMasterPassword, user, setActivePage, mode, to
       }
       
       // Wait for state to update before navigation
-      console.log("MasterPasswordPrompt: Waiting before navigating to viewCards");
+      secureLog.debug("MasterPasswordPrompt: Waiting before navigating to viewCards");
       await new Promise(r => setTimeout(r, 300));
       
       // Then navigate
-      console.log("MasterPasswordPrompt: Navigating to viewCards page");
+      secureLog.debug("MasterPasswordPrompt: Navigating to viewCards page");
       if (typeof setActivePage === 'function') {
         setActivePage('viewCards');
       }
@@ -185,7 +187,7 @@ function MasterPasswordPrompt({ setMasterPassword, user, setActivePage, mode, to
         setLockoutMinutes(minutes);
       } else {
         errorMessage = "An unexpected error occurred. Please try again.";
-        console.error("Password validation error:", error); 
+        secureLog.error("Password validation error:", error); 
       }
       setValidationError(errorMessage);
     } finally {
@@ -206,7 +208,7 @@ function MasterPasswordPrompt({ setMasterPassword, user, setActivePage, mode, to
         cancelText: 'Cancel',
         type: 'danger',
         onConfirm: async () => {
-          console.log("MasterPasswordPrompt: User confirmed sign out");
+          secureLog.debug("MasterPasswordPrompt: User confirmed sign out");
           await signOut(auth);
           setDialog(prev => ({ ...prev, isOpen: false }));
         }
@@ -530,11 +532,11 @@ function MasterPasswordPrompt({ setMasterPassword, user, setActivePage, mode, to
             <motion.div className="text-center pt-4 md:pt-5" variants={itemVariants}>
               <motion.button 
                 onClick={() => {
-                  console.log("MasterPasswordPrompt.jsx: 'Learn more about security' clicked. Setting activePage to 'howItWorks'.");
+                  secureLog.debug("MasterPasswordPrompt.jsx: 'Learn more about security' clicked. Setting activePage to 'howItWorks'.");
                   if (typeof setActivePage === 'function') {
                     setActivePage('howItWorks');
                   } else {
-                    console.error("MasterPasswordPrompt.jsx: setActivePage is not a function");
+                    secureLog.error("MasterPasswordPrompt.jsx: setActivePage is not a function");
                   }
                 }}
                 className={`px-4 py-2 rounded-lg ${linkButtonBg} border ${linkButtonBorder} text-sm font-medium transition-colors duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}

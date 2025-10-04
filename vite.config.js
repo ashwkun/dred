@@ -39,11 +39,39 @@ export default defineConfig({
       },
       workbox: {
         cleanupOutdatedCaches: true,
-        sourcemap: true
+        sourcemap: false // Don't generate sourcemaps in production
       },
       devOptions: {
         enabled: true
       }
     }),
   ],
+
+  build: {
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,        // Remove all console.* in production
+        drop_debugger: true,       // Remove debugger statements
+        pure_funcs: [
+          'console.log',
+          'console.debug',
+          'console.info',
+          'console.warn'
+        ]
+      },
+      mangle: {
+        safari10: true
+      }
+    },
+    sourcemap: false,  // Don't generate sourcemaps in production
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'crypto': ['crypto-js'],
+          'firebase': ['firebase/app', 'firebase/auth', 'firebase/firestore']
+        }
+      }
+    }
+  }
 }); 

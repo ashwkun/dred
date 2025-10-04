@@ -2,29 +2,51 @@ import React, { useState, useEffect } from 'react';
 import { collection, query, where, getDocs, doc, setDoc } from "firebase/firestore";
 import { db } from "./firebase";
 import MobileNumberDialog from './components/MobileNumberDialog';
-import CryptoJS from 'crypto-js';
-import { BiCreditCard, BiMobile, BiInfoCircle } from 'react-icons/bi';
+import { BiCreditCard, BiMobile, BiInfoCircle, BiShow, BiHide } from 'react-icons/bi';
 import { LoadingOverlay } from './components/LoadingOverlay';
 import { securityManager } from './utils/security';
+import { toSafeString } from './utils/securePlaintextHelpers';
+import { secureWipeString } from './utils/secureCleanup';
 import { bankLogos, networkLogos } from './utils/logoMap';
 import { SUPPORTED_BILL_PAY_BANKS, hasSupportedBillPayBank } from './utils/bankUtils';
 import { motion } from 'framer-motion';
+import { usePartialDecrypt } from './hooks/usePartialDecrypt';
+import { secureLog } from './utils/secureLogger';
 
-export default function BillPay({ user, masterPassword, showSuccessMessage }) {
+export default function BillPay({ user, masterPassword, showSuccessMessage, cards: encryptedCards = [] }) {
   const [cards, setCards] = useState([]);
   const [supportedCards, setSupportedCards] = useState([]);
   const [showMobileDialog, setShowMobileDialog] = useState(false);
   const [mobileNumber, setMobileNumber] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [revealedUpiIds, setRevealedUpiIds] = useState({}); // Track which UPI IDs are revealed
 
-  console.log("BillPay rendering with showMobileDialog:", showMobileDialog);
 
-  // Load cards and mobile number on component mount
+  // 🔐 TIERED SECURITY: Partial decryption (metadata + last 4 only)
+  const { partialCards, isDecrypting } = usePartialDecrypt(encryptedCards, masterPassword);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      secureLog.debug('BillPay: Cleaning up on unmount');
+
+      // Wipe mobile number
+      if (mobileNumber) {
+        setMobileNumber('');
+      }
+
+      // Clear cards
+      setCards([]);
+      setSupportedCards([]);
+    };
+  }, []);
+
+  // Load mobile number and set up cards
   useEffect(() => {
     const loadData = async () => {
       if (!user || !user.uid) {
-        console.error('BillPay: User or user.uid is undefined');
+        secureLog.error('BillPay: User or user.uid is undefined');
         setError('User authentication required');
         setLoading(false);
         return;
@@ -34,9 +56,9 @@ export default function BillPay({ user, masterPassword, showSuccessMessage }) {
       setError(null);
       
       try {
-        console.log("Loading data for user:", user.uid);
         
         // Load mobile number
+        let decryptedMobileNumber = '';
         const mobileSnapshot = await getDocs(query(
           collection(db, "mobile_numbers"),
           where("uid", "==", user.uid)
@@ -46,64 +68,46 @@ export default function BillPay({ user, masterPassword, showSuccessMessage }) {
           // Decrypt mobile number
           const encryptedNumber = mobileSnapshot.docs[0].data().number;
           try {
-            const decryptedNumber = CryptoJS.AES.decrypt(encryptedNumber, masterPassword).toString(CryptoJS.enc.Utf8);
-            console.log("Mobile number loaded:", decryptedNumber ? "Found" : "Empty");
-            setMobileNumber(decryptedNumber);
+            decryptedMobileNumber = await securityManager.decryptData(encryptedNumber, masterPassword);
+            setMobileNumber(decryptedMobileNumber);
           } catch (error) {
-            console.error("Failed to decrypt mobile number:", error);
+            secureLog.error("Failed to decrypt mobile number:", error);
             setError("Failed to decrypt mobile number. Please try again.");
           }
         } else {
-          console.log("No mobile number found");
         }
 
-        // Load cards
-        const cardsSnapshot = await getDocs(query(
-          collection(db, "cards"),
-          where("uid", "==", user.uid)
-        ));
-        
-        if (cardsSnapshot.empty) {
-          console.log("No cards found");
-          setCards([]);
-          setSupportedCards([]);
-          setLoading(false);
-          return;
-        }
-        
-        const cardsData = cardsSnapshot.docs.map(doc => {
-          try {
-            const decryptedCard = {
-              ...doc.data(),
-              id: doc.id,
-              cardNumber: CryptoJS.AES.decrypt(doc.data().cardNumber, masterPassword).toString(CryptoJS.enc.Utf8),
-              bankName: CryptoJS.AES.decrypt(doc.data().bankName, masterPassword).toString(CryptoJS.enc.Utf8),
-              networkName: CryptoJS.AES.decrypt(doc.data().networkName, masterPassword).toString(CryptoJS.enc.Utf8),
-              cardHolder: CryptoJS.AES.decrypt(doc.data().cardHolder, masterPassword).toString(CryptoJS.enc.Utf8),
-              theme: doc.data().theme || "#6a3de8" // Default theme if not present
-            };
-            return decryptedCard;
-          } catch (error) {
-            console.error('Error decrypting card data:', error);
-            return null;
-          }
-        }).filter(Boolean); // Remove any null entries
-        
-        console.log(`Loaded ${cardsData.length} cards`);
+        // Use partial-decrypted cards from hook (metadata + last 4)
+        const cardsData = Array.isArray(partialCards) ? partialCards : [];
         setCards(cardsData);
         
-        // Filter supported cards - simplified check
+        // Filter supported cards and pre-compute UPI IDs
         const supported = cardsData.filter(card => {
-          const bankName = card.bankName.toLowerCase();
-          return SUPPORTED_BILL_PAY_BANKS.some(supportedBank => 
-            bankName.includes(supportedBank.toLowerCase())
+          if (!card.bankName) return false;
+          
+          // Normalize bank name by removing spaces and converting to lowercase
+          const normalizedCardBank = card.bankName.toLowerCase().replace(/\s+/g, '');
+          const normalizedSupportedBanks = SUPPORTED_BILL_PAY_BANKS.map(bank => 
+            bank.toLowerCase().replace(/\s+/g, '')
           );
+          
+          const isSupported = normalizedSupportedBanks.some(supportedBank => 
+            normalizedCardBank.includes(supportedBank)
+          );
+          
+          return isSupported;
         });
         
-        console.log(`Found ${supported.length} supported cards`);
-        setSupportedCards(supported);
+        
+        // Don't pre-compute full UPI IDs - generate masked versions only
+        const supportedWithMaskedUpi = supported.map((card) => ({
+          ...card,
+          maskedUpiId: decryptedMobileNumber ? getMaskedUpiId(card, decryptedMobileNumber) : null
+        }));
+        
+        setSupportedCards(supportedWithMaskedUpi);
       } catch (error) {
-        console.error('Error loading data:', error);
+        secureLog.error('Error loading data:', error);
         setError('Failed to load data. Please try again.');
       } finally {
         setLoading(false);
@@ -111,21 +115,20 @@ export default function BillPay({ user, masterPassword, showSuccessMessage }) {
     };
 
     loadData();
-  }, [user, masterPassword]);
+  }, [user, masterPassword, partialCards]);
 
   // Handle mobile number submission
   const handleMobileSubmit = async (number) => {
-    console.log("Mobile submit handler called with:", number);
     
     if (!user || !user.uid) {
-      console.error('BillPay: User or user.uid is undefined');
+      secureLog.error('BillPay: User or user.uid is undefined');
       setError('User authentication required');
       return;
     }
     
     try {
-      // Encrypt mobile number before storing
-      const encryptedNumber = CryptoJS.AES.encrypt(number, masterPassword).toString();
+      // Encrypt mobile number before storing (using strong encryption)
+      const encryptedNumber = await securityManager.encryptData(number, masterPassword);
       
       // Save to Firestore
       const docRef = doc(collection(db, "mobile_numbers"));
@@ -135,46 +138,137 @@ export default function BillPay({ user, masterPassword, showSuccessMessage }) {
         createdAt: new Date()
       });
       
-      console.log("Mobile number saved successfully");
       setMobileNumber(number); // Store decrypted version in state
       setShowMobileDialog(false);
       showSuccessMessage('Mobile number saved successfully!');
       
     } catch (error) {
-      console.error('Error saving mobile number:', error);
+      secureLog.error('Error saving mobile number:', error);
       setError('Failed to save mobile number. Please try again.');
     }
   };
 
-  // Generate UPI ID for a card
-  const getUpiId = (card) => {
-    if (!mobileNumber) {
-      console.log("No mobile number available");
+  // 🔐 Generate MASKED UPI ID (without decrypting full card number - shows only last 4)
+  const getMaskedUpiId = (card, mobile) => {
+    if (!mobile) return null;
+    
+    const last4 = card.cardNumberLast4;
+    const bankNormalized = (card.bankName || '').toLowerCase().replace(/\s+/g, '');
+    
+    // Generate masked card number placeholder (12 or 11 bullets depending on Amex)
+    const isAmex = card.isAmex || false;
+    const maskedLength = isAmex ? 11 : 12;
+    const masked = '•'.repeat(maskedLength);
+    
+    if (bankNormalized.includes('axis')) {
+      return `CC.91${mobile}${last4}@axisbank`;
+    } else if (bankNormalized.includes('icici')) {
+      return `ccpay${masked}${last4}@icici`;
+    } else if (bankNormalized.includes('au') || bankNormalized.includes('smallfinance')) {
+      return `AUCC${mobile}${last4}@AUBANK`;
+    } else if (bankNormalized.includes('idfc')) {
+      return `${masked}${last4}.cc@idfcbank`;
+    } else if (bankNormalized.includes('amex') || (bankNormalized.includes('american') && bankNormalized.includes('express'))) {
+      return `AEBC${masked}${last4}@SC`;
+    }
+    
+    return null;
+  };
+
+  // 🔐 Decrypt full card number on-demand (only when generating full UPI ID)
+  // Returns SecurePlaintext that will be auto-zeroed
+  const decryptFullCardNumber = async (card) => {
+    try {
+      const firstSecure = await securityManager.decryptData(card.cardNumberFirst, masterPassword, true);
+      // Convert to string immediately for UPI ID generation, then let it be zeroed
+      const first = toSafeString(firstSecure, '');
+      // Zero the SecurePlaintext after use
+      if (firstSecure && firstSecure.zero) {
+        firstSecure.zero();
+      }
+      return first + card.cardNumberLast4;
+    } catch (error) {
+      secureLog.error('Error decrypting full card number:', error);
+      return null;
+    }
+  };
+
+  // Generate FULL UPI ID for a card (decrypts card number - only call when revealing/paying)
+  const getUpiIdForCard = async (card, mobile) => {
+    if (!mobile) {
       return null;
     }
     
-    const last4 = card.cardNumber.slice(-4);
-    const cardNumber = card.cardNumber.replace(/\s/g, '');
+    const last4 = card.cardNumberLast4;
+    const fullCardNumber = await decryptFullCardNumber(card);
+    if (!fullCardNumber) {
+      return null;
+    }
     
-    // Normalize bank name for comparison and make the matching more flexible
-    const bankLower = card.bankName.toLowerCase().trim();
+    const cardNumber = fullCardNumber.replace(/\s/g, '');
     
-    if (bankLower.includes('axis')) {
-      return `CC.91${mobileNumber}${last4}@axisbank`;
-    } else if (bankLower.includes('icici')) {
+    // Normalize bank name for comparison (remove spaces, lowercase)
+    const bankNormalized = (card.bankName || '').toLowerCase().replace(/\s+/g, '');
+    
+    
+    if (bankNormalized.includes('axis')) {
+      return `CC.91${mobile}${last4}@axisbank`;
+    } else if (bankNormalized.includes('icici')) {
       return `ccpay${cardNumber}@icici`;
-    } else if (bankLower.includes('au') || bankLower.includes('small finance')) {
-      return `AUCC${mobileNumber}${last4}@AUBANK`;
-    } else if (bankLower.includes('idfc')) {
+    } else if (bankNormalized.includes('au') || bankNormalized.includes('smallfinance')) {
+      return `AUCC${mobile}${last4}@AUBANK`;
+    } else if (bankNormalized.includes('idfc')) {
       return `${cardNumber}.cc@idfcbank`;
-    } else if (bankLower.includes('amex') || bankLower.includes('american express')) {
+    } else if (bankNormalized.includes('amex') || (bankNormalized.includes('american') && bankNormalized.includes('express'))) {
       return `AEBC${cardNumber}@SC`;
     }
     
     return null;
   };
 
-  const handlePayBill = (upiId) => {
+  // Legacy function for backward compatibility (uses state)
+  const getUpiId = async (card) => {
+    let upiId = null;
+    try {
+      upiId = await getUpiIdForCard(card, mobileNumber);
+      return upiId;
+    } finally {
+      // SECURE WIPE
+      upiId = secureWipeString(upiId);
+    }
+  };
+
+  // Toggle UPI ID reveal for a specific card
+  const toggleUpiReveal = async (cardId, card) => {
+    if (revealedUpiIds[cardId]) {
+      // Hide
+      setRevealedUpiIds(prev => {
+        const updated = { ...prev };
+        delete updated[cardId];
+        return updated;
+      });
+    } else {
+      // Reveal - decrypt full card number and generate full UPI ID
+      const fullUpiId = await getUpiIdForCard(card, mobileNumber);
+      if (fullUpiId) {
+        setRevealedUpiIds(prev => ({ ...prev, [cardId]: fullUpiId }));
+      }
+    }
+  };
+
+  const handlePayBill = async (card, maskedUpiId) => {
+    // If UPI is already revealed, use it; otherwise decrypt on-demand
+    let upiId = revealedUpiIds[card.id];
+    
+    if (!upiId) {
+      upiId = await getUpiIdForCard(card, mobileNumber);
+    }
+    
+    if (!upiId) {
+      setError('Failed to generate UPI ID. Please try again.');
+      return;
+    }
+    
     // Create UPI payment URL
     const upiUrl = `upi://pay?pa=${upiId}&pn=Credit%20Card%20Bill&tn=Credit%20Card%20Bill%20Payment`;
     window.location.href = upiUrl;
@@ -193,7 +287,7 @@ export default function BillPay({ user, masterPassword, showSuccessMessage }) {
     return bankLogos.default?.symbolSVG;
   };
 
-  if (loading) {
+  if (loading || isDecrypting) {
     return <LoadingOverlay message="Loading your cards" />;
   }
 
@@ -312,25 +406,15 @@ export default function BillPay({ user, masterPassword, showSuccessMessage }) {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
               {supportedCards.map((card, idx) => {
-                // More flexible UPI ID generation
-                let upiId = null;
-                if (mobileNumber) {
-                  upiId = getUpiId(card);
-                }
+                // Use revealed UPI ID if available, otherwise show masked
+                const upiId = revealedUpiIds[card.id] || card.maskedUpiId;
+                const isRevealed = !!revealedUpiIds[card.id];
                 
                 // Show the card even if UPI ID can't be generated yet
-                const last4 = card.cardNumber.slice(-4);
+                const last4 = card.cardNumberLast4;
                 
-                // Use securityManager to decrypt theme if it's encrypted
-                let cardTheme;
-                try {
-                  cardTheme = typeof card.theme === 'string' && card.theme.startsWith('U2F') ? 
-                    securityManager.decryptData(card.theme, masterPassword) : 
-                    card.theme || "#6a3de8";
-                } catch (err) {
-                  console.error("Failed to decrypt card theme:", err);
-                  cardTheme = "#6a3de8"; // Fallback color
-                }
+                // Theme is already plain text from partial decryption
+                const cardTheme = card.theme || "#6a3de8";
 
                 return (
                   <motion.div 
@@ -376,9 +460,25 @@ export default function BillPay({ user, masterPassword, showSuccessMessage }) {
                           {/* UPI ID or Missing Mobile Number Message */}
                           <div className="flex items-center gap-2">
                             {upiId ? (
-                              <div className="px-3 py-1.5 bg-black/20 backdrop-blur-sm rounded-lg">
-                                <p className="text-white/70 text-xs font-mono">{upiId}</p>
-                              </div>
+                              <>
+                                <div className="flex-1 px-3 py-1.5 bg-black/20 backdrop-blur-sm rounded-lg">
+                                  <p className="text-white/70 text-xs font-mono">{upiId}</p>
+                                </div>
+                                {/* Eye icon to reveal/hide full UPI ID */}
+                                <motion.button
+                                  onClick={() => toggleUpiReveal(card.id, card)}
+                                  className="p-2 bg-black/20 backdrop-blur-sm rounded-lg hover:bg-black/30 transition-colors"
+                                  whileHover={{ scale: 1.05 }}
+                                  whileTap={{ scale: 0.95 }}
+                                  title={isRevealed ? "Hide full UPI ID" : "Reveal full UPI ID"}
+                                >
+                                  {isRevealed ? (
+                                    <BiHide className="w-4 h-4 text-white/70" />
+                                  ) : (
+                                    <BiShow className="w-4 h-4 text-white/70" />
+                                  )}
+                                </motion.button>
+                              </>
                             ) : (
                               <div className="px-3 py-1.5 bg-red-500/10 backdrop-blur-sm rounded-lg">
                                 <p className="text-red-300/80 text-xs">Add mobile number to enable payments</p>
@@ -389,7 +489,7 @@ export default function BillPay({ user, masterPassword, showSuccessMessage }) {
                         
                         {/* Pay Button - Only enable if UPI ID is available */}
                         <motion.button
-                          onClick={() => upiId && handlePayBill(upiId)}
+                          onClick={() => upiId && handlePayBill(card, card.maskedUpiId)}
                           className={`w-full px-4 py-2.5 
                             rounded-xl text-white font-medium flex items-center justify-center gap-2
                             border border-white/10 backdrop-blur-sm

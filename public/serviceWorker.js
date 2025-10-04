@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dred-v1';
+const CACHE_NAME = 'dred-v2-longpolling';
 const urlsToCache = [
   './',
   './index.html',
@@ -32,10 +32,13 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  // Skip Google Analytics requests and other known problematic external services
+  // Skip Google Analytics, Firebase APIs, and other known problematic external services
   if (event.request.url.includes('google-analytics.com') || 
       event.request.url.includes('googletagmanager.com') ||
-      event.request.url.includes('overbridgenet.com')) {
+      event.request.url.includes('overbridgenet.com') ||
+      event.request.url.includes('firestore.googleapis.com') ||
+      event.request.url.includes('firebaseio.com') ||
+      event.request.url.includes('googleapis.com')) {
     return;
   }
 

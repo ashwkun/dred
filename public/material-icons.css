@@ -1,0 +1,25 @@
+/* Predefine the Material Symbols class to avoid layout shift */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Force material icons to display as block initially to avoid layout shifts */
+.material-symbols-outlined::before {
+  content: "";
+  display: block;
+  height: 1em;
+  width: 1em;
+}
+

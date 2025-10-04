@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { secureLog } from '../utils/secureLogger';
 
 // Define theme presets with comprehensive styling options
 const themesData = {
@@ -252,7 +253,7 @@ export function ThemeProvider({ children }) {
         customizations: savedCustomizations
       };
     } catch (error) {
-      console.error('Error loading theme preferences:', error);
+      secureLog.error('Error loading theme preferences:', error);
       return {
         currentTheme: 'default',
         customizations: {

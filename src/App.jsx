@@ -1,34 +1,38 @@
 // App.jsx
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, lazy, Suspense, useCallback } from "react";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "./firebase";
 import Auth from "./Auth";
 import MasterPasswordPrompt from "./MasterPasswordPrompt";
-import ViewCards from "./ViewCards";
-import AddCard from "./AddCard";
-import Settings from "./features/settings/Settings";
 import logo from "./assets/logo.png";
 import { RiAddCircleLine, RiCreditCardLine } from 'react-icons/ri';
 import { BiCreditCard, BiAddToQueue, BiWallet as BiBillPay, BiCog, BiLogOut, BiSun, BiMoon } from 'react-icons/bi';
 import { useTheme } from './contexts/ThemeContext';
 import Sidebar from "./components/Sidebar";
 import MobileNav from "./components/MobileNav";
-import HowItWorks from "./components/HowItWorks";
-import TermsAndConditions from "./components/TermsAndConditions";
-import PrivacyPolicy from "./components/PrivacyPolicy";
 import { collection, getDocs, query, where, doc, updateDoc, onSnapshot } from "firebase/firestore";
-import CryptoJS from "crypto-js";
 import { db } from "./firebase";
-import BillPay from "./BillPay";
 import TopBar from "./components/TopBar";
 import Dialog from "./components/Dialog";
 import { SuccessAnimation } from "./components/SuccessAnimation";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { motion, AnimatePresence } from 'framer-motion';
+import { securityManager } from "./utils/security";
 import { LoadingOverlay } from "./components/LoadingOverlay";
+import { secureWipeArray } from './utils/secureCleanup';
 // Import new theme components
 import ThemePatterns from "./components/ThemePatterns";
 import { ThemedLoading, ThemedLoadingOverlay } from "./components/LoadingAnimations";
+import { secureLog } from './utils/secureLogger';
+
+// 🚀 PERFORMANCE: Lazy load heavy components for code splitting
+const ViewCards = lazy(() => import("./ViewCards"));
+const AddCard = lazy(() => import("./AddCard"));
+const Settings = lazy(() => import("./features/settings/Settings"));
+const BillPay = lazy(() => import("./BillPay"));
+const HowItWorks = lazy(() => import("./components/HowItWorks"));
+const TermsAndConditions = lazy(() => import("./components/TermsAndConditions"));
+const PrivacyPolicy = lazy(() => import("./components/PrivacyPolicy"));
 
 function App() {
   const [user, loading] = useAuthState(auth);
@@ -71,7 +75,7 @@ function App() {
   // Track if we've had at least one auth state
   const hadInitialAuthRef = useRef(false);
 
-  console.log(`App.jsx: Current activePage state: ${activePage}`);
+  secureLog.debug(`App.jsx: Current activePage state: ${activePage}`);
 
   // Sync URL hash with activePage
   useEffect(() => {
@@ -103,27 +107,28 @@ function App() {
   }, [user]);
 
   // Helper function to show success message
-  const showSuccessMessage = (message = "Success!") => {
+  // 🚀 PERFORMANCE: Memoize success message function
+  const showSuccessMessage = useCallback((message = "Success!") => {
     setSuccessMessage(message);
     setShowSuccess(true);
     // Auto-hide after 2 seconds
     setTimeout(() => setShowSuccess(false), 2000);
-  };
+  }, []); // No dependencies - setSuccessMessage and setShowSuccess are stable
 
   // Completely rewritten auth state listener using ref and debounce
   useEffect(() => {
-    console.log("App.jsx: Setting up auth state listener");
+    secureLog.debug("App.jsx: Setting up auth state listener");
     
     // Set the initial ref value if not already set
     if (!currentUserIdRef.current) {
       currentUserIdRef.current = user?.uid || null;
-      console.log(`App.jsx: Initial user ID set to: ${currentUserIdRef.current}`);
+      secureLog.debug(`App.jsx: Initial user ID set to: ${currentUserIdRef.current}`);
     }
     
     const handleAuthStateChange = (authUser) => {
       // Clear any pending debounced auth state handler
       if (authDebounceRef.current) {
-        console.log("App.jsx: Clearing previous debounced auth handler");
+        secureLog.debug("App.jsx: Clearing previous debounced auth handler");
         clearTimeout(authDebounceRef.current);
       }
       
@@ -132,7 +137,7 @@ function App() {
         const newUserId = authUser?.uid || null;
         const prevUserId = currentUserIdRef.current;
         
-        console.log(`App.jsx: Auth state change (debounced): 
+        secureLog.debug(`App.jsx: Auth state change (debounced): 
           Previous ID: ${prevUserId}, 
           New ID: ${newUserId}, 
           In grace period: ${Boolean(passwordEntryTimeRef.current)}
@@ -140,7 +145,7 @@ function App() {
         
         // If this is the first auth state after app load, don't reset the password
         if (!hadInitialAuthRef.current) {
-          console.log("App.jsx: First auth state change, not resetting password");
+          secureLog.debug("App.jsx: First auth state change, not resetting password");
           hadInitialAuthRef.current = true;
           currentUserIdRef.current = newUserId;
           return;
@@ -158,10 +163,10 @@ function App() {
             !inGracePeriod && 
             prevUserId !== null && 
             newUserId !== prevUserId) {
-          console.log("App.jsx: User changed, resetting master password");
+          secureLog.debug("App.jsx: User changed, resetting master password");
           setMasterPassword(null);
         } else {
-          console.log(`App.jsx: No need to reset password - same user: ${prevUserId === newUserId}, 
+          secureLog.debug(`App.jsx: No need to reset password - same user: ${prevUserId === newUserId}, 
             in grace period: ${inGracePeriod}, 
             initial auth: ${prevUserId === null}`);
         }
@@ -176,7 +181,7 @@ function App() {
     
     // Cleanup function
     return () => {
-      console.log("App.jsx: Cleaning up auth state listener");
+      secureLog.debug("App.jsx: Cleaning up auth state listener");
       if (authDebounceRef.current) {
         clearTimeout(authDebounceRef.current);
       }
@@ -187,7 +192,7 @@ function App() {
   // Add a special handler for master password changes to track them
   useEffect(() => {
     if (masterPassword) {
-      console.log("App.jsx: Master password set, starting grace period");
+      secureLog.debug("App.jsx: Master password set, starting grace period");
       passwordEntryTimeRef.current = Date.now();
     }
   }, [masterPassword]);
@@ -195,42 +200,32 @@ function App() {
   // Add detailed user debugging logs
   useEffect(() => {
     if (loading) {
-      console.log("App.jsx: Auth state is still loading...");
+      secureLog.debug("App.jsx: Auth state is still loading...");
     } else if (user) {
-      console.log("App.jsx: User is authenticated:", { uid: user.uid, email: user.email });
+      secureLog.debug("App.jsx: User is authenticated:", { uid: user.uid, email: user.email });
     } else {
-      console.log("App.jsx: No authenticated user");
+      secureLog.debug("App.jsx: No authenticated user");
     }
   }, [user, loading]);
 
-  // Add session timeout handler
+  // Add master password timeout handler
   useEffect(() => {
-    // Handle session timeout event (occurs after inactivity)
-    const handleSessionTimeout = (e) => {
-      console.log("Session timeout detected");
-      // Don't sign out immediately if the user is active in the app
-      // Instead, check if they've been inactive or are in the middle of an operation
-      if (activePage === "addCard" || activePage === "viewCards") {
-        console.log("User is active in app, preventing auto-logout");
-        // Prevent auto-logout
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
-      }
+    // Handle master password timeout event (occurs after 5 min inactivity)
+    const handleMasterPasswordTimeout = () => {
+      secureLog.debug("Master password timeout detected (5 min inactivity)");
       
-      // Otherwise proceed with signing out
-      signOut(auth).then(() => {
-        console.log("User signed out due to inactivity");
-      });
+      // Only clear master password, keep Google session active
+      setMasterPassword(null);
+      secureLog.debug("Master password cleared. User will need to re-enter password (Google session kept)");
     };
     
-    window.addEventListener('session-timeout', handleSessionTimeout);
+    window.addEventListener('master-password-timeout', handleMasterPasswordTimeout);
     
     // Cleanup 
     return () => {
-      window.removeEventListener('session-timeout', handleSessionTimeout);
+      window.removeEventListener('master-password-timeout', handleMasterPasswordTimeout);
     };
-  }, [activePage]);
+  }, []); // No dependencies needed
 
   useEffect(() => {
     // Check if app is installed
@@ -240,7 +235,7 @@ function App() {
       const isAndroidInstalled = document.referrer.includes('android-app://');
 
       const currentlyInstalled = isStandalone || isIOSInstalled || isAndroidInstalled;
-      console.log('Install check:', { isStandalone, isIOSInstalled, isAndroidInstalled, currentlyInstalled });
+      secureLog.debug('Install check:', { isStandalone, isIOSInstalled, isAndroidInstalled, currentlyInstalled });
 
       // Only update if the state actually changed to avoid unnecessary re-renders
       setIsAppInstalled(prev => currentlyInstalled !== prev ? currentlyInstalled : prev);
@@ -252,7 +247,7 @@ function App() {
     // Listen for install prompt
     const handleBeforeInstall = (e) => {
       e.preventDefault();
-      console.log('Install prompt detected');
+      secureLog.debug('Install prompt detected');
       setDeferredPrompt(e);
       setIsAppInstalled(false); // Browser wants to show install, so app can't be installed
     };
@@ -261,7 +256,7 @@ function App() {
 
     // Listen for successful installation
     window.addEventListener('appinstalled', () => {
-      console.log('App installed');
+      secureLog.debug('App installed');
       setIsAppInstalled(true);
       setDeferredPrompt(null);
     });
@@ -269,7 +264,7 @@ function App() {
     // Listen for display mode changes (when app is launched from home screen)
     const mediaQuery = window.matchMedia('(display-mode: standalone)');
     const handleDisplayModeChange = (e) => {
-      console.log('Display mode changed:', e.matches);
+      secureLog.debug('Display mode changed:', e.matches);
       setIsAppInstalled(e.matches);
     };
     mediaQuery.addEventListener('change', handleDisplayModeChange);
@@ -296,14 +291,14 @@ function App() {
     
     const loadCards = () => {
       if (!user || !masterPassword) {
-        console.log("App.jsx: Not loading cards, user or masterPassword is missing", { 
+        secureLog.debug("App.jsx: Not loading cards, user or masterPassword is missing", { 
           hasUser: !!user, 
           hasMasterPassword: !!masterPassword 
         });
         return;
       }
       
-      console.log("App.jsx: Setting up cards listener for user", user.uid);
+      secureLog.debug("App.jsx: Setting up cards listener for user", user.uid);
       try {
         const q = query(
           collection(db, "cards"),
@@ -312,10 +307,10 @@ function App() {
         
         // Use onSnapshot instead of getDocs for real-time updates
         unsubscribe = onSnapshot(q, (snapshot) => {
-          console.log(`App.jsx: Received snapshot with ${snapshot.docs.length} cards from Firestore`);
+          secureLog.debug(`App.jsx: Received snapshot with ${snapshot.docs.length} cards from Firestore`);
           
           if (snapshot.empty) {
-            console.log("App.jsx: No cards found for this user");
+            secureLog.debug("App.jsx: No cards found for this user");
             setCards([]);
             return;
           }
@@ -328,21 +323,21 @@ function App() {
                   id: doc.id
                 };
               } catch (err) {
-                console.error("Error processing card data:", err);
+                secureLog.error("Error processing card data:", err);
                 return { id: doc.id, error: "Failed to process card data" };
               }
             });
             
-            console.log(`App.jsx: Setting ${cardsData.length} cards to state`);
+            secureLog.debug(`App.jsx: Setting ${cardsData.length} cards to state`);
             setCards(cardsData);
           } catch (error) {
-            console.error('Error processing cards snapshot:', error);
+            secureLog.error('Error processing cards snapshot:', error);
           }
         }, (error) => {
-          console.error('Error in cards listener:', error);
+          secureLog.error('Error in cards listener:', error);
         });
       } catch (error) {
-        console.error('Error setting up cards listener:', error);
+        secureLog.error('Error setting up cards listener:', error);
       }
     };
 
@@ -350,14 +345,19 @@ function App() {
     
     return () => {
       if (unsubscribe) {
-        console.log("App.jsx: Cleaning up cards listener");
+        secureLog.debug("App.jsx: Cleaning up cards listener");
         unsubscribe();
       }
+      // Clear cards data
+      secureWipeArray(cards);
+      setCards([]);
     };
   }, [user, masterPassword]); // These are the correct dependencies
 
+  // 🔐 SECURITY: Removed pre-decryption - cards now decrypted on-demand with auto-clearing cache
+
   const handleSignOutClick = () => {
-    console.log("App.jsx: handleSignOutClick called");
+    secureLog.debug("App.jsx: handleSignOutClick called");
     
     // Show the confirmation dialog
     setDialog({
@@ -368,15 +368,18 @@ function App() {
       cancelText: 'Cancel',
       type: 'danger',
       onConfirm: async () => {
-        console.log("App.jsx: User confirmed sign out, executing...");
-        // Clear the master password first
+        secureLog.debug("App.jsx: User confirmed sign out, executing...");
+        // Clear sensitive data first
+        secureWipeArray(cards);
+        setCards([]);
+        // Clear the master password
         setMasterPassword(null);
         // Then sign out from Firebase
         try {
           await signOut(auth);
-          console.log("App.jsx: Sign out successful");
+          secureLog.debug("App.jsx: Sign out successful");
         } catch (error) {
-          console.error("App.jsx: Error signing out:", error);
+          secureLog.error("App.jsx: Error signing out:", error);
         } finally {
           // Always close the dialog
           setDialog(prev => ({ ...prev, isOpen: false }));
@@ -386,7 +389,7 @@ function App() {
   };
 
   const handleInstallClick = () => {
-    console.log('Install clicked, deferredPrompt:', deferredPrompt, 'isAppInstalled:', isAppInstalled);
+    secureLog.debug('Install clicked, deferredPrompt:', deferredPrompt, 'isAppInstalled:', isAppInstalled);
 
     if (isAppInstalled) {
       // App is already installed, show a message
@@ -432,7 +435,7 @@ function App() {
         deferredPrompt.prompt();
         deferredPrompt.userChoice.then((choiceResult) => {
           if (choiceResult.outcome === 'accepted') {
-            console.log('App installed');
+            secureLog.debug('App installed');
           }
           setDeferredPrompt(null);
           setDialog(prev => ({ ...prev, isOpen: false }));
@@ -443,12 +446,12 @@ function App() {
 
   // In App.jsx, add extra validation to ensure we always have a user ID
   const safeUserId = user?.uid || null;
-  console.log("App.jsx user ID:", safeUserId);
+    secureLog.debug("App.jsx user ID:", safeUserId);
 
   // Add more logging for userId
   useEffect(() => {
-    console.log("App.jsx: User changed:", user);
-    console.log("App.jsx: User ID is:", user?.uid);
+    secureLog.debug("App.jsx: User changed:", user);
+    secureLog.debug("App.jsx: User ID is:", user?.uid);
   }, [user]);
 
   const toggleMode = () => {
@@ -456,7 +459,7 @@ function App() {
     setMode(newMode);
     // Persist the mode in localStorage for future sessions
     localStorage.setItem('dred-color-mode', newMode);
-    console.log(`App.jsx: Theme mode toggled to ${newMode}`);
+    secureLog.debug(`App.jsx: Theme mode toggled to ${newMode}`);
   };
 
   // Load saved mode preference on initial render
@@ -464,23 +467,37 @@ function App() {
     const savedMode = localStorage.getItem('dred-color-mode');
     if (savedMode) {
       setMode(savedMode);
-      console.log(`App.jsx: Loaded saved theme mode: ${savedMode}`);
+      secureLog.debug(`App.jsx: Loaded saved theme mode: ${savedMode}`);
     }
   }, []);
 
-  const changeActivePage = (page) => {
-    console.log(`App.jsx: Changing active page from ${activePage} to ${page}`);
+  // 🚀 PERFORMANCE: Memoize page change function to prevent re-creating on every render
+  const changeActivePage = useCallback((page) => {
+    secureLog.debug(`App.jsx: Changing active page to ${page}`);
     setActivePage(page);
-  };
+  }, []); // No dependencies - setActivePage is stable
+
+  // 🚀 PERFORMANCE: Idle prefetch ViewCards chunk when app is idle
+  useEffect(() => {
+    if ('requestIdleCallback' in window) {
+      window.requestIdleCallback(() => {
+        import(/* webpackPrefetch: true */ './ViewCards');
+      }, { timeout: 2000 });
+    } else {
+      setTimeout(() => {
+        import('./ViewCards');
+      }, 1500);
+    }
+  }, []);
 
   // Add an effect to log masterPassword changes
   useEffect(() => {
-    console.log("App.jsx: masterPassword state changed:", masterPassword ? "Password is set" : "Password is NOT set");
+    secureLog.debug("App.jsx: masterPassword state changed:", masterPassword ? "Password is set" : "Password is NOT set");
   }, [masterPassword]);
 
   // Add an effect to log when the dialog state changes
   useEffect(() => {
-    console.log("App.jsx: Dialog state changed:", { 
+    secureLog.debug("App.jsx: Dialog state changed:", { 
       isOpen: dialog.isOpen, 
       title: dialog.title,
       hasConfirmFn: !!dialog.onConfirm 
@@ -519,32 +536,44 @@ function App() {
   const renderContent = () => {
     // Special case: Allow viewing HowItWorks without authentication
     if (activePage === "howItWorks") {
-      return <HowItWorks setActivePage={(page) => {
-        // If user is not logged in, always go back to auth
-        if (!user) {
-          console.log("App.jsx: HowItWorks - User not logged in, returning to auth page");
-          setActivePage("auth");
-        } else {
-          console.log(`App.jsx: HowItWorks - Going to ${page}`);
-          setActivePage(page);
-        }
-      }} />;
+      return (
+        <Suspense fallback={<LoadingOverlay message="Loading..." />}>
+          <HowItWorks setActivePage={(page) => {
+            // If user is not logged in, always go back to auth
+            if (!user) {
+              secureLog.debug("App.jsx: HowItWorks - User not logged in, returning to auth page");
+              setActivePage("auth");
+            } else {
+              secureLog.debug(`App.jsx: HowItWorks - Going to ${page}`);
+              setActivePage(page);
+            }
+          }} />
+        </Suspense>
+      );
     }
 
     // Special case: Allow viewing Terms without authentication
     if (activePage === "terms") {
-      return <TermsAndConditions setActivePage={(page) => {
-        console.log(`App.jsx: TermsAndConditions - Going to ${page}`);
-        setActivePage(page);
-      }} />;
+      return (
+        <Suspense fallback={<LoadingOverlay message="Loading..." />}>
+          <TermsAndConditions setActivePage={(page) => {
+            secureLog.debug(`App.jsx: TermsAndConditions - Going to ${page}`);
+            setActivePage(page);
+          }} />
+        </Suspense>
+      );
     }
 
     // Special case: Allow viewing Privacy Policy without authentication
     if (activePage === "privacy") {
-      return <PrivacyPolicy setActivePage={(page) => {
-        console.log(`App.jsx: PrivacyPolicy - Going to ${page}`);
-        setActivePage(page);
-      }} />;
+      return (
+        <Suspense fallback={<LoadingOverlay message="Loading..." />}>
+          <PrivacyPolicy setActivePage={(page) => {
+            secureLog.debug(`App.jsx: PrivacyPolicy - Going to ${page}`);
+            setActivePage(page);
+          }} />
+        </Suspense>
+      );
     }
     
     // If user is not logged in OR email not verified, show Auth screen
@@ -577,7 +606,7 @@ function App() {
           onInstall={handleInstallClick}
           setDialog={setDialog}
           onPasswordSubmit={(password) => {
-            console.log("App.jsx: Password submitted in MasterPasswordPrompt");
+            secureLog.debug("App.jsx: Password submitted in MasterPasswordPrompt");
             setMasterPassword(password);
           }}
         />
@@ -625,43 +654,54 @@ function App() {
                 initial="initial"
                 animate="animate"
                 exit="exit"
-                transition={{ duration: 0.2 }}
+                transition={{ duration: 0.15 }} // 🚀 PERFORMANCE: Reduced from 0.2s for snappier navigation
                 className="h-full"
               >
                 {activePage === "viewCards" && (
-                  <ViewCards
-                    user={user}
-                    masterPassword={masterPassword}
-                    setActivePage={changeActivePage}
-                    setDialog={setDialog}
-                    showSuccessMessage={showSuccessMessage}
-                    cards={cards}
-                    setCards={setCards}
-                  />
+                  <Suspense fallback={<LoadingOverlay message="Loading Your Cards..." />}>
+                    <ViewCards 
+                      user={user}
+                      masterPassword={masterPassword}
+                      setActivePage={changeActivePage}
+                      setDialog={setDialog}
+                      showSuccessMessage={showSuccessMessage}
+                      cards={cards}
+                      setCards={setCards}
+                    />
+                  </Suspense>
                 )}
                 {activePage === "addCard" && (
-                  <AddCard 
-                    user={user} 
-                    masterPassword={masterPassword} 
-                    setActivePage={changeActivePage}
-                    showSuccessMessage={showSuccessMessage}
-                  />
+                  <Suspense fallback={<LoadingOverlay message="Loading Add Card..." />}>
+                    <AddCard 
+                      user={user} 
+                      masterPassword={masterPassword} 
+                      setActivePage={changeActivePage}
+                      showSuccessMessage={showSuccessMessage}
+                    />
+                  </Suspense>
                 )}
                 {activePage === "billPay" && (
-                  <BillPay 
-                    user={user} 
-                    masterPassword={masterPassword}
-                    setActivePage={changeActivePage}
-                    showSuccessMessage={showSuccessMessage}
-                  />
+                  <Suspense fallback={<LoadingOverlay message="Loading Bill Pay..." />}>
+                    <BillPay 
+                      user={user} 
+                      masterPassword={masterPassword}
+                      setActivePage={changeActivePage}
+                      showSuccessMessage={showSuccessMessage}
+                      cards={cards}
+                    />
+                  </Suspense>
                 )}
                 {activePage === "settings" && (
-                  <Settings 
-                    user={user} 
-                    masterPassword={masterPassword} 
-                    setDialog={setDialog}
-                    showSuccessMessage={showSuccessMessage}
-                  />
+                  <Suspense fallback={<LoadingOverlay message="Loading Settings..." />}>
+                    <Settings 
+                      user={user} 
+                      masterPassword={masterPassword} 
+                      setDialog={setDialog}
+                      showSuccessMessage={showSuccessMessage}
+                      cards={cards}
+                      setActivePage={changeActivePage}
+                    />
+                  </Suspense>
                 )}
               </motion.div>
             </AnimatePresence>
@@ -682,7 +722,7 @@ function App() {
   // Render dialog component if open
   const renderDialog = () => {
     if (dialog.isOpen) {
-      console.log("App.jsx: Rendering dialog:", dialog.title);
+      secureLog.debug("App.jsx: Rendering dialog:", dialog.title);
       return (
         <Dialog
           isOpen={dialog.isOpen}

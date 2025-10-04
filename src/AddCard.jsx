@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import CryptoJS from "crypto-js";
 import { db } from "./firebase";
 import { addDoc, collection, serverTimestamp, query, getDocs, orderBy, limit, where } from "firebase/firestore";
 import binData from "./binData.json";
@@ -9,13 +8,14 @@ import { BiAddToQueue } from 'react-icons/bi';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { retryOperation } from './utils/firestore';
 import { motion } from "framer-motion";
+import { secureLog } from './utils/secureLogger';
 
 function AddCard({ user, masterPassword, setActivePage, showSuccessMessage }) {
   const [cardHolder, setCardHolder] = useState(user?.displayName || ""); // Editable
   const [cardNumber, setCardNumber] = useState("");
   const [bankName, setBankName] = useState("");
   const [networkName, setNetworkName] = useState("");
-  const [cardType, setCardType] = useState("");
+  const [cardName, setCardName] = useState("");
   const [expiry, setExpiry] = useState("");
   const [cvv, setCvv] = useState("");
   const [theme, setTheme] = useState("#6a3de8"); // Default theme
@@ -25,7 +25,7 @@ function AddCard({ user, masterPassword, setActivePage, showSuccessMessage }) {
   // Check form validity
   const isFormValid = () => {
     // Check all required fields are filled
-    if (!cardNumber || !cardHolder || !bankName || !networkName || !expiry || !cvv || !cardType) {
+    if (!cardNumber || !cardHolder || !bankName || !networkName || !expiry || !cvv || !cardName) {
       return false;
     }
     
@@ -101,30 +101,39 @@ function AddCard({ user, masterPassword, setActivePage, showSuccessMessage }) {
 
         // Ensure user is still valid before encrypting
         if (!user || !user.uid) {
-          console.error("User is not defined or missing UID");
+          secureLog.error("User is not defined or missing UID");
           throw new Error("Authentication error. Please refresh and try again.");
         }
 
         // Check if masterPassword is still valid
         if (!masterPassword) {
-          console.error("Master password is not defined");
+          secureLog.error("Master password is not defined");
           throw new Error("Session expired. Please refresh and enter your master password again.");
         }
 
+        // 🔐 TIERED SECURITY: Split card number for partial decryption
+        const cleanCardNumber = cardNumber.replace(/\s/g, '');
+        const isAmex = cleanCardNumber.startsWith('34') || cleanCardNumber.startsWith('37');
+        const splitPoint = isAmex ? 11 : 12; // Amex: 11+4, Others: 12+4
+        
+        const cardNumberFirst = cleanCardNumber.slice(0, splitPoint); // First 11 or 12 digits
+        const cardNumberLast4 = cleanCardNumber.slice(splitPoint);    // Last 4 digits
+
         const encryptedCard = {
           uid: user.uid,
-          cardNumber: CryptoJS.AES.encrypt(cardNumber.replace(/\s/g, ''), masterPassword).toString(),
-          cardHolder: CryptoJS.AES.encrypt(cardHolder, masterPassword).toString(),
-          bankName: CryptoJS.AES.encrypt(bankName, masterPassword).toString(),
-          networkName: CryptoJS.AES.encrypt(networkName, masterPassword).toString(),
-          expiry: CryptoJS.AES.encrypt(expiry, masterPassword).toString(),
-          cvv: CryptoJS.AES.encrypt(cvv, masterPassword).toString(),
-          cardType: cardType,
+          ...await securityManager.encryptCardNumberSplit(cleanCardNumber, masterPassword),
+          cardHolder: await securityManager.encryptData(cardHolder, masterPassword),
+          bankName: await securityManager.encryptData(bankName, masterPassword),
+          networkName: await securityManager.encryptData(networkName, masterPassword),
+          expiry: await securityManager.encryptData(expiry, masterPassword),
+          cvv: await securityManager.encryptData(cvv, masterPassword),
+          cardName: await securityManager.encryptData(cardName, masterPassword),
+          isAmex: isAmex, // Plain boolean for UI logic
           theme: theme,
           createdAt: serverTimestamp()
         };
 
-        console.log("Adding card for user:", user.uid);
+        secureLog.debug("Adding card for user:", user.uid);
         await addDoc(collection(db, "cards"), encryptedCard);
       });
       
@@ -137,7 +146,7 @@ function AddCard({ user, masterPassword, setActivePage, showSuccessMessage }) {
       }, 1000);
 
     } catch (error) {
-      console.error("Error adding card:", error);
+      secureLog.error("Error adding card:", error);
       setError(error.message || "Failed to add card. Please try again.");
     } finally {
       setIsLoading(false);
@@ -168,7 +177,6 @@ function AddCard({ user, masterPassword, setActivePage, showSuccessMessage }) {
     setExpiry("");
     setBankName("");
     setNetworkName("");
-    setCardType("");
     setTheme("#6a3de8");
   };
 
@@ -288,10 +296,10 @@ function AddCard({ user, masterPassword, setActivePage, showSuccessMessage }) {
                     />
                   </div>
 
-                  {/* Card Type */}
+                  {/* Card Name */}
                   <div>
                     <label className="block text-white/70 text-sm font-medium mb-2">
-                      Card Type
+                      Card Name
                     </label>
                     <input
                       type="text"
@@ -299,9 +307,9 @@ function AddCard({ user, masterPassword, setActivePage, showSuccessMessage }) {
                         text-white placeholder-white/30 focus:outline-none focus:ring-2 
                         focus:ring-primary/30 focus:border-transparent backdrop-blur-sm
                         transition-all duration-200"
-                      value={cardType}
-                      onChange={(e) => setCardType(e.target.value)}
-                      placeholder="Credit, Debit, Prepaid"
+                      value={cardName}
+                      onChange={(e) => setCardName(e.target.value)}
+                      placeholder="Platinum, TATA Neu, My Zone etc"
                       required
                     />
                   </div>

@@ -3,6 +3,8 @@ import { BiCamera } from 'react-icons/bi';
 import { FaCamera, FaTimes, FaVideo } from 'react-icons/fa';
 import { createWorker } from 'tesseract.js';
 import Dialog from './Dialog';
+import { secureWipeString } from '../utils/secureCleanup';
+import { secureLog } from '../utils/secureLogger';
 
 function CardScannerComponent({ onScanComplete }) {
   const [isScanning, setIsScanning] = useState(false);
@@ -55,7 +57,7 @@ function CardScannerComponent({ onScanComplete }) {
       stream.getTracks().forEach(track => track.stop());
       return true;
     } catch (error) {
-      console.error('Camera permission check error:', error);
+      secureLog.error('Camera permission check error:', error);
       
       if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
         showDialog('Permission Denied', `Camera access was denied. Please follow these steps:
@@ -89,7 +91,7 @@ function CardScannerComponent({ onScanComplete }) {
           stream = await navigator.mediaDevices.getUserMedia(constraint);
           if (stream) break;
         } catch (err) {
-          console.log('Trying next constraint:', err);
+          secureLog.debug('Trying next constraint:', err);
         }
       }
 
@@ -132,7 +134,7 @@ function CardScannerComponent({ onScanComplete }) {
       });
 
     } catch (error) {
-      console.error('Camera initialization error:', error);
+      secureLog.error('Camera initialization error:', error);
       handleCameraError(error);
       
       if (streamRef.current) {
@@ -146,7 +148,7 @@ function CardScannerComponent({ onScanComplete }) {
   };
 
   const handleCameraError = (error) => {
-    console.error('Camera error:', error);
+    secureLog.error('Camera error:', error);
     let message = 'Failed to access camera. ';
     
     switch (error.name) {
@@ -200,21 +202,28 @@ function CardScannerComponent({ onScanComplete }) {
       });
 
       const { data: { text } } = await worker.recognize(canvas);
-      console.log('Recognized text:', text);
+      secureLog.debug('Recognized text:', text);
 
-      const cardNumber = text.match(/\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}/)?.[0]?.replace(/[\s-]/g, '');
+      let fullNumber = text.match(/\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}/)?.[0]?.replace(/[\s-]/g, '');
       const expiry = text.match(/(0[1-9]|1[0-2])[/\s]?(2[3-9]|[3-9][0-9])/)?.[0];
       const name = text.match(/[A-Z]+ [A-Z]+/)?.[0];
 
-      if (cardNumber) {
-        const firstDigit = cardNumber[0];
+      if (fullNumber) {
+        const firstDigit = fullNumber[0];
         let detectedCardType = '';
         if (firstDigit === '4') detectedCardType = 'Visa';
         else if (firstDigit === '5') detectedCardType = 'Mastercard';
         else if (firstDigit === '3') detectedCardType = 'American Express';
         
+        // Split card number for secure storage
+        const isAmex = firstDigit === '3';
+        const splitPoint = isAmex ? 11 : 12;
+        const cardNumberFirst = fullNumber.slice(0, splitPoint);
+        const cardNumberLast4 = fullNumber.slice(-4);
+        
         onScanComplete({
-          number: cardNumber,
+          cardNumberFirst,
+          cardNumberLast4,
           expiry: expiry || '',
           name: name || '',
           type: detectedCardType
@@ -224,11 +233,14 @@ function CardScannerComponent({ onScanComplete }) {
         showDialog('Scan Error', 'Could not detect card details clearly. Please try again.');
       }
     } catch (error) {
-      console.error('Error processing card:', error);
+      secureLog.error('Error processing card:', error);
       showDialog('Processing Error', 'Error processing card. Please try again.');
-    } finally {
+      } finally {
       if (worker) {
         await worker.terminate();
+      }
+      if (fullNumber) {
+        fullNumber = secureWipeString(fullNumber);
       }
       setIsProcessing(false);
     }
@@ -238,10 +250,10 @@ function CardScannerComponent({ onScanComplete }) {
     try {
       const devices = await navigator.mediaDevices.enumerateDevices();
       const cameras = devices.filter(device => device.kind === 'videoinput');
-      console.log('Available cameras:', cameras);
+      secureLog.debug('Available cameras:', cameras);
       
       if (videoRef.current) {
-        console.log('Video element state:', {
+        secureLog.debug('Video element state:', {
           readyState: videoRef.current.readyState,
           videoWidth: videoRef.current.videoWidth,
           videoHeight: videoRef.current.videoHeight,
@@ -251,7 +263,7 @@ function CardScannerComponent({ onScanComplete }) {
       
       if (streamRef.current) {
         const tracks = streamRef.current.getVideoTracks();
-        console.log('Stream tracks:', tracks.map(t => ({
+        secureLog.debug('Stream tracks:', tracks.map(t => ({
           label: t.label,
           enabled: t.enabled,
           state: t.readyState,
@@ -259,7 +271,7 @@ function CardScannerComponent({ onScanComplete }) {
         })));
       }
     } catch (error) {
-      console.error('Debug error:', error);
+      secureLog.error('Debug error:', error);
     }
   };
 

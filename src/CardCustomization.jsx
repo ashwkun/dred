@@ -93,7 +93,7 @@ function CardCustomization({ cardHolder, cardNumber, bankName, networkName, expi
 
           {/* Card Number */}
           <div className="text-xl md:text-2xl text-white tracking-wider text-center font-medium">
-            {cardNumber ? cardNumber.replace(/(.{4})/g, "$1 ").trim() : "•••• •••• •••• ••••"}
+            {cardNumber ? cardNumber.replace(/(.{4})/g, "$1 ").trim() : "•••• •••• •••• ••••"} {/* Safe: only used for preview */}
           </div>
 
           {/* Card Holder & Network Logo */}
