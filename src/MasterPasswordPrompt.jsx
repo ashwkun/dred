@@ -97,7 +97,7 @@ function MasterPasswordPrompt({ setMasterPassword, user, setActivePage, mode, to
         throw new Error("User not authenticated. Please refresh and try again.");
       }
 
-      const validationString = securityManager.createValidationString(masterPass, validationSentence);
+      const validationString = await securityManager.createValidationString(masterPass, validationSentence);
       await setDoc(doc(db, "validationStrings", user.uid), {
         validationString,
         createdAt: new Date(),

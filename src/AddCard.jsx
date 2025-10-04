@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import CryptoJS from "crypto-js";
 import { db } from "./firebase";
 import { addDoc, collection, serverTimestamp, query, getDocs, orderBy, limit, where } from "firebase/firestore";
 import binData from "./binData.json";
@@ -15,7 +14,7 @@ function AddCard({ user, masterPassword, setActivePage, showSuccessMessage }) {
   const [cardNumber, setCardNumber] = useState("");
   const [bankName, setBankName] = useState("");
   const [networkName, setNetworkName] = useState("");
-  const [cardType, setCardType] = useState("");
+  const [cardName, setCardName] = useState("");
   const [expiry, setExpiry] = useState("");
   const [cvv, setCvv] = useState("");
   const [theme, setTheme] = useState("#6a3de8"); // Default theme
@@ -25,7 +24,7 @@ function AddCard({ user, masterPassword, setActivePage, showSuccessMessage }) {
   // Check form validity
   const isFormValid = () => {
     // Check all required fields are filled
-    if (!cardNumber || !cardHolder || !bankName || !networkName || !expiry || !cvv || !cardType) {
+    if (!cardNumber || !cardHolder || !bankName || !networkName || !expiry || !cvv || !cardName) {
       return false;
     }
     
@@ -113,13 +112,13 @@ function AddCard({ user, masterPassword, setActivePage, showSuccessMessage }) {
 
         const encryptedCard = {
           uid: user.uid,
-          cardNumber: securityManager.encryptData(cardNumber.replace(/\s/g, ''), masterPassword),
-          cardHolder: securityManager.encryptData(cardHolder, masterPassword),
-          bankName: securityManager.encryptData(bankName, masterPassword),
-          networkName: securityManager.encryptData(networkName, masterPassword),
-          expiry: securityManager.encryptData(expiry, masterPassword),
-          cvv: securityManager.encryptData(cvv, masterPassword),
-          cardType: cardType,
+          cardNumber: await securityManager.encryptData(cardNumber.replace(/\s/g, ''), masterPassword),
+          cardHolder: await securityManager.encryptData(cardHolder, masterPassword),
+          bankName: await securityManager.encryptData(bankName, masterPassword),
+          networkName: await securityManager.encryptData(networkName, masterPassword),
+          expiry: await securityManager.encryptData(expiry, masterPassword),
+          cvv: await securityManager.encryptData(cvv, masterPassword),
+          cardName: await securityManager.encryptData(cardName, masterPassword),
           theme: theme,
           createdAt: serverTimestamp()
         };
@@ -288,10 +287,10 @@ function AddCard({ user, masterPassword, setActivePage, showSuccessMessage }) {
                     />
                   </div>
 
-                  {/* Card Type */}
+                  {/* Card Name */}
                   <div>
                     <label className="block text-white/70 text-sm font-medium mb-2">
-                      Card Type
+                      Card Name
                     </label>
                     <input
                       type="text"
@@ -299,9 +298,9 @@ function AddCard({ user, masterPassword, setActivePage, showSuccessMessage }) {
                         text-white placeholder-white/30 focus:outline-none focus:ring-2 
                         focus:ring-primary/30 focus:border-transparent backdrop-blur-sm
                         transition-all duration-200"
-                      value={cardType}
-                      onChange={(e) => setCardType(e.target.value)}
-                      placeholder="Credit, Debit, Prepaid"
+                      value={cardName}
+                      onChange={(e) => setCardName(e.target.value)}
+                      placeholder="Platinum, TATA Neu, My Zone etc"
                       required
                     />
                   </div>

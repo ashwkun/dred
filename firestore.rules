@@ -29,12 +29,22 @@ service cloud.firestore {
     // Validate card structure and encrypted fields
     function isValidCard() {
       let card = request.resource.data;
-      return card.keys().hasAll(['uid', 'cardHolder', 'cardNumber', 'bankName', 'networkName', 
-        'cardType', 'expiry', 'cvv', 'theme', 'createdAt']) &&
+      
+      // Check for required base fields (without cardName/cardType since they're optional/either-or)
+      let hasBaseFields = card.keys().hasAll(['uid', 'cardHolder', 'cardNumber', 'bankName', 
+        'networkName', 'expiry', 'cvv', 'theme', 'createdAt']);
+      
+      // New cards must have cardName, old cards can have cardType (backwards compatible)
+      let hasCardIdentifier = ('cardName' in card && card.cardName is string && 
+                                isValidEncryptedString(card.cardName)) || 
+                               ('cardType' in card && card.cardType is string && 
+                                card.cardType.size() < 100);
+      
+      return hasBaseFields &&
         // Basic type checks
         card.uid is string &&
         card.uid == request.auth.uid && // CRITICAL: uid must match auth
-        card.cardType is string &&
+        hasCardIdentifier && // Must have either cardName or cardType
         card.createdAt is timestamp &&
         // Encrypted fields validation
         isValidEncryptedString(card.cardHolder) &&
@@ -43,11 +53,10 @@ service cloud.firestore {
         isValidEncryptedString(card.networkName) &&
         isValidEncryptedString(card.expiry) &&
         isValidEncryptedString(card.cvv) &&
-        // Theme validation (can be encrypted or plain)
+        // Theme validation (plain text)
         card.theme is string &&
         card.theme.size() < 1000 &&
         // Size limits
-        card.cardType.size() < 100 &&
         card.size() < 50000; // Max 50KB per card document
     }
     

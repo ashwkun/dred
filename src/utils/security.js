@@ -1,12 +1,46 @@
-import CryptoJS from 'crypto-js';
+// Security Manager using Web Crypto API with non-extractable keys
 import { setDoc, getDoc, doc } from 'firebase/firestore';
 import { db } from '../firebase';
 
 // Constants
 const RATE_LIMIT_MS = 1000; // 1 second
-const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
+const MASTER_PASSWORD_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
 const MAX_FAILED_ATTEMPTS = 3;
 const LOCKOUT_TIME_MS = 15 * 60 * 1000; // 15 minutes
+const PBKDF2_ITERATIONS = 100000;
+const KEY_LENGTH = 256; // AES-256
+
+// Utility: Convert string to ArrayBuffer
+function str2ab(str) {
+  const encoder = new TextEncoder();
+  return encoder.encode(str);
+}
+
+// Utility: Convert ArrayBuffer to string
+function ab2str(buffer) {
+  const decoder = new TextDecoder();
+  return decoder.decode(buffer);
+}
+
+// Utility: Convert ArrayBuffer to base64
+function ab2base64(buffer) {
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+}
+
+// Utility: Convert base64 to ArrayBuffer
+function base642ab(base64) {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes.buffer;
+}
 
 class SecurityManager {
   constructor() {
@@ -14,6 +48,7 @@ class SecurityManager {
     this.failedAttempts = 0;
     this.lockoutUntil = null;
     this.VALIDATION_MESSAGE = "Authentication Successful";
+    this.masterKey = null; // Will store non-extractable CryptoKey
     this.setupInactivityTimer();
   }
 
@@ -28,9 +63,121 @@ class SecurityManager {
 
   // Card data validation
   validateCardData({ cardNumber, cvv, expiry, cardHolder }) {
-    // Only check if fields are not empty
     if (!cardNumber?.trim() || !cvv?.trim() || !expiry?.trim() || !cardHolder?.trim()) {
       throw new Error('Please fill in all required fields');
+    }
+  }
+
+  // Derive a non-extractable CryptoKey from password using PBKDF2
+  async deriveKey(password, salt) {
+    const passwordKey = await crypto.subtle.importKey(
+      'raw',
+      str2ab(password),
+      'PBKDF2',
+      false,
+      ['deriveKey']
+    );
+
+    return await crypto.subtle.deriveKey(
+      {
+        name: 'PBKDF2',
+        salt: salt,
+        iterations: PBKDF2_ITERATIONS,
+        hash: 'SHA-256'
+      },
+      passwordKey,
+      {
+        name: 'AES-GCM',
+        length: KEY_LENGTH
+      },
+      false, // non-extractable
+      ['encrypt', 'decrypt']
+    );
+  }
+
+  // Set master key (derived from master password)
+  async setMasterKey(password) {
+    // Generate a random salt for this session
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    this.masterKey = await this.deriveKey(password, salt);
+    this.sessionSalt = salt; // Store salt for this session
+    console.log('Master key derived and stored (non-extractable)');
+  }
+
+  // Clear master key from memory
+  clearMasterKey() {
+    this.masterKey = null;
+    this.sessionSalt = null;
+    console.log('Master key cleared from memory');
+  }
+
+  // Encrypt data using AES-GCM with the master key
+  async encryptData(data, password) {
+    try {
+      const cleanData = String(data || '');
+      
+      // Generate random salt and IV
+      const salt = crypto.getRandomValues(new Uint8Array(16));
+      const iv = crypto.getRandomValues(new Uint8Array(12)); // GCM uses 12-byte IV
+      
+      // Derive key from password
+      const key = await this.deriveKey(password, salt);
+      
+      // Encrypt with AES-GCM
+      const encrypted = await crypto.subtle.encrypt(
+        {
+          name: 'AES-GCM',
+          iv: iv
+        },
+        key,
+        str2ab(cleanData)
+      );
+      
+      // Format: v3:salt:iv:ciphertext (all base64)
+      return `v3:${ab2base64(salt)}:${ab2base64(iv)}:${ab2base64(encrypted)}`;
+    } catch (error) {
+      console.error('Error encrypting data:', error);
+      throw error;
+    }
+  }
+
+  // Decrypt data using AES-GCM
+  async decryptData(encryptedData, password) {
+    try {
+      if (!encryptedData) return '';
+      
+      // Check format
+      if (!encryptedData.startsWith('v3:')) {
+        throw new Error('Unsupported encryption format. Please re-encrypt your data.');
+      }
+      
+      // Parse v3 format: v3:salt:iv:ciphertext
+      const parts = encryptedData.split(':');
+      if (parts.length !== 4) {
+        throw new Error('Invalid v3 encryption format');
+      }
+      
+      const salt = new Uint8Array(base642ab(parts[1]));
+      const iv = new Uint8Array(base642ab(parts[2]));
+      const ciphertext = base642ab(parts[3]);
+      
+      // Derive key from password
+      const key = await this.deriveKey(password, salt);
+      
+      // Decrypt with AES-GCM
+      const decrypted = await crypto.subtle.decrypt(
+        {
+          name: 'AES-GCM',
+          iv: iv
+        },
+        key,
+        ciphertext
+      );
+      
+      return ab2str(decrypted);
+    } catch (error) {
+      console.error('Error decrypting data:', error);
+      throw error;
     }
   }
 
@@ -49,10 +196,9 @@ class SecurityManager {
       // Try to decrypt with the provided password
       let decrypted = '';
       try {
-        decrypted = this.decryptData(validationString, password);
+        decrypted = await this.decryptData(validationString, password);
       } catch (decryptError) {
         console.error("Decryption error:", decryptError);
-        // Don't expose the actual error to the user
         decrypted = '';
       }
       
@@ -60,6 +206,10 @@ class SecurityManager {
       if (decrypted && decrypted.length > 0) {
         // Reset failed attempts on success
         await this.updateLockoutStatus(userId, 0);
+        
+        // Set the master key for this session
+        await this.setMasterKey(password);
+        
         return { success: true, decryptedSentence: decrypted };
       }
       
@@ -76,7 +226,6 @@ class SecurityManager {
         }
       } catch (attemptsError) {
         console.error("Error tracking failed attempts:", attemptsError);
-        // Still throw an invalid password error but don't expose the internal error
       }
       
       throw new Error("Invalid password");
@@ -85,8 +234,9 @@ class SecurityManager {
     }
   }
 
-  createValidationString(password, sentence) {
-    return this.encryptData(sentence, password);
+  // Create validation string
+  async createValidationString(password, sentence) {
+    return await this.encryptData(sentence, password);
   }
 
   // Session management
@@ -95,11 +245,11 @@ class SecurityManager {
     const resetTimer = () => {
       clearTimeout(inactivityTimer);
       inactivityTimer = setTimeout(() => {
-        window.dispatchEvent(new CustomEvent('session-timeout'));
-      }, SESSION_TIMEOUT_MS);
+        this.clearMasterKey();
+        window.dispatchEvent(new CustomEvent('master-password-timeout'));
+      }, MASTER_PASSWORD_TIMEOUT_MS);
     };
 
-    // Track more interaction events
     const events = [
       'mousemove', 'keypress', 'scroll', 'click', 'touchstart', 
       'touchmove', 'touchend', 'submit', 'focus', 'blur', 'input', 'change'
@@ -109,16 +259,13 @@ class SecurityManager {
       window.addEventListener(event, resetTimer, { passive: true });
     });
     
-    // Also track specific card form interactions
     document.addEventListener('DOMContentLoaded', () => {
-      // Add input tracking for forms
       document.querySelectorAll('input, select, textarea, button').forEach(el => {
         el.addEventListener('focus', resetTimer, { passive: true });
         el.addEventListener('input', resetTimer, { passive: true });
         el.addEventListener('change', resetTimer, { passive: true });
       });
       
-      // Add form submission tracking
       document.querySelectorAll('form').forEach(form => {
         form.addEventListener('submit', resetTimer, { passive: true });
       });
@@ -132,86 +279,11 @@ class SecurityManager {
     return this.lockoutUntil && Date.now() < this.lockoutUntil;
   }
 
-  // Strong encryption with PBKDF2, salt, and IV (v2)
-  encryptData(data, key) {
-    try {
-      const cleanData = String(data || '');
-      
-      // Generate random salt (128 bits)
-      const salt = CryptoJS.lib.WordArray.random(128/8);
-      
-      // Derive key using PBKDF2 (100,000 iterations, 256-bit key)
-      const derivedKey = CryptoJS.PBKDF2(key, salt, {
-        keySize: 256/32,
-        iterations: 100000
-      });
-      
-      // Generate random IV (128 bits)
-      const iv = CryptoJS.lib.WordArray.random(128/8);
-      
-      // Encrypt with AES-256-CBC
-      const encrypted = CryptoJS.AES.encrypt(cleanData, derivedKey, {
-        iv: iv,
-        mode: CryptoJS.mode.CBC,
-        padding: CryptoJS.pad.Pkcs7
-      });
-      
-      // Format: v2:salt:iv:ciphertext (all base64 encoded)
-      return `v2:${salt.toString(CryptoJS.enc.Base64)}:${iv.toString(CryptoJS.enc.Base64)}:${encrypted.toString()}`;
-    } catch (error) {
-      console.error('Error encrypting data:', error);
-      return '';
-    }
-  }
-
-  // Secure data decryption with backwards compatibility
-  decryptData(encryptedData, key) {
-    try {
-      if (!encryptedData) return '';
-      
-      // Check if this is v2 format (starts with "v2:")
-      if (encryptedData.startsWith('v2:')) {
-        // Parse v2 format: v2:salt:iv:ciphertext
-        const parts = encryptedData.split(':');
-        if (parts.length !== 4) {
-          throw new Error('Invalid v2 encryption format');
-        }
-        
-        const salt = CryptoJS.enc.Base64.parse(parts[1]);
-        const iv = CryptoJS.enc.Base64.parse(parts[2]);
-        const ciphertext = parts[3];
-        
-        // Derive key using PBKDF2 with same parameters
-        const derivedKey = CryptoJS.PBKDF2(key, salt, {
-          keySize: 256/32,
-          iterations: 100000
-        });
-        
-        // Decrypt with AES-256-CBC
-        const decrypted = CryptoJS.AES.decrypt(ciphertext, derivedKey, {
-          iv: iv,
-          mode: CryptoJS.mode.CBC,
-          padding: CryptoJS.pad.Pkcs7
-        });
-        
-        return decrypted.toString(CryptoJS.enc.Utf8);
-      } else {
-        // Legacy v1 format (for backwards compatibility)
-        // This is the old weak encryption - still support it for existing data
-        return CryptoJS.AES.decrypt(encryptedData, key)
-          .toString(CryptoJS.enc.Utf8);
-      }
-    } catch (error) {
-      console.error('Error decrypting data:', error);
-      return '';
-    }
-  }
-
   // Clear sensitive data from memory
   clearSensitiveData() {
-    // Clear any sensitive data from memory
+    this.clearMasterKey();
     if (typeof window !== 'undefined') {
-      window.crypto.getRandomValues(new Uint8Array(16));
+      crypto.getRandomValues(new Uint8Array(16));
     }
   }
 
@@ -221,11 +293,9 @@ class SecurityManager {
         failedAttempts: attempts,
         lockoutUntil: attempts >= 3 ? Date.now() + (15 * 60 * 1000) : null,
         updatedAt: new Date()
-      }, { merge: true });  // Add merge: true to update only the specified fields
+      }, { merge: true });
     } catch (error) {
       console.error("Error updating lockout status:", error);
-      // Don't throw the error to prevent the 400 Bad Request from blocking the UI
-      // Instead we'll just log it and continue
     }
   }
 
@@ -244,9 +314,9 @@ class SecurityManager {
       return { isLocked: false };
     } catch (error) {
       console.error("Error checking lockout status:", error);
-      return { isLocked: false }; // Default to not locked if there's an error
+      return { isLocked: false };
     }
   }
 }
 
-export const securityManager = new SecurityManager(); 
+export const securityManager = new SecurityManager();

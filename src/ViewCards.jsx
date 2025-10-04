@@ -1,8 +1,7 @@
 // ViewCards.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo, useCallback, memo } from "react";
 import { db } from "./firebase";
 import { collection, query, where, orderBy, onSnapshot, deleteDoc, doc } from "firebase/firestore";
-import CryptoJS from "crypto-js";
 import LogoWithFallback from "./LogoWithFallback";
 import { securityManager } from "./utils/security";
 import { BiCreditCard, BiCopy } from 'react-icons/bi';
@@ -14,7 +13,8 @@ function ViewCards({
   masterPassword, 
   setActivePage = () => console.log("Default setActivePage called"), 
   cards: externalCards = [], 
-  setCards: externalSetCards = () => console.log("Default setCards called")
+  setCards: externalSetCards = () => console.log("Default setCards called"),
+  decryptedCards: preDecrypted = null
 }) {
   console.log('ViewCards COMPONENT RENDERED - CRITICAL DEBUG LOG');
   console.log('ViewCards props check:', {
@@ -26,12 +26,10 @@ function ViewCards({
     externalCardsLength: externalCards.length
   });
   
-  // Add internal state if external cards state is not provided
-  const [internalCards, setInternalCards] = useState([]);
-  
-  // Use either external or internal cards state
-  const cards = externalCards.length > 0 ? externalCards : internalCards;
-  const setCards = typeof externalSetCards === 'function' ? externalSetCards : setInternalCards;
+  // 🚀 PERFORMANCE FIX: Always use external cards from App.jsx (single source of truth)
+  // App.jsx manages the real-time Firestore listener - we just display the data
+  const cards = externalCards || [];
+  const setCards = externalSetCards || (() => {});
 
   const [showDetails, setShowDetails] = useState({});
   const [error, setError] = useState(null);
@@ -65,95 +63,31 @@ function ViewCards({
     };
   }, [showDetails]);
 
+  // 🚀 PERFORMANCE FIX: Fast loading - cards are already fetched by App.jsx
   useEffect(() => {
-    // Enhanced null checking for user
-    if (!user) {
-      console.error("ViewCards: User is undefined, cannot fetch cards");
-      setError("Authentication issue: User information missing. Please try logging in again.");
+    // Validation
+    if (!user || !masterPassword) {
+      setError("Please log in and enter your master password.");
       setLoading(false);
       return;
     }
 
-    if (!user.uid) {
-      console.error("ViewCards: User.uid is missing, user object:", user);
-      setError("Authentication issue: User ID missing. Please try logging in again.");
-      setLoading(false);
-      return;
-    }
-    
-    if (!masterPassword) {
-      console.error("ViewCards: Master password is missing, cannot decrypt cards");
-      setError("Authentication issue: Master password missing. Please enter your master password.");
-      setLoading(false);
-      return;
-    }
-    
-    console.log("ViewCards: Starting to fetch cards for user:", user.uid);
-    setLoading(true);
     setError(null);
-
-    try {
-      const q = query(
-        collection(db, "cards"),
-        where("uid", "==", user.uid)
-      );
-      
-      console.log("ViewCards: Query created for Firestore with user ID:", user.uid);
-      
-      const unsubscribe = onSnapshot(q, 
-        (snapshot) => {
-          try {
-            console.log("ViewCards: Got snapshot with", snapshot.docs.length, "documents");
-            
-            if (snapshot.docs.length === 0) {
-              console.log("ViewCards: No documents found for this user. This could be normal for new users.");
-              setLoading(false);
-              return;
-            }
-            
-            let newCards = snapshot.docs.map((doc) => {
-              try {
-                return { id: doc.id, ...doc.data() };
-              } catch (err) {
-                console.error("ViewCards: Error processing doc data:", err, "Doc ID:", doc.id);
-                return { id: doc.id, error: "Failed to process card data" };
-              }
-            });
-            
-            // Sort cards with fallback
-            newCards.sort((a, b) => {
-              if (a.priority !== undefined && b.priority !== undefined) {
-                return a.priority - b.priority;
-              }
-              if (a.createdAt && b.createdAt) {
-                return b.createdAt.seconds - a.createdAt.seconds;
-              }
-              return 0;
-            });
-
-            console.log("ViewCards: Successfully processed", newCards.length, "cards");
-            setCardsSynchronized(newCards);
-            setLoading(false);
-          } catch (error) {
-            console.error("Error processing cards:", error);
-            setError("Error loading cards. Please try refreshing.");
-            setLoading(false);
-          }
-        },
-        (error) => {
-          console.error("Error loading cards:", error);
-          setError("Error loading cards. Please try refreshing.");
-          setLoading(false);
-        }
-      );
-
-      return () => unsubscribe();
-    } catch (error) {
-      console.error("Error setting up cards listener:", error);
-      setError("Error loading cards. Please try refreshing.");
+    
+    // If cards exist, show them immediately (already loaded by App.jsx)
+    if (externalCards && externalCards.length > 0) {
       setLoading(false);
+      return;
     }
-  }, [user, masterPassword]); // Changed from user?.uid to user to ensure re-run when user changes
+    
+    // Otherwise show brief loading for empty state or first load
+    setLoading(true);
+    const timeout = setTimeout(() => {
+      setLoading(false);
+    }, 500); // Only 500ms timeout for empty state
+
+    return () => clearTimeout(timeout);
+  }, [user, masterPassword, externalCards]);
 
   // Add console.log to debug
   useEffect(() => {
@@ -161,28 +95,12 @@ function ViewCards({
       typeof setActivePage === 'function' ? 'a function' : typeof setActivePage);
   }, [setActivePage]);
 
-  const decryptField = (encryptedValue) => {
-    try {
-      if (!encryptedValue) return '';
-      if (!masterPassword) {
-        console.error('ViewCards: Attempted to decrypt with missing masterPassword');
-        return '[Error: Decryption key missing]';
-      }
-      
-      const decrypted = securityManager.decryptData(encryptedValue, masterPassword);
-      return decrypted;
-    } catch (error) {
-      console.error('Error decrypting field:', error, 'Field type:', typeof encryptedValue);
-      return '[Decryption failed]';
-    }
-  };
-
-  const handleViewDetails = (cardId) => {
+  const handleViewDetails = useCallback((cardId) => {
     setShowDetails(prev => ({ ...prev, [cardId]: !prev[cardId] }));
-  };
+  }, []);
 
   // Make the handleAddCard function more robust
-  const handleAddCard = (e) => {
+  const handleAddCard = useCallback((e) => {
     e.preventDefault(); // Add this to prevent any default behavior
     console.log('Add Card clicked'); // Debug log
     
@@ -214,9 +132,9 @@ function ViewCards({
     // If we get here, setActivePage is a function
     console.log('Changing page to addCard using setActivePage');
     setActivePage("addCard");
-  };
+  }, [setActivePage]);
 
-  const handleCopy = (e, cardNumber, cardId) => {
+  const handleCopy = useCallback((e, cardNumber, cardId) => {
     e.preventDefault();
     e.stopPropagation();
     navigator.clipboard.writeText(cardNumber.replace(/\s/g, ''))
@@ -226,14 +144,15 @@ function ViewCards({
           setCopyFeedback(prev => ({ ...prev, [cardId]: false }));
         }, 1500);
       });
-  };
+  }, []);
 
-  // Timer countdown component
-  const CountdownTimer = ({ duration = 5000 }) => {
+  // Memoized Timer countdown component
+  const CountdownTimer = memo(({ duration = 5000 }) => {
     const [progress, setProgress] = useState(100);
     
     useEffect(() => {
       const startTime = Date.now();
+      // Reduced update frequency from 50ms to 100ms for better performance
       const interval = setInterval(() => {
         const elapsed = Date.now() - startTime;
         const remaining = Math.max(0, 100 * (1 - elapsed / duration));
@@ -242,7 +161,7 @@ function ViewCards({
         if (elapsed >= duration) {
           clearInterval(interval);
         }
-      }, 50);
+      }, 100);
 
       return () => clearInterval(interval);
     }, [duration]);
@@ -273,19 +192,27 @@ function ViewCards({
         </svg>
       </div>
     );
-  };
+  });
 
-  // Add this new function to synchronize internal and external state
-  const setCardsSynchronized = (newCards) => {
-    // Update internal state
-    setInternalCards(newCards);
-    
-    // Also update external state if available
-    if (typeof externalSetCards === 'function') {
-      console.log('ViewCards: Synchronizing with external state:', newCards.length, 'cards');
-      externalSetCards(newCards);
+
+  // 🚀 PERFORMANCE: Prefer pre-decrypted data from App.jsx if available
+  const decryptedCards = useMemo(() => {
+    if (Array.isArray(preDecrypted)) {
+      return preDecrypted;
     }
-  };
+    // Fallback: minimal mapping without decryption (should rarely happen)
+    return (cards || []).map((card) => ({
+      id: card.id,
+      theme: card.theme || "#6a3de8",
+      cardName: 'Card',
+      bankName: 'Bank',
+      networkName: 'Card',
+      cardNumber: '••••••••••••••••',
+      cardHolder: 'Card Holder',
+      cvv: '•••',
+      expiry: 'MM/YY',
+    }));
+  }, [preDecrypted, cards]);
 
   if (loading) {
     return <LoadingOverlay message="Loading your cards" />;
@@ -319,58 +246,7 @@ function ViewCards({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        {cards.map((card) => {
-          // Get the theme directly, it's not encrypted in the database
-          const cardTheme = card.theme || "#6a3de8"; // Use default theme if not present
-          const decryptedBankName = (() => {
-            try {
-              return decryptField(card.bankName) || "Bank";
-            } catch (error) {
-              console.error("Failed to decrypt bank name:", error);
-              return "Bank";
-            }
-          })();
-          const decryptedNetworkName = (() => {
-            try {
-              return decryptField(card.networkName) || "Card";
-            } catch (error) {
-              console.error("Failed to decrypt network name:", error);
-              return "Card";
-            }
-          })();
-          const decryptedCardType = card.cardType || "Card"; // Card type is stored unencrypted
-          const decryptedCardNumber = (() => {
-            try {
-              return decryptField(card.cardNumber) || "••••••••••••••••";
-            } catch (error) {
-              console.error("Failed to decrypt card number:", error);
-              return "••••••••••••••••";
-            }
-          })();
-          const decryptedCardHolder = (() => {
-            try {
-              return decryptField(card.cardHolder) || "Card Holder";
-            } catch (error) {
-              console.error("Failed to decrypt card holder:", error);
-              return "Card Holder";
-            }
-          })();
-          const decryptedCVV = (() => {
-            try {
-              return decryptField(card.cvv) || "•••";
-            } catch (error) {
-              console.error("Failed to decrypt CVV:", error);
-              return "•••";
-            }
-          })();
-          const decryptedExpiry = (() => {
-            try {
-              return decryptField(card.expiry) || "MM/YY";
-            } catch (error) {
-              console.error("Failed to decrypt expiry:", error);
-              return "MM/YY";
-            }
-          })();
+        {decryptedCards.map((card) => {
           const isShowingDetails = showDetails[card.id];
 
           return (
@@ -380,7 +256,7 @@ function ViewCards({
                 <div 
                   className="absolute inset-0"
                   style={{ 
-                    background: cardTheme,
+                    background: card.theme,
                     opacity: 0.4,  // Increased from 0.15
                   }}
                 />
@@ -389,7 +265,7 @@ function ViewCards({
                 <div 
                   className="absolute inset-0"
                   style={{ 
-                    background: `linear-gradient(120deg, ${cardTheme}, transparent)`,
+                    background: `linear-gradient(120deg, ${card.theme}, transparent)`,
                     opacity: 0.3,
                   }}
                 />
@@ -415,13 +291,13 @@ function ViewCards({
                   <div className="flex justify-between items-start">
                     <div className="h-6 w-24 opacity-90">
                       <LogoWithFallback
-                        logoName={decryptedBankName}
+                        logoName={card.bankName}
                         logoType="bank"
                         className="h-full w-full object-contain object-left"
                       />
                     </div>
                     <div className="text-white/80 text-sm font-medium">
-                      {decryptedCardType}
+                      {card.cardName}
                     </div>
                   </div>
 
@@ -433,10 +309,10 @@ function ViewCards({
                       isShowingDetails ? 'opacity-0 translate-y-4 pointer-events-none' : 'opacity-100 translate-y-0'
                     }`}>
                       <div className="text-base sm:text-lg md:text-xl text-white font-light tracking-wider font-mono text-center whitespace-nowrap overflow-hidden">
-                        {decryptedCardNumber.replace(/(.{4})/g, "$1 ").trim()}
+                        {card.cardNumber.replace(/(.{4})/g, "$1 ").trim()}
                       </div>
                       <button
-                        onClick={(e) => handleCopy(e, decryptedCardNumber, card.id)}
+                        onClick={(e) => handleCopy(e, card.cardNumber, card.id)}
                         className="bg-white/5 hover:bg-white/10 p-2 rounded-lg
                           transition-colors relative z-20 cursor-pointer
                           md:opacity-0 md:group-hover:opacity-100"
@@ -462,11 +338,11 @@ function ViewCards({
                       <div className="flex gap-8">
                         <div className="text-center">
                           <span className="text-white/50 text-xs uppercase tracking-wider block mb-1">CVV</span>
-                          <span className="font-mono text-lg text-white/90">{decryptedCVV}</span>
+                          <span className="font-mono text-lg text-white/90">{card.cvv}</span>
                         </div>
                         <div className="text-center">
                           <span className="text-white/50 text-xs uppercase tracking-wider block mb-1">Expires</span>
-                          <span className="font-mono text-lg text-white/90">{decryptedExpiry}</span>
+                          <span className="font-mono text-lg text-white/90">{card.expiry}</span>
                         </div>
                       </div>
                     </div>
@@ -475,11 +351,11 @@ function ViewCards({
                   {/* Bottom Section */}
                   <div className="flex items-end justify-between">
                     <p className="text-white text-sm font-medium tracking-wide">
-                      {decryptedCardHolder}
+                      {card.cardHolder}
                     </p>
                     <div className="h-10 w-16">
                       <LogoWithFallback
-                        logoName={decryptedNetworkName}
+                        logoName={card.networkName}
                         logoType="network"
                         className="h-full w-full object-contain object-right"
                       />

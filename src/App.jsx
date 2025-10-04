@@ -1,34 +1,36 @@
 // App.jsx
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, lazy, Suspense, useCallback } from "react";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "./firebase";
 import Auth from "./Auth";
 import MasterPasswordPrompt from "./MasterPasswordPrompt";
-import ViewCards from "./ViewCards";
-import AddCard from "./AddCard";
-import Settings from "./features/settings/Settings";
 import logo from "./assets/logo.png";
 import { RiAddCircleLine, RiCreditCardLine } from 'react-icons/ri';
 import { BiCreditCard, BiAddToQueue, BiWallet as BiBillPay, BiCog, BiLogOut, BiSun, BiMoon } from 'react-icons/bi';
 import { useTheme } from './contexts/ThemeContext';
 import Sidebar from "./components/Sidebar";
 import MobileNav from "./components/MobileNav";
-import HowItWorks from "./components/HowItWorks";
-import TermsAndConditions from "./components/TermsAndConditions";
-import PrivacyPolicy from "./components/PrivacyPolicy";
 import { collection, getDocs, query, where, doc, updateDoc, onSnapshot } from "firebase/firestore";
-import CryptoJS from "crypto-js";
 import { db } from "./firebase";
-import BillPay from "./BillPay";
 import TopBar from "./components/TopBar";
 import Dialog from "./components/Dialog";
 import { SuccessAnimation } from "./components/SuccessAnimation";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { motion, AnimatePresence } from 'framer-motion';
+import { securityManager } from "./utils/security";
 import { LoadingOverlay } from "./components/LoadingOverlay";
 // Import new theme components
 import ThemePatterns from "./components/ThemePatterns";
 import { ThemedLoading, ThemedLoadingOverlay } from "./components/LoadingAnimations";
+
+// 🚀 PERFORMANCE: Lazy load heavy components for code splitting
+const ViewCards = lazy(() => import("./ViewCards"));
+const AddCard = lazy(() => import("./AddCard"));
+const Settings = lazy(() => import("./features/settings/Settings"));
+const BillPay = lazy(() => import("./BillPay"));
+const HowItWorks = lazy(() => import("./components/HowItWorks"));
+const TermsAndConditions = lazy(() => import("./components/TermsAndConditions"));
+const PrivacyPolicy = lazy(() => import("./components/PrivacyPolicy"));
 
 function App() {
   const [user, loading] = useAuthState(auth);
@@ -51,6 +53,7 @@ function App() {
   const [showProfile, setShowProfile] = useState(false);
   const { currentThemeData } = useTheme();
   const [cards, setCards] = useState([]);
+  const [decryptedCards, setDecryptedCards] = useState([]);
   const [dialog, setDialog] = useState({
     isOpen: false,
     title: '',
@@ -103,12 +106,13 @@ function App() {
   }, [user]);
 
   // Helper function to show success message
-  const showSuccessMessage = (message = "Success!") => {
+  // 🚀 PERFORMANCE: Memoize success message function
+  const showSuccessMessage = useCallback((message = "Success!") => {
     setSuccessMessage(message);
     setShowSuccess(true);
     // Auto-hide after 2 seconds
     setTimeout(() => setShowSuccess(false), 2000);
-  };
+  }, []); // No dependencies - setSuccessMessage and setShowSuccess are stable
 
   // Completely rewritten auth state listener using ref and debounce
   useEffect(() => {
@@ -203,34 +207,24 @@ function App() {
     }
   }, [user, loading]);
 
-  // Add session timeout handler
+  // Add master password timeout handler
   useEffect(() => {
-    // Handle session timeout event (occurs after inactivity)
-    const handleSessionTimeout = (e) => {
-      console.log("Session timeout detected");
-      // Don't sign out immediately if the user is active in the app
-      // Instead, check if they've been inactive or are in the middle of an operation
-      if (activePage === "addCard" || activePage === "viewCards") {
-        console.log("User is active in app, preventing auto-logout");
-        // Prevent auto-logout
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
-      }
+    // Handle master password timeout event (occurs after 5 min inactivity)
+    const handleMasterPasswordTimeout = () => {
+      console.log("Master password timeout detected (5 min inactivity)");
       
-      // Otherwise proceed with signing out
-      signOut(auth).then(() => {
-        console.log("User signed out due to inactivity");
-      });
+      // Only clear master password, keep Google session active
+      setMasterPassword(null);
+      console.log("Master password cleared. User will need to re-enter password (Google session kept)");
     };
     
-    window.addEventListener('session-timeout', handleSessionTimeout);
+    window.addEventListener('master-password-timeout', handleMasterPasswordTimeout);
     
     // Cleanup 
     return () => {
-      window.removeEventListener('session-timeout', handleSessionTimeout);
+      window.removeEventListener('master-password-timeout', handleMasterPasswordTimeout);
     };
-  }, [activePage]);
+  }, []); // No dependencies needed
 
   useEffect(() => {
     // Check if app is installed
@@ -356,6 +350,54 @@ function App() {
     };
   }, [user, masterPassword]); // These are the correct dependencies
 
+  // 🚀 PERFORMANCE: Pre-decrypt cards when cards or masterPassword changes (async with Web Crypto)
+  useEffect(() => {
+    const decryptCards = async () => {
+      try {
+        if (!masterPassword) {
+          setDecryptedCards([]);
+          return;
+        }
+        if (!cards || cards.length === 0) {
+          setDecryptedCards([]);
+          return;
+        }
+
+        const decryptField = async (value, fallback = "") => {
+          if (!value) return fallback;
+          try {
+            const result = await securityManager.decryptData(String(value), masterPassword);
+            return result || fallback;
+          } catch (e) {
+            console.warn("Failed to decrypt field:", e.message);
+            return fallback;
+          }
+        };
+
+        // Decrypt all cards in parallel
+        const decryptedCardsPromises = cards.map(async (card) => ({
+          id: card.id,
+          theme: card.theme || "#6a3de8",
+          cardName: await decryptField(card.cardName, "Card"),
+          bankName: await decryptField(card.bankName, "Bank"),
+          networkName: await decryptField(card.networkName, "Card"),
+          cardNumber: await decryptField(card.cardNumber, "••••••••••••••••"),
+          cardHolder: await decryptField(card.cardHolder, "Card Holder"),
+          cvv: await decryptField(card.cvv, "•••"),
+          expiry: await decryptField(card.expiry, "MM/YY"),
+        }));
+
+        const next = await Promise.all(decryptedCardsPromises);
+        setDecryptedCards(next);
+      } catch (e) {
+        console.error("Error pre-decrypting cards:", e);
+        setDecryptedCards([]);
+      }
+    };
+
+    decryptCards();
+  }, [cards, masterPassword]);
+
   const handleSignOutClick = () => {
     console.log("App.jsx: handleSignOutClick called");
     
@@ -468,10 +510,24 @@ function App() {
     }
   }, []);
 
-  const changeActivePage = (page) => {
-    console.log(`App.jsx: Changing active page from ${activePage} to ${page}`);
+  // 🚀 PERFORMANCE: Memoize page change function to prevent re-creating on every render
+  const changeActivePage = useCallback((page) => {
+    console.log(`App.jsx: Changing active page to ${page}`);
     setActivePage(page);
-  };
+  }, []); // No dependencies - setActivePage is stable
+
+  // 🚀 PERFORMANCE: Idle prefetch ViewCards chunk when app is idle
+  useEffect(() => {
+    if ('requestIdleCallback' in window) {
+      window.requestIdleCallback(() => {
+        import(/* webpackPrefetch: true */ './ViewCards');
+      }, { timeout: 2000 });
+    } else {
+      setTimeout(() => {
+        import('./ViewCards');
+      }, 1500);
+    }
+  }, []);
 
   // Add an effect to log masterPassword changes
   useEffect(() => {
@@ -519,32 +575,44 @@ function App() {
   const renderContent = () => {
     // Special case: Allow viewing HowItWorks without authentication
     if (activePage === "howItWorks") {
-      return <HowItWorks setActivePage={(page) => {
-        // If user is not logged in, always go back to auth
-        if (!user) {
-          console.log("App.jsx: HowItWorks - User not logged in, returning to auth page");
-          setActivePage("auth");
-        } else {
-          console.log(`App.jsx: HowItWorks - Going to ${page}`);
-          setActivePage(page);
-        }
-      }} />;
+      return (
+        <Suspense fallback={<LoadingOverlay message="Loading..." />}>
+          <HowItWorks setActivePage={(page) => {
+            // If user is not logged in, always go back to auth
+            if (!user) {
+              console.log("App.jsx: HowItWorks - User not logged in, returning to auth page");
+              setActivePage("auth");
+            } else {
+              console.log(`App.jsx: HowItWorks - Going to ${page}`);
+              setActivePage(page);
+            }
+          }} />
+        </Suspense>
+      );
     }
 
     // Special case: Allow viewing Terms without authentication
     if (activePage === "terms") {
-      return <TermsAndConditions setActivePage={(page) => {
-        console.log(`App.jsx: TermsAndConditions - Going to ${page}`);
-        setActivePage(page);
-      }} />;
+      return (
+        <Suspense fallback={<LoadingOverlay message="Loading..." />}>
+          <TermsAndConditions setActivePage={(page) => {
+            console.log(`App.jsx: TermsAndConditions - Going to ${page}`);
+            setActivePage(page);
+          }} />
+        </Suspense>
+      );
     }
 
     // Special case: Allow viewing Privacy Policy without authentication
     if (activePage === "privacy") {
-      return <PrivacyPolicy setActivePage={(page) => {
-        console.log(`App.jsx: PrivacyPolicy - Going to ${page}`);
-        setActivePage(page);
-      }} />;
+      return (
+        <Suspense fallback={<LoadingOverlay message="Loading..." />}>
+          <PrivacyPolicy setActivePage={(page) => {
+            console.log(`App.jsx: PrivacyPolicy - Going to ${page}`);
+            setActivePage(page);
+          }} />
+        </Suspense>
+      );
     }
     
     // If user is not logged in OR email not verified, show Auth screen
@@ -625,43 +693,55 @@ function App() {
                 initial="initial"
                 animate="animate"
                 exit="exit"
-                transition={{ duration: 0.2 }}
+                transition={{ duration: 0.15 }} // 🚀 PERFORMANCE: Reduced from 0.2s for snappier navigation
                 className="h-full"
               >
                 {activePage === "viewCards" && (
-                  <ViewCards
-                    user={user}
-                    masterPassword={masterPassword}
-                    setActivePage={changeActivePage}
-                    setDialog={setDialog}
-                    showSuccessMessage={showSuccessMessage}
-                    cards={cards}
-                    setCards={setCards}
-                  />
+                  <Suspense fallback={<LoadingOverlay message="Loading Your Cards..." />}>
+                    <ViewCards
+                      user={user}
+                      masterPassword={masterPassword}
+                      setActivePage={changeActivePage}
+                      setDialog={setDialog}
+                      showSuccessMessage={showSuccessMessage}
+                      cards={cards}
+                      setCards={setCards}
+                      decryptedCards={decryptedCards}
+                    />
+                  </Suspense>
                 )}
                 {activePage === "addCard" && (
-                  <AddCard 
-                    user={user} 
-                    masterPassword={masterPassword} 
-                    setActivePage={changeActivePage}
-                    showSuccessMessage={showSuccessMessage}
-                  />
+                  <Suspense fallback={<LoadingOverlay message="Loading Add Card..." />}>
+                    <AddCard 
+                      user={user} 
+                      masterPassword={masterPassword} 
+                      setActivePage={changeActivePage}
+                      showSuccessMessage={showSuccessMessage}
+                    />
+                  </Suspense>
                 )}
                 {activePage === "billPay" && (
-                  <BillPay 
-                    user={user} 
-                    masterPassword={masterPassword}
-                    setActivePage={changeActivePage}
-                    showSuccessMessage={showSuccessMessage}
-                  />
+                  <Suspense fallback={<LoadingOverlay message="Loading Bill Pay..." />}>
+                    <BillPay 
+                      user={user} 
+                      masterPassword={masterPassword}
+                      setActivePage={changeActivePage}
+                      showSuccessMessage={showSuccessMessage}
+                      decryptedCards={decryptedCards}
+                    />
+                  </Suspense>
                 )}
                 {activePage === "settings" && (
-                  <Settings 
-                    user={user} 
-                    masterPassword={masterPassword} 
-                    setDialog={setDialog}
-                    showSuccessMessage={showSuccessMessage}
-                  />
+                  <Suspense fallback={<LoadingOverlay message="Loading Settings..." />}>
+                    <Settings 
+                      user={user} 
+                      masterPassword={masterPassword} 
+                      setDialog={setDialog}
+                      showSuccessMessage={showSuccessMessage}
+                      decryptedCards={decryptedCards}
+                      setActivePage={changeActivePage}
+                    />
+                  </Suspense>
                 )}
               </motion.div>
             </AnimatePresence>

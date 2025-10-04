@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { collection, query, where, getDocs, doc, setDoc } from "firebase/firestore";
 import { db } from "./firebase";
 import MobileNumberDialog from './components/MobileNumberDialog';
-import CryptoJS from 'crypto-js';
 import { BiCreditCard, BiMobile, BiInfoCircle } from 'react-icons/bi';
 import { LoadingOverlay } from './components/LoadingOverlay';
 import { securityManager } from './utils/security';
@@ -10,7 +9,7 @@ import { bankLogos, networkLogos } from './utils/logoMap';
 import { SUPPORTED_BILL_PAY_BANKS, hasSupportedBillPayBank } from './utils/bankUtils';
 import { motion } from 'framer-motion';
 
-export default function BillPay({ user, masterPassword, showSuccessMessage }) {
+export default function BillPay({ user, masterPassword, showSuccessMessage, decryptedCards = [] }) {
   const [cards, setCards] = useState([]);
   const [supportedCards, setSupportedCards] = useState([]);
   const [showMobileDialog, setShowMobileDialog] = useState(false);
@@ -20,7 +19,7 @@ export default function BillPay({ user, masterPassword, showSuccessMessage }) {
 
   console.log("BillPay rendering with showMobileDialog:", showMobileDialog);
 
-  // Load cards and mobile number on component mount
+  // Load cards (from pre-decrypted list) and mobile number on component mount
   useEffect(() => {
     const loadData = async () => {
       if (!user || !user.uid) {
@@ -46,7 +45,7 @@ export default function BillPay({ user, masterPassword, showSuccessMessage }) {
           // Decrypt mobile number
           const encryptedNumber = mobileSnapshot.docs[0].data().number;
           try {
-            const decryptedNumber = securityManager.decryptData(encryptedNumber, masterPassword);
+            const decryptedNumber = await securityManager.decryptData(encryptedNumber, masterPassword);
             console.log("Mobile number loaded:", decryptedNumber ? "Found" : "Empty");
             setMobileNumber(decryptedNumber);
           } catch (error) {
@@ -57,39 +56,9 @@ export default function BillPay({ user, masterPassword, showSuccessMessage }) {
           console.log("No mobile number found");
         }
 
-        // Load cards
-        const cardsSnapshot = await getDocs(query(
-          collection(db, "cards"),
-          where("uid", "==", user.uid)
-        ));
-        
-        if (cardsSnapshot.empty) {
-          console.log("No cards found");
-          setCards([]);
-          setSupportedCards([]);
-          setLoading(false);
-          return;
-        }
-        
-        const cardsData = cardsSnapshot.docs.map(doc => {
-          try {
-            const decryptedCard = {
-              ...doc.data(),
-              id: doc.id,
-              cardNumber: securityManager.decryptData(doc.data().cardNumber, masterPassword),
-              bankName: securityManager.decryptData(doc.data().bankName, masterPassword),
-              networkName: securityManager.decryptData(doc.data().networkName, masterPassword),
-              cardHolder: securityManager.decryptData(doc.data().cardHolder, masterPassword),
-              theme: doc.data().theme || "#6a3de8" // Default theme if not present
-            };
-            return decryptedCard;
-          } catch (error) {
-            console.error('Error decrypting card data:', error);
-            return null;
-          }
-        }).filter(Boolean); // Remove any null entries
-        
-        console.log(`Loaded ${cardsData.length} cards`);
+        // Use pre-decrypted cards from parent
+        const cardsData = Array.isArray(decryptedCards) ? decryptedCards : [];
+        console.log(`Loaded ${cardsData.length} cards (pre-decrypted)`);
         setCards(cardsData);
         
         // Filter supported cards - simplified check
@@ -125,7 +94,7 @@ export default function BillPay({ user, masterPassword, showSuccessMessage }) {
     
     try {
       // Encrypt mobile number before storing (using strong encryption)
-      const encryptedNumber = securityManager.encryptData(number, masterPassword);
+      const encryptedNumber = await securityManager.encryptData(number, masterPassword);
       
       // Save to Firestore
       const docRef = doc(collection(db, "mobile_numbers"));
@@ -321,16 +290,8 @@ export default function BillPay({ user, masterPassword, showSuccessMessage }) {
                 // Show the card even if UPI ID can't be generated yet
                 const last4 = card.cardNumber.slice(-4);
                 
-                // Use securityManager to decrypt theme if it's encrypted
-                let cardTheme;
-                try {
-                  cardTheme = typeof card.theme === 'string' && card.theme.startsWith('U2F') ? 
-                    securityManager.decryptData(card.theme, masterPassword) : 
-                    card.theme || "#6a3de8";
-                } catch (err) {
-                  console.error("Failed to decrypt card theme:", err);
-                  cardTheme = "#6a3de8"; // Fallback color
-                }
+                // Theme is already plain text from decryptedCards
+                const cardTheme = card.theme || "#6a3de8";
 
                 return (
                   <motion.div 

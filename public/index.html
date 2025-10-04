@@ -18,43 +18,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
     <title>Dred - Card Manager</title>
-    <meta http-equiv="Content-Security-Policy" content="
-      default-src 'self';
-      script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://*.firebaseapp.com https://*.googleapis.com https://*.google.com https://*.gstatic.com https://www.recaptcha.net https://www.google-analytics.com https://www.googletagmanager.com https://cdn.jsdelivr.net https://unpkg.com;
-      worker-src 'self' blob: https://cdn.jsdelivr.net https://unpkg.com;
-      connect-src 'self' data: blob: https://*.firebaseapp.com https://*.googleapis.com wss://*.firebaseio.com https://*.google.com https://www.recaptcha.net https://*.gstatic.com https://www.google-analytics.com https://fonts.gstatic.com https://lh3.googleusercontent.com https://www.googletagmanager.com https://cdn.jsdelivr.net https://unpkg.com;
-      img-src 'self' data: blob: https://*.googleusercontent.com https://*.google.com https://*.googleapis.com https://lh3.googleusercontent.com https://lh3.google.com https://www.gstatic.com https://ui-avatars.com;
-      media-src 'self' mediastream: blob:;
-      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-      font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com;
-      frame-src 'self' https://*.firebaseapp.com https://*.google.com;
-    ">
-    <meta http-equiv="Permissions-Policy" content="camera=*, interest-cohort=(), microphone=()">
-    <style>
-      /* Predefine the Material Symbols class to avoid layout shift */
-      .material-symbols-outlined {
-        font-family: 'Material Symbols Outlined';
-        font-weight: normal;
-        font-style: normal;
-        font-size: 24px;
-        line-height: 1;
-        letter-spacing: normal;
-        text-transform: none;
-        display: inline-block;
-        white-space: nowrap;
-        word-wrap: normal;
-        direction: ltr;
-        font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
-        -webkit-font-smoothing: antialiased;
-      }
-      /* Force material icons to display as block initially to avoid layout shifts */
-      .material-symbols-outlined::before {
-        content: "";
-        display: block;
-        height: 1em;
-        width: 1em;
-      }
-    </style>
+    <link rel="stylesheet" href="./material-icons.css">
   </head>
   <body>
     <div id="root"></div>
@@ -63,34 +27,6 @@
          resolves it correctly from this file's location (public folder). -->
     <img src="logos/hdfcbank/logo.svg" style="display: none" alt="force logos copy" />
     <script type="module" src="../src/main.jsx"></script>
-    <script type="module">
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', async () => {
-          try {
-            const registration = await navigator.serviceWorker.register(
-              new URL('./serviceWorker.js', import.meta.url),
-              { scope: './' }
-            );
-            console.log('ServiceWorker registration successful with scope:', registration.scope);
-
-            // Force update check
-            registration.update();
-
-            // Handle updates
-            registration.addEventListener('updatefound', () => {
-              const newWorker = registration.installing;
-              console.log('Service Worker update found!');
-              
-              newWorker.addEventListener('statechange', () => {
-                console.log('Service Worker state:', newWorker.state);
-              });
-            });
-
-          } catch (err) {
-            console.error('ServiceWorker registration failed:', err);
-          }
-        });
-      }
-    </script>
+    <script type="module" src="./sw-register.js"></script>
   </body>
 </html>

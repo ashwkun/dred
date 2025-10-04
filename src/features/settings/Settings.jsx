@@ -2,14 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../contexts/ThemeContext';
 import { collection, query, where, getDocs, deleteDoc, doc, orderBy, writeBatch, serverTimestamp, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
-import CryptoJS from "crypto-js";
 import Dialog from '../../components/Dialog';
 import { BiCog } from 'react-icons/bi';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { SuccessAnimation } from '../../components/SuccessAnimation';
 import { securityManager } from '../../utils/security';
 
-function Settings({ user, masterPassword, showSuccessMessage }) {
+function Settings({ user, masterPassword, showSuccessMessage, decryptedCards = [], setActivePage }) {
   const { 
     themes, 
     currentTheme, 
@@ -34,7 +33,7 @@ function Settings({ user, masterPassword, showSuccessMessage }) {
     expiry: '',
     cvv: '',
     theme: '',
-    cardType: ''
+    cardName: ''
   });
   const [editLoading, setEditLoading] = useState(false);
   const [dialog, setDialog] = useState({
@@ -51,37 +50,8 @@ function Settings({ user, masterPassword, showSuccessMessage }) {
   const loadCards = async () => {
     setLoading(true);
     try {
-      const q = query(
-        collection(db, "cards"),
-        where("uid", "==", user.uid)
-      );
-      
-      const snapshot = await getDocs(q);
-      if (snapshot.empty) {
-        setCards([]);
-        return;
-      }
-
-      let cardsData = snapshot.docs.map(doc => {
-        try {
-          return {
-            id: doc.id,
-            cardType: doc.data().cardType, // Plain text, not encrypted
-            bankName: securityManager.decryptData(doc.data().bankName, masterPassword),
-            cardNumber: securityManager.decryptData(doc.data().cardNumber, masterPassword),
-            cardHolder: securityManager.decryptData(doc.data().cardHolder, masterPassword),
-            expiry: securityManager.decryptData(doc.data().expiry, masterPassword),
-            cvv: securityManager.decryptData(doc.data().cvv, masterPassword),
-            networkName: securityManager.decryptData(doc.data().networkName, masterPassword),
-            theme: doc.data().theme, // Plain text, not encrypted
-            priority: doc.data().priority,
-            createdAt: doc.data().createdAt
-          };
-        } catch (error) {
-          console.error('Error decrypting card:', error);
-          return null;
-        }
-      }).filter(Boolean);
+      // Use pre-decrypted cards from parent for speed
+      let cardsData = Array.isArray(decryptedCards) ? [...decryptedCards] : [];
 
       // Sort with fallbacks
       cardsData.sort((a, b) => {
@@ -91,16 +61,16 @@ function Settings({ user, masterPassword, showSuccessMessage }) {
         if (a.createdAt && b.createdAt) {
           return b.createdAt.seconds - a.createdAt.seconds;
         }
-        return a.cardType.localeCompare(b.cardType);
+        return (a.cardName || 'Card').localeCompare(b.cardName || 'Card');
       });
       
       setCards(cardsData);
     } catch (error) {
-      console.error('Error loading cards:', error);
+      console.error('Error preparing cards from pre-decrypted list:', error);
       setDialog({
         isOpen: true,
         title: 'Error',
-        message: 'Failed to load cards. Using default order.',
+        message: 'Failed to prepare cards list.',
         type: 'warning',
         onConfirm: closeDialog
       });
@@ -113,11 +83,11 @@ function Settings({ user, masterPassword, showSuccessMessage }) {
     setDialog(prev => ({ ...prev, isOpen: false }));
   };
 
-  const handleDeleteCard = (cardId, cardType, bankName) => {
+  const handleDeleteCard = (cardId, cardName, bankName) => {
     setDialog({
       isOpen: true,
       title: 'Delete Card',
-      message: `Are you sure you want to delete ${cardType} (${bankName})? This action cannot be undone.`,
+      message: `Are you sure you want to delete ${cardName} (${bankName})? This action cannot be undone.`,
       onConfirm: async () => {
         try {
           // First verify ownership
@@ -269,8 +239,8 @@ function Settings({ user, masterPassword, showSuccessMessage }) {
     try {
       // Decrypt theme if it's encrypted
       let decryptedTheme = card.theme;
-      if (typeof card.theme === 'string' && card.theme.startsWith('U2F')) {
-        decryptedTheme = securityManager.decryptData(card.theme, masterPassword);
+      if (typeof card.theme === 'string' && card.theme.startsWith('v3:')) {
+        decryptedTheme = await securityManager.decryptData(card.theme, masterPassword);
       }
 
       setEditingCard(card);
@@ -279,7 +249,7 @@ function Settings({ user, masterPassword, showSuccessMessage }) {
         expiry: card.expiry,
         cvv: card.cvv,
         theme: decryptedTheme || '#6a3de8',
-        cardType: card.cardType
+        cardName: card.cardName
       });
     } catch (error) {
       console.error('Error preparing card for edit:', error);
@@ -313,10 +283,10 @@ function Settings({ user, masterPassword, showSuccessMessage }) {
 
       // Prepare update data - re-encrypt sensitive fields
       const updateData = {
-        cardHolder: securityManager.encryptData(editForm.cardHolder, masterPassword),
-        expiry: securityManager.encryptData(editForm.expiry, masterPassword),
-        cvv: securityManager.encryptData(editForm.cvv, masterPassword),
-        cardType: editForm.cardType, // Plain text, not encrypted
+        cardHolder: await securityManager.encryptData(editForm.cardHolder, masterPassword),
+        expiry: await securityManager.encryptData(editForm.expiry, masterPassword),
+        cvv: await securityManager.encryptData(editForm.cvv, masterPassword),
+        cardName: await securityManager.encryptData(editForm.cardName, masterPassword),
         theme: editForm.theme, // Plain text, not encrypted
         updatedAt: serverTimestamp()
       };
@@ -339,7 +309,7 @@ function Settings({ user, masterPassword, showSuccessMessage }) {
         expiry: '',
         cvv: '',
         theme: '',
-        cardType: ''
+        cardName: ''
       });
     } catch (error) {
       console.error('Error updating card:', error);
@@ -362,7 +332,7 @@ function Settings({ user, masterPassword, showSuccessMessage }) {
       expiry: '',
       cvv: '',
       theme: '',
-      cardType: ''
+      cardName: ''
     });
   };
 
@@ -428,13 +398,13 @@ function Settings({ user, masterPassword, showSuccessMessage }) {
                       className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10"
                     >
                       <div>
-                        <p className="text-white font-medium">{card.cardType}</p>
+                        <p className="text-white font-medium">{card.cardName}</p>
                         <p className="text-sm text-white/70">
                           {card.bankName} •••• {card.cardNumber.slice(-4)}
                         </p>
                       </div>
                       <button
-                        onClick={() => handleDeleteCard(card.id, card.cardType, card.bankName)}
+                        onClick={() => handleDeleteCard(card.id, card.cardName, card.bankName)}
                         className="p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors"
                       >
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -499,7 +469,7 @@ function Settings({ user, masterPassword, showSuccessMessage }) {
                       className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10"
                     >
                       <div>
-                        <p className="text-white font-medium">{card.cardType}</p>
+                        <p className="text-white font-medium">{card.cardName}</p>
                         <p className="text-sm text-white/70">
                           {card.bankName} •••• {card.cardNumber.slice(-4)}
                         </p>
@@ -869,7 +839,7 @@ function Settings({ user, masterPassword, showSuccessMessage }) {
                           </svg>
                         </div>
                         <div>
-                          <p className="text-white font-medium">{card.cardType}</p>
+                          <p className="text-white font-medium">{card.cardName}</p>
                           <p className="text-sm text-white/70">
                             {card.bankName} •••• {card.cardNumber.slice(-4)}
                           </p>
@@ -948,22 +918,21 @@ function Settings({ user, masterPassword, showSuccessMessage }) {
                 />
               </div>
 
-              {/* Card Type */}
+              {/* Card Name */}
               <div>
                 <label className="block text-white/70 text-sm font-medium mb-2">
-                  Card Type
+                  Card Name
                 </label>
-                <select
+                <input
+                  type="text"
                   className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
-                    text-white focus:outline-none focus:ring-2 
+                    text-white placeholder-white/30 focus:outline-none focus:ring-2 
                     focus:ring-indigo-500/30 focus:border-transparent backdrop-blur-sm
                     transition-all duration-200"
-                  value={editForm.cardType}
-                  onChange={(e) => setEditForm({ ...editForm, cardType: e.target.value })}
-                >
-                  <option value="Credit Card" className="bg-gray-900">Credit Card</option>
-                  <option value="Debit Card" className="bg-gray-900">Debit Card</option>
-                </select>
+                  value={editForm.cardName}
+                  onChange={(e) => setEditForm({ ...editForm, cardName: e.target.value })}
+                  placeholder="Platinum, TATA Neu, My Zone etc"
+                />
               </div>
 
               {/* Expiry Date */}
