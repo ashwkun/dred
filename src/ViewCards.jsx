@@ -12,19 +12,10 @@ import { toSafeString } from './utils/securePlaintextHelpers';
 function ViewCards({ 
   user, 
   masterPassword, 
-  setActivePage = () => console.log("Default setActivePage called"), 
+  setActivePage = () => {}, 
   cards: externalCards = [], 
-  setCards: externalSetCards = () => console.log("Default setCards called")
+  setCards: externalSetCards = () => {}
 }) {
-  console.log('ViewCards COMPONENT RENDERED - CRITICAL DEBUG LOG');
-  console.log('ViewCards props check:', {
-    hasUser: !!user,
-    userValue: user,
-    hasMasterPassword: !!masterPassword,
-    masterPasswordValue: masterPassword ? 'exists (not showing actual value)' : null,
-    setActivePage: typeof setActivePage,
-    externalCardsLength: externalCards.length
-  });
   
   // 🚀 PERFORMANCE FIX: Always use external cards from App.jsx (single source of truth)
   // App.jsx manages the real-time Firestore listener - we just display the data
@@ -36,15 +27,7 @@ function ViewCards({
   const [loading, setLoading] = useState(true);
   const [copyFeedback, setCopyFeedback] = useState({});
 
-  // Detailed props debugging - ADD THIS
-  console.log('ViewCards: Component rendered with props:', {
-    user: user ? { uid: user.uid, email: user.email } : 'null/undefined',
-    hasMasterPassword: !!masterPassword,
-    hasSetActivePage: typeof setActivePage === 'function',
-    hasExternalCards: externalCards.length > 0,
-    hasExternalSetCards: typeof externalSetCards === 'function',
-    usingInternalState: externalCards.length === 0
-  });
+  //
 
   // Auto-hide details after 5 seconds
   useEffect(() => {
@@ -89,11 +72,7 @@ function ViewCards({
     return () => clearTimeout(timeout);
   }, [user, masterPassword, externalCards]);
 
-  // Add console.log to debug
-  useEffect(() => {
-    console.log('ViewCards: setActivePage prop is:', 
-      typeof setActivePage === 'function' ? 'a function' : typeof setActivePage);
-  }, [setActivePage]);
+  //
 
   // 🔐 TIERED SECURITY: Partial decrypt (metadata + last 4 only)
   const { partialCards, isDecrypting } = usePartialDecrypt(cards, masterPassword);
@@ -122,7 +101,7 @@ function ViewCards({
   // Make the handleAddCard function more robust
   const handleAddCard = useCallback((e) => {
     e.preventDefault(); // Add this to prevent any default behavior
-    console.log('Add Card clicked'); // Debug log
+    //
     
     // Safe fallback if setActivePage is not a function
     if (typeof setActivePage !== 'function') {
@@ -150,7 +129,6 @@ function ViewCards({
     }
     
     // If we get here, setActivePage is a function
-    console.log('Changing page to addCard using setActivePage');
     setActivePage("addCard");
   }, [setActivePage]);
 
@@ -254,10 +232,14 @@ function ViewCards({
           const fullCardNumber = revealedNumber 
             ? toSafeString(revealedNumber, '') + card.cardNumberLast4 
             : null;
+          const isAmexBank = /amex|american/i.test(card.bankName || '');
 
           return (
             <div key={card.id} className="group">
-              <div className="relative w-full aspect-[1.586/1] rounded-2xl overflow-hidden">
+              <div className="relative w-full aspect-[1.586/1] rounded-[28px] overflow-hidden transform-gpu transition-all duration-700 ease-out 
+                shadow-[0_16px_40px_rgba(0,0,0,0.35)] group-hover:shadow-[0_28px_60px_rgba(0,0,0,0.45)] group-hover:-translate-y-1"
+                style={{ willChange: 'transform, opacity', backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
+                {/* Animated gradient border moved inside effects wrapper for strict clipping */}
                 {/* Enhanced Theme Layers */}
                 <div 
                   className="absolute inset-0"
@@ -277,16 +259,39 @@ function ViewCards({
                 />
 
                 {/* Glassmorphic Layers */}
-                <div className="absolute inset-0 backdrop-blur-sm bg-white/5" />
-                <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent" />
+                <div className="absolute inset-0 backdrop-blur-2xl bg-white/[0.06]" />
+                <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent" />
                 
-                {/* Subtle Pattern Overlay */}
-                <div className="absolute inset-0 opacity-10"
-                  style={{
-                    backgroundImage: `radial-gradient(circle at 2px 2px, rgba(255,255,255,0.2) 1px, transparent 0)`,
-                    backgroundSize: '24px 24px',
-                  }}
-                />
+                {/* Effects wrapper to clip all overlays within rounded card */}
+                <div className="absolute inset-0 rounded-[28px] overflow-hidden pointer-events-none">
+                  {/* Gradient border inside clip to avoid initial paint bleed */}
+                  <div className="absolute inset-[2px] rounded-[26px] opacity-40 group-hover:opacity-70 transition-opacity duration-500 
+                    bg-[conic-gradient(at_30%_0%,rgba(255,255,255,0.28),rgba(255,255,255,0.08),transparent_55%)]" />
+                  {/* Subtle Pattern Overlay */}
+                  <div className="absolute inset-0 opacity-10"
+                    style={{
+                      backgroundImage: `radial-gradient(circle at 2px 2px, rgba(255,255,255,0.2) 1px, transparent 0)`,
+                      backgroundSize: '24px 24px',
+                    }}
+                  />
+
+                  {/* Subtle diagonal lines */}
+                  <div className="absolute inset-0 opacity-[0.06] mix-blend-overlay"
+                    style={{
+                      backgroundImage: `repeating-linear-gradient(135deg, rgba(255,255,255,0.35) 0px, rgba(255,255,255,0.35) 1px, transparent 1px, transparent 10px)`
+                    }}
+                  />
+
+                  {/* Sheen highlight on hover */}
+                  <div className="absolute inset-0">
+                    <div className="absolute -left-1/3 -top-1/2 w-2/3 h-[200%] rotate-12 bg-gradient-to-r from-transparent via-white/12 to-transparent opacity-0 group-hover:opacity-90 transition-opacity duration-500" />
+                  </div>
+
+                  {/* Corner glows and inner shadow for depth (reduced to avoid white bleed) */}
+                  <div className="absolute -top-12 -left-12 w-36 h-36 rounded-full bg-white/10 blur-2xl opacity-10" />
+                  <div className="absolute -bottom-12 -right-12 w-36 h-36 rounded-full bg-white/10 blur-2xl opacity-6" />
+                  <div className="absolute inset-0 shadow-[inset_0_0_140px_rgba(0,0,0,0.4)]" />
+                </div>
 
                 {/* Card Content */}
                 <div className="relative h-full p-6 flex flex-col justify-between z-10">
@@ -295,14 +300,14 @@ function ViewCards({
 
                   {/* Top Section */}
                   <div className="flex justify-between items-start">
-                    <div className="h-6 w-24 opacity-90">
+                    <div className={`${isAmexBank ? 'h-12 w-40' : 'h-8 w-28'} opacity-95 drop-shadow-[0_2px_10px_rgba(0,0,0,0.25)]`}>
                       <LogoWithFallback
                         logoName={card.bankName}
                         logoType="bank"
                         className="h-full w-full object-contain object-left"
                       />
                     </div>
-                    <div className="text-white/80 text-sm font-medium">
+                    <div className="text-white/80 text-sm font-medium px-3 py-1 rounded-full bg-white/10 border border-white/20 backdrop-blur-md">
                       {card.cardName}
                     </div>
                   </div>
@@ -419,12 +424,14 @@ function ViewCards({
                     <p className="text-white text-sm font-medium tracking-wide">
                       {card.cardHolder}
                     </p>
-                    <div className="h-10 w-16">
-                      <LogoWithFallback
-                        logoName={card.networkName}
-                        logoType="network"
-                        className="h-full w-full object-contain object-right"
-                      />
+                    <div className="h-12 w-12 rounded-full bg-white/10 border border-white/20 backdrop-blur-md flex items-center justify-center">
+                      <div className="h-8 w-12">
+                        <LogoWithFallback
+                          logoName={card.networkName}
+                          logoType="network"
+                          className="h-full w-full object-contain object-center"
+                        />
+                      </div>
                     </div>
                   </div>
 
