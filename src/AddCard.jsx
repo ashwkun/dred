@@ -8,6 +8,7 @@ import { BiAddToQueue } from 'react-icons/bi';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { retryOperation } from './utils/firestore';
 import { motion } from "framer-motion";
+import { secureLog } from './utils/secureLogger';
 
 function AddCard({ user, masterPassword, setActivePage, showSuccessMessage }) {
   const [cardHolder, setCardHolder] = useState(user?.displayName || ""); // Editable
@@ -100,13 +101,13 @@ function AddCard({ user, masterPassword, setActivePage, showSuccessMessage }) {
 
         // Ensure user is still valid before encrypting
         if (!user || !user.uid) {
-          console.error("User is not defined or missing UID");
+          secureLog.error("User is not defined or missing UID");
           throw new Error("Authentication error. Please refresh and try again.");
         }
 
         // Check if masterPassword is still valid
         if (!masterPassword) {
-          console.error("Master password is not defined");
+          secureLog.error("Master password is not defined");
           throw new Error("Session expired. Please refresh and enter your master password again.");
         }
 
@@ -120,8 +121,7 @@ function AddCard({ user, masterPassword, setActivePage, showSuccessMessage }) {
 
         const encryptedCard = {
           uid: user.uid,
-          cardNumberFirst: await securityManager.encryptData(cardNumberFirst, masterPassword),
-          cardNumberLast4: await securityManager.encryptData(cardNumberLast4, masterPassword),
+          ...await securityManager.encryptCardNumberSplit(cleanCardNumber, masterPassword),
           cardHolder: await securityManager.encryptData(cardHolder, masterPassword),
           bankName: await securityManager.encryptData(bankName, masterPassword),
           networkName: await securityManager.encryptData(networkName, masterPassword),
@@ -133,7 +133,7 @@ function AddCard({ user, masterPassword, setActivePage, showSuccessMessage }) {
           createdAt: serverTimestamp()
         };
 
-        console.log("Adding card for user:", user.uid);
+        secureLog.debug("Adding card for user:", user.uid);
         await addDoc(collection(db, "cards"), encryptedCard);
       });
       
@@ -146,7 +146,7 @@ function AddCard({ user, masterPassword, setActivePage, showSuccessMessage }) {
       }, 1000);
 
     } catch (error) {
-      console.error("Error adding card:", error);
+      secureLog.error("Error adding card:", error);
       setError(error.message || "Failed to add card. Please try again.");
     } finally {
       setIsLoading(false);

@@ -5,6 +5,8 @@
  * Automatically strips logs in production
  */
 
+import { secureLog } from './secureLogger';
+
 // Check if we're in development mode (works with Parcel)
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -69,34 +71,34 @@ export const logger = {
   log: (...args) => {
     if (!isDevelopment) return;
     const redactedArgs = args.map(arg => redactSensitiveData(arg));
-    console.log(...redactedArgs);
+    secureLog.debug(...redactedArgs);
   },
 
   error: (...args) => {
     if (!isDevelopment) return;
     const redactedArgs = args.map(arg => redactSensitiveData(arg));
-    console.error(...redactedArgs);
+    secureLog.error(...redactedArgs);
   },
 
   warn: (...args) => {
     if (!isDevelopment) return;
     const redactedArgs = args.map(arg => redactSensitiveData(arg));
-    console.warn(...redactedArgs);
+    secureLog.warn(...redactedArgs);
   },
 
   debug: (...args) => {
     if (!isDevelopment) return;
     const redactedArgs = args.map(arg => redactSensitiveData(arg));
-    console.debug(...redactedArgs);
+    secureLog.debug(...redactedArgs);
   },
 
   // Special method for logging password-like data (always redacts)
   logRedacted: (message, sensitiveValue) => {
     if (!isDevelopment) return;
     if (typeof sensitiveValue === 'string' && sensitiveValue.length > 0) {
-      console.log(message, sensitiveValue.substring(0, 1) + '******');
+      secureLog.debug(message, sensitiveValue.substring(0, 1) + '******');
     } else {
-      console.log(message, '[REDACTED]');
+      secureLog.debug(message, '[REDACTED]');
     }
   }
 };

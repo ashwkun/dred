@@ -1,6 +1,7 @@
 // useDecryptedCards.js - Lazy decryption with auto-clearing cache
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { securityManager, securePlaintextManager } from '../utils/security';
+import { secureLog } from '../utils/secureLogger';
 
 // Shared cache across all components (singleton pattern)
 let globalCache = {
@@ -94,7 +95,7 @@ export function useDecryptedCards(cards, masterPassword) {
           
           return result || fallback;
         } catch (e) {
-          console.warn("Failed to decrypt field:", e.message);
+          secureLog.warn("Failed to decrypt field:", e.message);
           return fallback;
         }
       };
@@ -107,7 +108,8 @@ export function useDecryptedCards(cards, masterPassword) {
         cardName: await decryptField(card.cardName, "Card"),
         bankName: await decryptField(card.bankName, "Bank"),
         networkName: await decryptField(card.networkName, "Card"),
-        cardNumber: await decryptField(card.cardNumber, "••••••••••••••••", true), // 🔒 Secure
+        cardNumberFull: await decryptField(card.cardNumberFull, "••••••••••••••••", true), // 🔒 Secure
+        cardNumberLast4: await decryptField(card.cardNumberLast4, "••••"),
         cardHolder: await decryptField(card.cardHolder, "Card Holder"),
         cvv: await decryptField(card.cvv, "•••", true), // 🔒 Secure
         expiry: await decryptField(card.expiry, "MM/YY"),
@@ -132,7 +134,7 @@ export function useDecryptedCards(cards, masterPassword) {
       }
       clearTimerRef.current = setTimeout(clearCache, CLEAR_TIMEOUT);
     } catch (error) {
-      console.error('Error decrypting cards:', error);
+      secureLog.error('Error decrypting cards:', error);
       if (mountedRef.current) {
         setDecryptedCards([]);
       }
@@ -187,7 +189,7 @@ export function useDecryptedCards(cards, masterPassword) {
  *    import { toSafeString } from '../utils/securePlaintextHelpers';
  * 
  * 2. Convert to string when needed:
- *    const cardNumberStr = toSafeString(card.cardNumber);
+ *    const cardNumberStr = toSafeString(card.cardNumberFull);
  * 
  * 3. The SecurePlaintext instances will be automatically zeroed:
  *    - After 5 minutes (failsafe timer)

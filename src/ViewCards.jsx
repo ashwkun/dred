@@ -7,6 +7,8 @@ import { BiCreditCard } from 'react-icons/bi';
 import { LoadingOverlay } from './components/LoadingOverlay';
 import { usePartialDecrypt, useRevealCardNumber, useRevealDetails } from './hooks/usePartialDecrypt';
 import { toSafeString } from './utils/securePlaintextHelpers';
+import { secureWipeString } from './utils/secureCleanup';
+import { secureLog } from './utils/secureLogger';
 
 // Add default values for all props to make component more robust
 function ViewCards({ 
@@ -105,14 +107,14 @@ function ViewCards({
     
     // Safe fallback if setActivePage is not a function
     if (typeof setActivePage !== 'function') {
-      console.error('setActivePage is not a function, trying to navigate manually');
+      secureLog.error('setActivePage is not a function, trying to navigate manually');
       try {
         // Try to manually change the URL or set state
         window.history.pushState({}, "", "/#addCard");
         window.dispatchEvent(new CustomEvent('urlchange', { detail: { page: 'addCard' } }));
         return;
       } catch (err) {
-        console.error('Failed to navigate manually:', err);
+        secureLog.error('Failed to navigate manually:', err);
         if (setDialog) {
           setDialog({
             isOpen: true,
@@ -132,17 +134,35 @@ function ViewCards({
     setActivePage("addCard");
   }, [setActivePage]);
 
-  const handleCopy = useCallback((e, cardNumber, cardId) => {
+  const handleCopy = useCallback(async (e, card, cardId) => {
     e.preventDefault();
     e.stopPropagation();
-    navigator.clipboard.writeText(cardNumber.replace(/\s/g, ''))
-      .then(() => {
-        setCopyFeedback(prev => ({ ...prev, [cardId]: true }));
-        setTimeout(() => {
-          setCopyFeedback(prev => ({ ...prev, [cardId]: false }));
-        }, 800);
-      });
-  }, []);
+
+    // Decrypt full number ONLY for copy
+    let fullNumber = null;
+    try {
+      fullNumber = await securityManager.decryptCardNumberFull(card.cardNumberFull, masterPassword);
+      navigator.clipboard.writeText(toSafeString(fullNumber).replace(/\s/g, ''));
+
+      setCopyFeedback(prev => ({ ...prev, [cardId]: true }));
+      setTimeout(() => {
+        setCopyFeedback(prev => ({ ...prev, [cardId]: false }));
+      }, 1500);
+
+      // Auto-clear clipboard after 10 seconds
+      setTimeout(async () => {
+        await navigator.clipboard.writeText('');
+      }, 10000);
+    } catch (error) {
+      secureLog.error('Error copying card number:', error);
+    } finally {
+      // Clear from memory immediately
+      if (fullNumber) {
+        fullNumber.zero();
+        fullNumber = secureWipeString(fullNumber);
+      }
+    }
+  }, [masterPassword]);
 
   // Memoized Timer countdown component
   const CountdownTimer = memo(({ duration = 5000 }) => {

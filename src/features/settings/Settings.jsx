@@ -9,6 +9,8 @@ import { SuccessAnimation } from '../../components/SuccessAnimation';
 import { securityManager } from '../../utils/security';
 import { usePartialDecrypt } from '../../hooks/usePartialDecrypt';
 import { toSafeString } from '../../utils/securePlaintextHelpers';
+import { secureWipeArray } from '../../utils/secureCleanup';
+import { secureLog } from '../../utils/secureLogger';
 
 function Settings({ user, masterPassword, showSuccessMessage, cards: encryptedCards = [], setActivePage }) {
   const { 
@@ -53,6 +55,33 @@ function Settings({ user, masterPassword, showSuccessMessage, cards: encryptedCa
   // 🔐 TIERED SECURITY: Partial decryption (metadata + last 4 only)
   const { partialCards, isDecrypting } = usePartialDecrypt(encryptedCards, masterPassword);
 
+  // Cleanup when Delete Cards section collapses
+  useEffect(() => {
+    if (!showDeleteCards && cards.length > 0) {
+      secureLog.debug('Settings: Cleaning up cards data (Delete section collapsed)');
+      secureWipeArray(cards);
+      setCards([]);
+    }
+  }, [showDeleteCards]);
+
+  // Cleanup when Reorder section collapses
+  useEffect(() => {
+    if (!showReorder && cards.length > 0) {
+      secureLog.debug('Settings: Cleaning up cards data (Reorder section collapsed)');
+      secureWipeArray(cards);
+      setCards([]);
+    }
+  }, [showReorder]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      secureLog.debug('Settings: Cleaning up on unmount');
+      secureWipeArray(cards);
+      setCards([]);
+    };
+  }, []);
+
   const loadCards = async () => {
     setLoading(true);
     try {
@@ -72,7 +101,7 @@ function Settings({ user, masterPassword, showSuccessMessage, cards: encryptedCa
       
       setCards(cardsData);
     } catch (error) {
-      console.error('Error preparing cards from pre-decrypted list:', error);
+      secureLog.error('Error preparing cards from pre-decrypted list:', error);
       setDialog({
         isOpen: true,
         title: 'Error',
@@ -116,7 +145,7 @@ function Settings({ user, masterPassword, showSuccessMessage, cards: encryptedCa
           showSuccessMessage('Card deleted successfully!');
           closeDialog(); // Ensure dialog closes after success
         } catch (error) {
-          console.error('Error deleting card:', error);
+          secureLog.error('Error deleting card:', error);
           setDialog({
             isOpen: true,
             title: 'Error',
@@ -152,7 +181,7 @@ function Settings({ user, masterPassword, showSuccessMessage, cards: encryptedCa
 
           window.location.reload(true);
         } catch (error) {
-          console.error('Error during refresh:', error);
+          secureLog.error('Error during refresh:', error);
           setDialog({
             isOpen: true,
             title: 'Error',
@@ -217,7 +246,7 @@ function Settings({ user, masterPassword, showSuccessMessage, cards: encryptedCa
       // Use the global success message
       showSuccessMessage('Card order updated successfully!');
     } catch (error) {
-      console.error('Error saving card order:', error);
+      secureLog.error('Error saving card order:', error);
       setDialog({
         isOpen: true,
         title: 'Error',
@@ -267,7 +296,7 @@ function Settings({ user, masterPassword, showSuccessMessage, cards: encryptedCa
           fullCardNumber = '';
         }
       } catch (decryptError) {
-        console.warn('Could not decrypt card number, using placeholder:', decryptError);
+        secureLog.warn('Could not decrypt card number, using placeholder:', decryptError);
         fullCardNumber = '';
       }
 
@@ -294,7 +323,7 @@ function Settings({ user, masterPassword, showSuccessMessage, cards: encryptedCa
         cardNumber: fullCardNumber
       });
     } catch (error) {
-      console.error('Error preparing card for edit:', error);
+       secureLog.error('Error preparing card for edit:', error);
       setDialog({
         isOpen: true,
         title: 'Error',
@@ -367,7 +396,7 @@ function Settings({ user, masterPassword, showSuccessMessage, cards: encryptedCa
         cardNumber: ''
       });
     } catch (error) {
-      console.error('Error updating card:', error);
+      secureLog.error('Error updating card:', error);
       setDialog({
         isOpen: true,
         title: 'Update Failed',

@@ -8,6 +8,8 @@
  * but provides reasonable protection for normal users and casual abuse.
  */
 
+import { secureLog } from './secureLogger';
+
 class RateLimiter {
   constructor() {
     this.limits = new Map();
@@ -46,7 +48,7 @@ class RateLimiter {
     
     // Check if limit exceeded
     if (validAttempts.length >= maxAttempts) {
-      console.warn(`Rate limit exceeded for ${action} by user ${userId}`);
+      secureLog.warn(`Rate limit exceeded for ${action} by user ${userId}`);
       return false;
     }
     

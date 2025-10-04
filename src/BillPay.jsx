@@ -6,10 +6,12 @@ import { BiCreditCard, BiMobile, BiInfoCircle, BiShow, BiHide } from 'react-icon
 import { LoadingOverlay } from './components/LoadingOverlay';
 import { securityManager } from './utils/security';
 import { toSafeString } from './utils/securePlaintextHelpers';
+import { secureWipeString } from './utils/secureCleanup';
 import { bankLogos, networkLogos } from './utils/logoMap';
 import { SUPPORTED_BILL_PAY_BANKS, hasSupportedBillPayBank } from './utils/bankUtils';
 import { motion } from 'framer-motion';
 import { usePartialDecrypt } from './hooks/usePartialDecrypt';
+import { secureLog } from './utils/secureLogger';
 
 export default function BillPay({ user, masterPassword, showSuccessMessage, cards: encryptedCards = [] }) {
   const [cards, setCards] = useState([]);
@@ -24,11 +26,27 @@ export default function BillPay({ user, masterPassword, showSuccessMessage, card
   // 🔐 TIERED SECURITY: Partial decryption (metadata + last 4 only)
   const { partialCards, isDecrypting } = usePartialDecrypt(encryptedCards, masterPassword);
 
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      secureLog.debug('BillPay: Cleaning up on unmount');
+
+      // Wipe mobile number
+      if (mobileNumber) {
+        setMobileNumber('');
+      }
+
+      // Clear cards
+      setCards([]);
+      setSupportedCards([]);
+    };
+  }, []);
+
   // Load mobile number and set up cards
   useEffect(() => {
     const loadData = async () => {
       if (!user || !user.uid) {
-        console.error('BillPay: User or user.uid is undefined');
+        secureLog.error('BillPay: User or user.uid is undefined');
         setError('User authentication required');
         setLoading(false);
         return;
@@ -53,7 +71,7 @@ export default function BillPay({ user, masterPassword, showSuccessMessage, card
             decryptedMobileNumber = await securityManager.decryptData(encryptedNumber, masterPassword);
             setMobileNumber(decryptedMobileNumber);
           } catch (error) {
-            console.error("Failed to decrypt mobile number:", error);
+            secureLog.error("Failed to decrypt mobile number:", error);
             setError("Failed to decrypt mobile number. Please try again.");
           }
         } else {
@@ -89,7 +107,7 @@ export default function BillPay({ user, masterPassword, showSuccessMessage, card
         
         setSupportedCards(supportedWithMaskedUpi);
       } catch (error) {
-        console.error('Error loading data:', error);
+        secureLog.error('Error loading data:', error);
         setError('Failed to load data. Please try again.');
       } finally {
         setLoading(false);
@@ -103,7 +121,7 @@ export default function BillPay({ user, masterPassword, showSuccessMessage, card
   const handleMobileSubmit = async (number) => {
     
     if (!user || !user.uid) {
-      console.error('BillPay: User or user.uid is undefined');
+      secureLog.error('BillPay: User or user.uid is undefined');
       setError('User authentication required');
       return;
     }
@@ -125,7 +143,7 @@ export default function BillPay({ user, masterPassword, showSuccessMessage, card
       showSuccessMessage('Mobile number saved successfully!');
       
     } catch (error) {
-      console.error('Error saving mobile number:', error);
+      secureLog.error('Error saving mobile number:', error);
       setError('Failed to save mobile number. Please try again.');
     }
   };
@@ -170,7 +188,7 @@ export default function BillPay({ user, masterPassword, showSuccessMessage, card
       }
       return first + card.cardNumberLast4;
     } catch (error) {
-      console.error('Error decrypting full card number:', error);
+      secureLog.error('Error decrypting full card number:', error);
       return null;
     }
   };
@@ -210,7 +228,14 @@ export default function BillPay({ user, masterPassword, showSuccessMessage, card
 
   // Legacy function for backward compatibility (uses state)
   const getUpiId = async (card) => {
-    return getUpiIdForCard(card, mobileNumber);
+    let upiId = null;
+    try {
+      upiId = await getUpiIdForCard(card, mobileNumber);
+      return upiId;
+    } finally {
+      // SECURE WIPE
+      upiId = secureWipeString(upiId);
+    }
   };
 
   // Toggle UPI ID reveal for a specific card

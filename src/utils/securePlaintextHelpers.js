@@ -2,6 +2,8 @@
  * Helper utilities for working with SecurePlaintext instances in components
  */
 
+import { secureLog } from './secureLogger';
+
 /**
  * Safely convert a value to string - handles both SecurePlaintext and regular strings
  * @param {string|SecurePlaintext} value - Value to convert
@@ -16,7 +18,7 @@ export function toSafeString(value, fallback = '') {
     try {
       return value.toString();
     } catch (error) {
-      console.warn('Failed to convert SecurePlaintext to string:', error);
+      secureLog.warn('Failed to convert SecurePlaintext to string:', error);
       return fallback;
     }
   }

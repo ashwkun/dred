@@ -62,7 +62,7 @@ export default function Auth({ setUser = () => {}, setActivePage, mode, toggleMo
           }
         } catch (error) {
           // Keep waiting
-          console.log('Waiting for verification...', error);
+          secureLog.debug('Waiting for verification...', error);
         }
       }, 3000); // Check every 3 seconds
     }
@@ -97,7 +97,7 @@ export default function Auth({ setUser = () => {}, setActivePage, mode, toggleMo
     try {
       await signInWithPopup(auth, provider);
     } catch (error) {
-      console.error("Error signing in:", error);
+      secureLog.error("Error signing in:", error);
       let errorMessage = '';
       if (error.code === 'auth/popup-blocked') {
         errorMessage = "Popup was blocked. Please allow popups for this website.";
@@ -171,7 +171,7 @@ export default function Auth({ setUser = () => {}, setActivePage, mode, toggleMo
         // If verified, user will be signed in automatically
       }
     } catch (error) {
-      console.error("Error with email auth:", error);
+      secureLog.error("Error with email auth:", error);
       if (error.code === 'auth/email-already-in-use') {
         setEmailError('Email already in use. Try signing in.');
       } else if (error.code === 'auth/invalid-email') {

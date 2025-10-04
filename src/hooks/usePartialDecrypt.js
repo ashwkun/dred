@@ -1,6 +1,7 @@
 // usePartialDecrypt.js - Minimal decryption (metadata + last 4 only)
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { securityManager, securePlaintextManager } from '../utils/security';
+import { shouldLog } from '../utils/env';
 
 // Shared cache for partial decryption
 let partialCache = {
@@ -22,6 +23,7 @@ const CACHE_DURATION = 60000; // 60 seconds (longer than full decrypt since it's
 export function usePartialDecrypt(cards, masterPassword) {
   const [partialCards, setPartialCards] = useState([]);
   const [isDecrypting, setIsDecrypting] = useState(false);
+  const [decryptingCards, setDecryptingCards] = useState({});
   const mountedRef = useRef(true);
 
   const clearCache = useCallback(() => {
@@ -42,12 +44,20 @@ export function usePartialDecrypt(cards, masterPassword) {
 
     // Check cache validity
     const now = Date.now();
+    const cardsMatch = partialCache.cards && cards && 
+      partialCache.cards.length === cards.length &&
+      partialCache.cards.every((cachedCard, i) => 
+        cachedCard.id === cards[i].id && 
+        cachedCard.cardNumberLast4 === cards[i].cardNumberLast4 &&
+        cachedCard.cardName === cards[i].cardName
+      );
+
     const cacheValid = 
       partialCache.data &&
       partialCache.timestamp &&
       (now - partialCache.timestamp) < CACHE_DURATION &&
       partialCache.masterPassword === masterPassword &&
-      JSON.stringify(partialCache.cards) === JSON.stringify(cards);
+      cardsMatch;
 
     if (cacheValid) {
       setPartialCards(partialCache.data);
@@ -64,7 +74,7 @@ export function usePartialDecrypt(cards, masterPassword) {
           const result = await securityManager.decryptData(String(value), masterPassword);
           return result || fallback;
         } catch (e) {
-          console.warn("Failed to decrypt field:", e.message);
+          if (shouldLog) secureLog.warn("Failed to decrypt field:", e.message);
           return fallback;
         }
       };
@@ -98,7 +108,7 @@ export function usePartialDecrypt(cards, masterPassword) {
         setPartialCards(result);
       }
     } catch (error) {
-      console.error('Error in partial decryption:', error);
+      if (shouldLog) secureLog.error('Error in partial decryption:', error);
       if (mountedRef.current) {
         setPartialCards([]);
       }
@@ -144,6 +154,7 @@ export function usePartialDecrypt(cards, masterPassword) {
   return {
     partialCards,
     isDecrypting,
+    decryptingCards,
     clearCache
   };
 }
@@ -192,7 +203,7 @@ export function useRevealCardNumber(masterPassword) {
 
       return securePlaintext;
     } catch (error) {
-      console.error('Error revealing card number:', error);
+      if (shouldLog) secureLog.error('Error revealing card number:', error);
       return null;
     }
   }, [masterPassword]);
@@ -306,7 +317,7 @@ export function useRevealDetails(masterPassword) {
 
       return details;
     } catch (error) {
-      console.error('Error revealing CVV/expiry:', error);
+      if (shouldLog) secureLog.error('Error revealing CVV/expiry:', error);
       return null;
     }
   }, [masterPassword]);

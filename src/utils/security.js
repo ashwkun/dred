@@ -1,6 +1,7 @@
 // Security Manager using Web Crypto API with non-extractable keys
 import { setDoc, getDoc, doc } from 'firebase/firestore';
 import { db } from '../firebase';
+import { secureLog } from './secureLogger';
 
 // Constants
 const RATE_LIMIT_MS = 1000; // 1 second
@@ -256,7 +257,7 @@ class SecurityManager {
       // Format: v3:salt:iv:ciphertext (all base64)
       return `v3:${ab2base64(salt)}:${ab2base64(iv)}:${ab2base64(encrypted)}`;
     } catch (error) {
-      console.error('Error encrypting data:', error);
+      secureLog.error('Error encrypting data:', error);
       throw error;
     }
   }
@@ -307,7 +308,7 @@ class SecurityManager {
         return ab2str(decrypted);
       }
     } catch (error) {
-      console.error('Error decrypting data:', error);
+      secureLog.error('Error decrypting data:', error);
       throw error;
     }
   }
@@ -329,7 +330,7 @@ class SecurityManager {
       try {
         decrypted = await this.decryptData(validationString, password);
       } catch (decryptError) {
-        console.error("Decryption error:", decryptError);
+        secureLog.error("Decryption error:", decryptError);
         decrypted = '';
       }
       
@@ -356,7 +357,7 @@ class SecurityManager {
           throw new Error(`Too many failed attempts. Account locked for ${LOCKOUT_TIME_MS/60000} minutes.`);
         }
       } catch (attemptsError) {
-        console.error("Error tracking failed attempts:", attemptsError);
+        secureLog.error("Error tracking failed attempts:", attemptsError);
       }
       
       throw new Error("Invalid password");
@@ -410,12 +411,43 @@ class SecurityManager {
     return this.lockoutUntil && Date.now() < this.lockoutUntil;
   }
 
+  // Encrypt card number as split fields
+  async encryptCardNumberSplit(cardNumber, masterPassword) {
+    const last4 = cardNumber.slice(-4);
+    return {
+      cardNumberLast4: await this.encryptData(last4, masterPassword),
+      cardNumberFull: await this.encryptData(cardNumber, masterPassword)
+    };
+  }
+
+  // Decrypt only last 4 digits
+  async decryptCardNumberLast4(encryptedLast4, masterPassword) {
+    return await this.decryptData(encryptedLast4, masterPassword);
+  }
+
+  // Decrypt full card number (use sparingly!)
+  async decryptCardNumberFull(encryptedFull, masterPassword) {
+    return await this.decryptData(encryptedFull, masterPassword, true);
+  }
+
   // Clear sensitive data from memory
   clearSensitiveData() {
-    this.clearMasterKey();
-    if (typeof window !== 'undefined') {
-      crypto.getRandomValues(new Uint8Array(16));
-    }
+    // This method is now deprecated - use secureWipeString/Object/Array instead
+    // Kept for backward compatibility
+    secureLog.warn('clearSensitiveData is deprecated. Use secureWipe utilities instead.');
+  }
+
+  // New method to clear decrypted card data
+  clearDecryptedCardData(cards) {
+    if (!Array.isArray(cards)) return;
+
+    cards.forEach(card => {
+      // Wipe any decrypted fields
+      if (card.cardNumberFull) card.cardNumberFull = null;
+      if (card.cardNumberLast4Display) card.cardNumberLast4Display = null;
+      if (card.cvv) card.cvv = null;
+      if (card.expiry) card.expiry = null;
+    });
   }
 
   async updateLockoutStatus(userId, attempts) {
@@ -426,7 +458,7 @@ class SecurityManager {
         updatedAt: new Date()
       }, { merge: true });
     } catch (error) {
-      console.error("Error updating lockout status:", error);
+      secureLog.error("Error updating lockout status:", error);
     }
   }
 
@@ -444,11 +476,23 @@ class SecurityManager {
       }
       return { isLocked: false };
     } catch (error) {
-      console.error("Error checking lockout status:", error);
+      secureLog.error("Error checking lockout status:", error);
       return { isLocked: false };
     }
   }
 }
+
+// Helper function to decrypt a field
+export const decryptField = async (encryptedValue, masterPassword) => {
+  try {
+    if (!encryptedValue) return '';
+    if (!masterPassword) return '[Error: Decryption key missing]';
+    return await securityManager.decryptData(encryptedValue, masterPassword);
+  } catch (error) {
+    secureLog.error('Error decrypting field:', error);
+    return '[Decryption failed]';
+  }
+};
 
 export const securityManager = new SecurityManager();
 

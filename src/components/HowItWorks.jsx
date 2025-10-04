@@ -7,6 +7,7 @@ import {
   BiError, BiData, BiShield, BiFingerprint, BiRightArrowAlt
 } from 'react-icons/bi';
 import { FaGoogle, FaDatabase, FaLock, FaUnlock, FaExclamationTriangle } from 'react-icons/fa';
+import { secureLog } from '../utils/secureLogger';
 
 // Animation variants
 const sectionVariants = {
@@ -1220,7 +1221,7 @@ const HowItWorks = ({ setActivePage }) => {
         {/* Back Button - Enhanced */}
         <motion.button
           onClick={() => {
-            console.log("HowItWorks: Back button clicked");
+            secureLog.debug("HowItWorks: Back button clicked");
             setActivePage('viewCards');
           }}
           className="mb-8 inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/10 rounded-lg text-sm font-medium transition-colors duration-200"
@@ -1362,7 +1363,7 @@ const HowItWorks = ({ setActivePage }) => {
           <div className="flex flex-wrap justify-center gap-3">
             <motion.button
               onClick={() => {
-                console.log("HowItWorks: Privacy Policy link clicked");
+                secureLog.debug("HowItWorks: Privacy Policy link clicked");
                 setActivePage('privacy');
               }}
               className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg border border-white/10 text-sm transition-colors"
@@ -1373,7 +1374,7 @@ const HowItWorks = ({ setActivePage }) => {
             </motion.button>
             <motion.button
               onClick={() => {
-                console.log("HowItWorks: Terms of Service link clicked");
+                secureLog.debug("HowItWorks: Terms of Service link clicked");
                 setActivePage('terms');
               }}
               className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg border border-white/10 text-sm transition-colors"
@@ -1394,7 +1395,7 @@ const HowItWorks = ({ setActivePage }) => {
         >
           <motion.button
             onClick={() => {
-              console.log("HowItWorks: Back to Sign In clicked");
+              secureLog.debug("HowItWorks: Back to Sign In clicked");
               setActivePage('auth');
             }}
             className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 
