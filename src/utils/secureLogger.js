@@ -3,7 +3,8 @@
  * Only logs in development, strips in production
  */
 
-const isDevelopment = import.meta.env.DEV;
+// Parcel uses process.env.NODE_ENV
+const isDevelopment = process.env.NODE_ENV === 'development';
 
 const SENSITIVE_PATTERNS = {
   cardNumber: /\b\d{15,16}\b/g,

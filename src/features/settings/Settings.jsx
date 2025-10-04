@@ -278,20 +278,22 @@ function Settings({ user, masterPassword, showSuccessMessage, cards: encryptedCa
         decryptedTheme = await securityManager.decryptData(card.theme, masterPassword);
       }
 
-      // Decrypt card number (combine first + last 4) using SecurePlaintext
-      // Note: partialCards has cardNumberLast4 already decrypted, cardNumberFirst still encrypted
+      // Decrypt card number for editing
+      // Prefer split fields: decrypt first-digits (SecurePlaintext) + append last4
+      // Fallback: if only cardNumberFull exists, decrypt full and format
       let fullCardNumber = '';
       try {
         if (card.cardNumberFirst) {
-          // cardNumberFirst is still encrypted - decrypt as SecurePlaintext, cardNumberLast4 is already decrypted
           const decryptedFirstSecure = await securityManager.decryptData(card.cardNumberFirst, masterPassword, true);
           const decryptedFirst = toSafeString(decryptedFirstSecure, '');
-          // Zero after use
-          if (decryptedFirstSecure && decryptedFirstSecure.zero) {
-            decryptedFirstSecure.zero();
-          }
-          const last4 = card.cardNumberLast4 || ''; // Already decrypted by partialDecrypt hook
+          if (decryptedFirstSecure && decryptedFirstSecure.zero) decryptedFirstSecure.zero();
+          const last4 = card.cardNumberLast4 || '';
           fullCardNumber = (decryptedFirst + last4).replace(/(\d{4})/g, '$1 ').trim();
+        } else if (card.cardNumberFull) {
+          const fullSecure = await securityManager.decryptData(card.cardNumberFull, masterPassword, true);
+          const full = toSafeString(fullSecure, '');
+          if (fullSecure && fullSecure.zero) fullSecure.zero();
+          fullCardNumber = full.replace(/(\d{4})/g, '$1 ').trim();
         } else {
           fullCardNumber = '';
         }
@@ -362,7 +364,7 @@ function Settings({ user, masterPassword, showSuccessMessage, cards: encryptedCa
       const cardNumberFirst = cleanCardNumber.slice(0, -4);
       const cardNumberLast4 = cleanCardNumber.slice(-4);
 
-      // Prepare update data - re-encrypt sensitive fields
+      // Prepare update data - re-encrypt sensitive fields (use split storage)
       const updateData = {
         cardHolder: await securityManager.encryptData(editForm.cardHolder, masterPassword),
         expiry: await securityManager.encryptData(editForm.expiry, masterPassword),

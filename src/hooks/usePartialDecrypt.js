@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { securityManager, securePlaintextManager } from '../utils/security';
 import { shouldLog } from '../utils/env';
+import { secureLog } from '../utils/secureLogger';
 
 // Shared cache for partial decryption
 let partialCache = {
@@ -92,6 +93,7 @@ export function usePartialDecrypt(cards, masterPassword) {
         cardHolder: await decryptField(card.cardHolder, "Card Holder"),
         // ❌ Do NOT decrypt these (keep encrypted for reveal-on-demand)
         cardNumberFirst: card.cardNumberFirst, // Keep encrypted
+        cardNumberFull: card.cardNumberFull, // Keep encrypted (fallback path)
         cvv: card.cvv, // Keep encrypted
         expiry: card.expiry, // Keep encrypted
       }));

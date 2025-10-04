@@ -1,16 +1,18 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, connectAuthEmulator } from "firebase/auth";
-import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
+import { getFirestore, connectFirestoreEmulator, enableIndexedDbPersistence, initializeFirestore } from "firebase/firestore";
 import { secureLog } from './utils/secureLogger';
 
 // Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyB-9yZNPFFsjG8JR5t9i6ZbYZ9FnbZegw8",
   authDomain: "dred-e6e59.firebaseapp.com",
+  databaseURL: "https://dred-e6e59-default-rtdb.firebaseio.com",
   projectId: "dred-e6e59",
   storageBucket: "dred-e6e59.firebasestorage.app",
   messagingSenderId: "901054214672",
-  appId: "1:901054214672:web:d29954f1846e1b337d1095"
+  appId: "1:901054214672:web:d29954f1846e1b337d1095",
+  measurementId: "G-EF02PJPN5D"
 };
 
 // Initialize Firebase with error handling
@@ -37,12 +39,41 @@ try {
 
 export const googleProvider = new GoogleAuthProvider();
 
-// Initialize Firestore with error handling
+// Clear old Firestore IndexedDB to force fresh connection
+const clearOldFirestoreCache = async () => {
+  try {
+    if (typeof indexedDB !== 'undefined' && indexedDB.databases) {
+      const dbs = await indexedDB.databases();
+      for (const dbInfo of dbs) {
+        if (dbInfo.name && dbInfo.name.includes('firestore')) {
+          if (process.env.NODE_ENV === 'development') {
+            console.log('Clearing old Firestore cache:', dbInfo.name);
+          }
+          indexedDB.deleteDatabase(dbInfo.name);
+        }
+      }
+    }
+  } catch (err) {
+    // Silently fail if IndexedDB is not supported or already cleared
+  }
+};
+
+// Clear cache before initialization
+clearOldFirestoreCache();
+
+// Initialize Firestore with error handling and settings
 let db;
 try {
   secureLog.debug("Initializing Firestore");
-  db = getFirestore(app);
-  secureLog.debug("Firestore initialized successfully");
+  
+  // Force long polling to avoid WebChannel 400 errors
+  // Long polling is more reliable with strict CSP headers
+  // Persistence disabled to avoid conflicts with long polling
+  db = initializeFirestore(app, {
+    experimentalForceLongPolling: true,
+  });
+  
+  secureLog.debug("Firestore initialized successfully with long polling (persistence disabled)");
 } catch (error) {
   secureLog.error("Error initializing Firestore:", error);
   throw error;

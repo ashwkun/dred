@@ -27,7 +27,7 @@ service cloud.firestore {
                          'bankName',
                          'networkName',
                          'cardHolder',
-                         'cardType'
+                         'cardName'
                        ]) &&
                        request.resource.data.cardNumberLast4 is string &&
                        request.resource.data.cardNumberFull is string;
