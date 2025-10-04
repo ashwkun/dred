@@ -175,8 +175,9 @@ export function useRevealCardNumber(masterPassword) {
     if (!masterPassword || !card) return null;
 
     try {
-      // Decrypt and get SecurePlaintext instance
-      const securePlaintext = await securityManager.decryptData(card.cardNumberFirst, masterPassword, true);
+      // Prefer split: decrypt first digits. Fallback to full if split missing.
+      const source = card.cardNumberFirst || card.cardNumberFull;
+      const securePlaintext = await securityManager.decryptData(String(source), masterPassword, true);
       
       // Zero old plaintext if exists
       if (securePlaintextsRef.current[cardId]) {

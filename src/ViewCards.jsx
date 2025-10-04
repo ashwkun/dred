@@ -9,6 +9,7 @@ import { usePartialDecrypt, useRevealCardNumber, useRevealDetails } from './hook
 import { toSafeString } from './utils/securePlaintextHelpers';
 import { secureWipeString } from './utils/secureCleanup';
 import { secureLog } from './utils/secureLogger';
+import { securityManager } from './utils/security';
 
 // Add default values for all props to make component more robust
 function ViewCards({ 
@@ -141,7 +142,15 @@ function ViewCards({
     // Decrypt full number ONLY for copy
     let fullNumber = null;
     try {
-      fullNumber = await securityManager.decryptCardNumberFull(card.cardNumberFull, masterPassword);
+      if (card.cardNumberFull) {
+        fullNumber = await securityManager.decryptCardNumberFull(card.cardNumberFull, masterPassword);
+      } else if (card.cardNumberFirst && card.cardNumberLast4) {
+        const firstSecure = await securityManager.decryptData(card.cardNumberFirst, masterPassword, true);
+        const plain = toSafeString(firstSecure, '') + card.cardNumberLast4;
+        // wrap into a pseudo SecurePlaintext-like object for uniform zeroing
+        fullNumber = { toString: () => plain, zero: () => {} };
+        if (firstSecure && firstSecure.zero) firstSecure.zero();
+      }
       navigator.clipboard.writeText(toSafeString(fullNumber).replace(/\s/g, ''));
 
       setCopyFeedback(prev => ({ ...prev, [cardId]: true }));
@@ -249,9 +258,15 @@ function ViewCards({
           const revealedNumber = revealedNumbers[card.id];
           const details = revealedDetails[card.id];
           // Convert SecurePlaintext to string safely
-          const fullCardNumber = revealedNumber 
-            ? toSafeString(revealedNumber, '') + card.cardNumberLast4 
-            : null;
+          let fullCardNumber = null;
+          if (revealedNumber) {
+            if (card.cardNumberFirst) {
+              fullCardNumber = (toSafeString(revealedNumber, '') + (card.cardNumberLast4 || ''));
+            } else {
+              // Fallback: revealedNumber holds full number when no split exists
+              fullCardNumber = toSafeString(revealedNumber, '');
+            }
+          }
           const isAmexBank = /amex|american/i.test(card.bankName || '');
 
           return (
@@ -387,7 +402,7 @@ function ViewCards({
                         {/* Copy Button - Icon Only with Fast Animation Feedback */}
                         {fullCardNumber && (
                           <button
-                            onClick={(e) => handleCopy(e, fullCardNumber, card.id)}
+                            onClick={(e) => handleCopy(e, card, card.id)}
                             className={`group/btn relative p-2 rounded-md
                               backdrop-blur-xl bg-white/5 hover:bg-white/15
                               border border-white/10 hover:border-white/30
