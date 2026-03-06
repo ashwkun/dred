@@ -18,7 +18,7 @@
 
 ## What it does
 
-Dred stores your credit and debit card details — numbers, CVV, expiry, cardholder name — behind a master password. All encryption and decryption happens in your browser using the Web Crypto API. The server only ever sees ciphertext.
+Dred stores your credit and debit card details — numbers, CVV, expiry, cardholder name — behind two layers of authentication: your Google or email login, and a master password that derives the encryption key. All encryption and decryption happens locally in your browser using the Web Crypto API. The server only ever sees ciphertext.
 
 It runs as an installable PWA, so it works like a native app on your phone or desktop without needing an app store.
 
