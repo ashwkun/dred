@@ -1,8 +1,18 @@
-# Dred
+<p align="center">
+  <img src="src/assets/logo.png" alt="Dred" width="80" />
+</p>
 
-A privacy-first card manager that encrypts everything on your device before it ever touches a server.
+<h1 align="center">Dred</h1>
 
-**[Open Dred →](https://dredbox.web.app)**
+<p align="center">
+  A privacy-first card manager that encrypts everything on your device before it ever touches a server.
+</p>
+
+<p align="center">
+  <a href="https://dredbox.web.app">
+    <img src="https://img.shields.io/badge/Open_Dred-▶-7c3aed?style=for-the-badge&logoColor=white" alt="Open Dred" />
+  </a>
+</p>
 
 ---
 
