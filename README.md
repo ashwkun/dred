@@ -15,7 +15,7 @@ It runs as an installable PWA, so it works like a native app on your phone or de
 ## Features
 
 - **End-to-end encrypted storage** — AES-256-GCM encryption with PBKDF2 key derivation (100k iterations). Card numbers are split into two separately encrypted parts before storage.
-- **Master password protection** — Your master password never leaves the device. It derives the encryption key locally; there's no password recovery by design.
+- **Two-layer authentication** — Sign in with Google or email (first factor), then unlock your vault with a master password (second factor). The master password never leaves the device — it derives the encryption key locally. No password recovery by design.
 - **Card scanner** — Scan a physical card using your phone camera (Tesseract.js OCR) to auto-fill details while adding a card.
 - **Bill payment via UPI** — Generate UPI payment IDs for supported banks (Axis, ICICI, AU Small Finance, IDFC First, Amex) and pay credit card bills directly from any UPI app.
 - **Bill tracking** — Track billing cycles with configurable generation dates and due offsets, see due/overdue/paid status at a glance.
@@ -39,7 +39,7 @@ It runs as an installable PWA, so it works like a native app on your phone or de
 | Time limits | CVV/expiry auto-hide: 30s · clipboard clear: 10s · session: 60min · inactivity: 5min |
 | Transport | Firestore security rules enforce per-user access (UID verification) |
 | Headers | HSTS, X-Frame-Options DENY, CSP, X-Content-Type-Options, Referrer-Policy |
-| Auth | Google OAuth + email/password with email verification |
+| Auth | Two-layer: Google OAuth or email/password (1st factor) + master password (2nd factor) |
 
 All card data is encrypted client-side before being written to Firestore. The master password is never transmitted or stored — it only exists in memory during an active session. Decryption is on-demand: sensitive fields are decrypted when you view them and wiped from memory shortly after.
 
